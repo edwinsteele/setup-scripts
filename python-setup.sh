@@ -4,9 +4,10 @@ then
   exit 1;
 fi
 
+#TODO - python version is an argument
 PYTHON_VERSION="2.7"
 
-STARTING_DIR=$(pwd)
+pushd
 
 if [ $(uname) == "Darwin" ];
 then
@@ -22,6 +23,8 @@ else
 	exit 1;
 fi
 
+# TODO - Can probably just make this a temporary directory... shouldn't need to rerun
+#  the setup, and we download it in this script each time anyway...
 BOOTSTRAP_DIR=$LOCAL_SITE_BIN/../bootstrap
 
 which python$PYTHON_VERSION > /dev/null
@@ -31,6 +34,8 @@ then
   exit 1;
 fi
 
+# TODO - Check if we need to create the lib and bin directories... perhaps they
+#  will be automatically created
 mkdir -p $LOCAL_SITE_BIN
 mkdir -p $LOCAL_SITE_LIB
 mkdir -p $BOOTSTRAP_DIR
@@ -48,15 +53,7 @@ python$PYTHON_VERSION setup.py install --user
 $LOCAL_SITE_BIN/pip-$PYTHON_VERSION install --user virtualenv
 $LOCAL_SITE_BIN/pip-$PYTHON_VERSION install --user virtualenvwrapper
 
-PYTHON_PROFILE_SCRIPT=~/.python_profile_additions_$PYTHON_VERSION.sh
-
-cat > $PYTHON_PROFILE_SCRIPT << EOF
-export PATH=$LOCAL_SITE_BIN:\$PATH
-alias pip$PYTHON_VERSION="$LOCAL_SITE_BIN/pip-$PYTHON_VERSION"
-alias install$PYTHON_VERSION="pip$PYTHON_VERSION install --user"
-
-EOF
-
+# TODO - virtualenvs by python interpreter? i.e. ~/.virtualenvs_2.6
 VENV_PROFILE_SCRIPT=~/.virtualenvs/venv_profile_additions_$PYTHON_VERSION.sh
 cat > $VENV_PROFILE_SCRIPT << EOF
 VENV_DIR=$HOME/.virtualenvs
@@ -86,9 +83,7 @@ EOF
 
 echo "##############################"
 echo "Add the following lines to ~/.bash_profile:"
-#echo "Add $LOCAL_SITE_BIN to the start of PATH and export it (it needs to come before /opt/python2.7/bin)"
-echo "source $PYTHON_PROFILE_SCRIPT"
 echo "source $VENV_PROFILE_SCRIPT"
 
 # Finish where we started
-cd $STARTING_DIR
+popd
