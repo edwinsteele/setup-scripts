@@ -4,10 +4,25 @@ then
   exit 1;
 fi
 
-#TODO - python version is an argument
-PYTHON_VERSION="2.7"
+if [ $# -ne 1 ];
+then
+  echo "Usage: $0 [python version]"
+  echo "e.g. $0 2.7"
+  exit 2;
+fi
 
-pushd
+#PYTHON_VERSION="2.7"
+PYTHON_VERSION=$1
+
+pushd $(pwd)
+
+which python$PYTHON_VERSION > /dev/null
+if [ $? -ne 0 ];
+then
+  echo "python interpreter (version $PYTHON_VERSION) not in path. exiting";
+  exit 1;
+fi
+
 
 if [ $(uname) == "Darwin" ];
 then
@@ -26,13 +41,6 @@ fi
 # TODO - Can probably just make this a temporary directory... shouldn't need to rerun
 #  the setup, and we download it in this script each time anyway...
 BOOTSTRAP_DIR=$LOCAL_SITE_BIN/../bootstrap
-
-which python$PYTHON_VERSION > /dev/null
-if [ $? -ne 0 ];
-then
-  echo "python interpreter (version $PYTHON_VERSION) not in path. exiting";
-  exit 1;
-fi
 
 # TODO - Check if we need to create the lib and bin directories... perhaps they
 #  will be automatically created
