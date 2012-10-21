@@ -1,3 +1,9 @@
+#!/bin/bash
+
+# Setup virtual environments completely under a user's home directory with no deps
+#  on system packages (besides python itself). Leads taken from:
+# https://ncoghlan_devs-python-notes.readthedocs.org/en/latest/venv_bootstrap.html
+
 if [ $(whoami) == "root" ];
 then
   echo "Don't run this as root";
@@ -11,8 +17,28 @@ then
   exit 2;
 fi
 
+# This script will fail if it is being run in a virtual env, or when a
+#  virtual env setup script (like the profile script towards the bottom
+#  of this script) has been sourced. The error that would appear when
+#  pip install is run is:
+#  Could not find an activated virtualenv (required)
+#
+# To avoid this, we check for one of the variables that we set during our
+#  profile script, and fail if it is set.
+if [ "$PIP_REQUIRE_VIRTUALENV"  == "true" ];
+then
+  echo "It looks like this script is being run with virtualenv variables are set"
+  echo "e.g. PIP_REQUIRE_VIRTUALENV. This prevents the setup from running properly"
+  echo "Please start a new shell and make sure these variables aren't set (they may"
+  echo "be sourced from the bash_profile automatically, so you may need to make"
+  echo "alterations in your profile to achieve this goal)."
+  echo "Exiting"
+  exit 3;
+fi
+
 #PYTHON_VERSION="2.7"
 PYTHON_VERSION=$1
+VENV_BASE=~/.virtualenvs	# this is the default anyway...
 
 pushd $(pwd)
 
@@ -26,6 +52,7 @@ fi
 
 if [ $(uname) == "Darwin" ];
 then
+	# This structure only holds true for 2.7 and up. 2.6 uses .local
 	LOCAL_SITE_BIN=~/Library/Python/$PYTHON_VERSION/bin
 	LOCAL_SITE_LIB=~/Library/Python/$PYTHON_VERSION/lib/python/site-packages
 elif [ $(uname) == "Linux" ];
@@ -61,10 +88,10 @@ python$PYTHON_VERSION setup.py install --user
 $LOCAL_SITE_BIN/pip-$PYTHON_VERSION install --user virtualenv
 $LOCAL_SITE_BIN/pip-$PYTHON_VERSION install --user virtualenvwrapper
 
-# TODO - virtualenvs by python interpreter? i.e. ~/.virtualenvs_2.6
-VENV_PROFILE_SCRIPT=~/.virtualenvs/venv_profile_additions_$PYTHON_VERSION.sh
+mkdir -p $VENV_BASE
+VENV_PROFILE_SCRIPT=$VENV_BASE/venv_profile_additions_$PYTHON_VERSION.sh
 cat > $VENV_PROFILE_SCRIPT << EOF
-VENV_DIR=$HOME/.virtualenvs
+VENV_DIR=$VENV_BASE
 
 export VIRTUALENVWRAPPER_PYTHON=$(which python$PYTHON_VERSION)
 export VIRTUALENVWRAPPER_VIRTUALENV=$LOCAL_SITE_BIN/virtualenv-$PYTHON_VERSION
