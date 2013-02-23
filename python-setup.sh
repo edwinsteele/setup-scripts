@@ -4,7 +4,7 @@
 #  on system packages (besides python itself). Leads taken from:
 # https://ncoghlan_devs-python-notes.readthedocs.org/en/latest/venv_bootstrap.html
 
-if [ $(whoami) == "root" ];
+if [ $(who -m | cut -d" " -f1) == "root" ];
 then
   echo "Don't run this as root";
   exit 1;
