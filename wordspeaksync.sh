@@ -29,6 +29,7 @@ fi
 echo "Syncing to staging site"
 # Local rsync
 rsync --del -a $SITE_BASE/output/ /Users/esteele/Sites/staging.wordspeak.org
+rsync --del -a $SITE_BASE/output/.htaccess /Users/esteele/Sites/staging.wordspeak.org
 
 # Check for broken links
 linkchecker --ignore-url=^mailto: --no-status http://staging.wordspeak.org
@@ -52,7 +53,11 @@ else
 fi
 
 # Final rsync
-rsync -e ssh --del -az $SITE_BASE/output/ trutch.textdrive.us:/users/home/esteele/web/public
+rsync -e ssh --del -az $SITE_BASE/output/ wordspeak.org:/users/home/esteele/web/public
+rsync -e ssh --del -az $SITE_BASE/output/.htaccess wordspeak.org:/users/home/esteele/web/public
 
+echo "done."
+printf "Pushing repo to git..."
+git push
 echo "done."
 popd
