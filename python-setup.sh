@@ -55,11 +55,10 @@ then
 	# This structure only holds true for 2.7 and up. 2.6 uses .local
 	LOCAL_SITE_BIN=~/Library/Python/$PYTHON_VERSION/bin
 	LOCAL_SITE_LIB=~/Library/Python/$PYTHON_VERSION/lib/python/site-packages
-elif [ $(uname) == "Linux" ];
+elif [ $(uname) == "Linux" -o $(uname) == "SunOS" ];
 then
 	LOCAL_SITE_BIN=~/.local/bin
 	LOCAL_SITE_LIB=~/.local/lib/python$PYTHON_VERSION/site-packages
-
 else
 	echo "Don't know how to run on this platform: $(uname)";
 	exit 1;
