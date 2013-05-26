@@ -39,6 +39,8 @@ fi
 #PYTHON_VERSION="2.7"
 PYTHON_VERSION=$1
 VENV_BASE=~/.virtualenvs	# this is the default anyway...
+PIP_VERSION="1.3.1"
+
 
 pushd $(pwd)
 
@@ -76,12 +78,12 @@ mkdir -p $BOOTSTRAP_DIR
 
 cd $BOOTSTRAP_DIR
 curl -O http://python-distribute.org/distribute_setup.py
-curl -O http://pypi.python.org/packages/source/p/pip/pip-1.2.1.tar.gz
-tar -zxf $BOOTSTRAP_DIR/pip-1.2.1.tar.gz
+curl -O http://pypi.python.org/packages/source/p/pip/pip-${PIP_VERSION}.tar.gz
+tar -zxf $BOOTSTRAP_DIR/pip-${PIP_VERSION}.tar.gz
 
 cd $BOOTSTRAP_DIR
 python$PYTHON_VERSION distribute_setup.py --user
-cd $BOOTSTRAP_DIR/pip-1.2.1
+cd $BOOTSTRAP_DIR/pip-${PIP_VERSION}
 python$PYTHON_VERSION setup.py install --user
 
 $LOCAL_SITE_BIN/pip-$PYTHON_VERSION install --user virtualenv
