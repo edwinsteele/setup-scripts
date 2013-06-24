@@ -1,0 +1,39 @@
+---
+- hosts: webservers
+  sudo: yes
+  gather_facts: no
+  vars_files:
+    - vars/defaults.yml
+
+  tasks:
+
+    # Configure users and groups
+    - name: create admin group
+      action: group name=admin gid=1002 system=no
+
+    - name: create user(s)
+      action: user name=esteele group=admin shell=/bin/bash uid=1003
+
+    - name: setup authorised key(s)
+      action: authorized_key user=esteele key='$FILE(/Users/esteele/.ssh/id_rsa.pub)'
+
+    # Access, security and perms
+    - name: write the sudoers file
+      template: src=templates/custom_sudo.j2 dest=/etc/sudoers.d/wordspeak
+                 owner=root group=root mode=0400
+    - name: write the sshd_config file
+      template: src=templates/sshd_config.j2 dest=/etc/ssh/sshd_config
+              owner=root group=root mode=0600
+      notify:
+        - Reload sshd
+
+    - yum: name=mosh state=latest
+    - yum: name=tmux state=latest
+    - yum: name=git state=latest
+    - yum: name=nginx state=latest
+
+
+
+  handlers:
+    - name: Reload sshd
+      action: service name=sshd state=reloaded

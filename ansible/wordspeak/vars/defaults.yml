@@ -1,0 +1,2 @@
+sshd_allow_password_authentication: 'yes'
+sshd_permit_root_login: 'yes'

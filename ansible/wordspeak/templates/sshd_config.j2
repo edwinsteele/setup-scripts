@@ -1,0 +1,22 @@
+SyslogFacility AUTHPRIV
+
+# Don't check authorized_keys2
+AuthorizedKeysFile      .ssh/authorized_keys
+
+PasswordAuthentication {{ sshd_allow_password_authentication }}
+PermitRootLogin {{ sshd_permit_root_login }}
+
+# Disable s/key passwords
+ChallengeResponseAuthentication no
+
+# Needed for RHEL/Fedora
+UsePAM yes
+
+# Accept locale-related environment variables
+AcceptEnv LANG LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES
+AcceptEnv LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT
+AcceptEnv LC_IDENTIFICATION LC_ALL LANGUAGE
+AcceptEnv XMODIFIERS
+
+# Override default of no subsystems
+Subsystem       sftp    /usr/libexec/openssh/sftp-server
