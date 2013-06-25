@@ -1,0 +1,18 @@
+server {
+    listen       staging.wordspeak.org;
+
+    location / {
+        root   /home/esteele/Sites/staging.wordspeak.org;
+        index  index.html;
+    }
+
+    access_log  /var/log/nginx/staging.wordspeak.org-access.log;
+
+    # deny access to .htaccess files, if Apache's document root
+    # concurs with nginx's one
+    
+    location ~ /\.ht {
+        deny  all;
+    }
+}
+

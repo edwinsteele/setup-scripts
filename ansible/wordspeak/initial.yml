@@ -27,10 +27,34 @@
       notify:
         - Reload sshd
 
+    - name: Set timezone as Sydney
+      command: ln -sf /usr/share/zoneinfo/Australia/Sydney /etc/localtime
+
+    # ntp
+    - yum: name=ntp state=latest
+    - name: Ensure NTP is up and running
+      action: service name=ntpd state=started
+
+    # nginx
+    - yum: name=nginx state=latest
+    - name: Setup base nginx config
+      template: src=templates/nginx.j2 dest=/etc/nginx/nginx.conf
+                 owner=root group=root mode=0644
+    - name: Setup nginx default site config
+      template: src=templates/nginx_confd_default.j2
+                 dest=/etc/nginx/conf.d/default.conf
+                 owner=root group=root mode=0644
+    - name: Setup nginx wordspeak staging config
+      template: src=templates/nginx_confd_staging_wordspeak_org.j2
+                 dest=/etc/nginx/conf.d/staging_wordspeak_org.conf
+                 owner=root group=root mode=0644
+
     - yum: name=mosh state=latest
     - yum: name=tmux state=latest
     - yum: name=git state=latest
-    - yum: name=nginx state=latest
+    - yum: name=enchant state=latest
+    - yum: name=enchant-aspell state=latest
+    - yum: name=aspell-en state=latest
 
 
 
