@@ -11,8 +11,11 @@
     - name: create admin group
       action: group name=admin gid=1002 system=no
 
+    - name: create esteele group
+      action: group name=esteele gid=1003 system=no
+
     - name: create user(s)
-      action: user name=esteele group=admin shell=/bin/bash uid=1003
+      action: user name=esteele group=esteele groups=admin shell=/bin/bash uid=1003
 
     - name: setup authorised key(s)
       action: authorized_key user=esteele key='$FILE(/Users/esteele/.ssh/id_rsa.pub)'
@@ -28,7 +31,8 @@
         - Reload sshd
 
     - name: Set timezone as Sydney
-      command: ln -sf /usr/share/zoneinfo/Australia/Sydney /etc/localtime
+      file: src=/usr/share/zoneinfo/Australia/Sydney dest=/etc/localtime
+             state=link owner=root group=root
 
     # ntp
     - yum: name=ntp state=latest
@@ -48,6 +52,13 @@
       template: src=templates/nginx_confd_staging_wordspeak_org.j2
                  dest=/etc/nginx/conf.d/staging_wordspeak_org.conf
                  owner=root group=root mode=0644
+
+    # Python stuff
+    - name: Install pip for system python
+      yum: name=python-pip state=latest
+
+    - name: Install virtualenv as system site-package
+      pip: name=virtualenv
 
     - yum: name=mosh state=latest
     - yum: name=tmux state=latest

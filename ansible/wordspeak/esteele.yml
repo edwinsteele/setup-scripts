@@ -1,0 +1,23 @@
+---
+- hosts: webservers
+  user: root
+  sudo: yes
+  sudo_user: esteele
+  gather_facts: no
+
+  tasks:
+    - name: Setup git user.email variable for esteele
+      ini_file: dest=/home/esteele/.gitconfig section=user
+                 option=email value=edwin@wordspeak.org      
+
+    - name: Setup git user.name variable for esteele
+      ini_file: dest=/home/esteele/.gitconfig section=user
+                 option=user value="Edwin Steele"
+
+    - name: Setup staging.wordspeak.org parent directory
+      file: path=/home/esteele/Sites/staging.wordspeak.org state=directory
+             mode=0711 owner=esteele group=esteele
+
+    - name: Setup wordspeak virtualenv with Nikola
+      pip: name=nikola version=5.4.4
+            virtualenv=/home/esteele/.virtualenvs/wordspeak
