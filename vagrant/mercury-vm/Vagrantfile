@@ -7,8 +7,6 @@ Vagrant.configure("2") do |config|
   #config.vm.hostname = "vagrant-fedora17"
   config.vm.network :private_network, ip: "192.168.33.10"
   config.vm.network :forwarded_port, guest: 80, host: 8080, auto_correct: true
-  config.vm.provision "shell", path: "provision.sh"
-  config.vm.provision "shell", inline: "/bin/echo 'hello'"
 
   # Share an additional folder to the guest VM. The first argument is
   # the path on the host to the actual folder. The second argument is
