@@ -1,0 +1,27 @@
+---
+# system packages to support the build and deployment of the wordspeak site
+- hosts: webservers
+  user: root
+  sudo: yes
+  gather_facts: no
+  vars_files:
+    - vars/defaults.yml
+
+  tasks:
+    # Python stuff
+    - name: Install pip for system python
+      yum: name=python-pip state=present
+
+    - name: Install virtualenv as system site-package
+      pip: name=virtualenv
+
+    - name: Install python-devel for module compilation
+      yum: name=python-devel state=present
+    - name: Install enchant for spell checking
+      yum: name=enchant state=present
+    - name: Install enchant-aspell for aspell compatibility
+      yum: name=enchant-aspell state=present
+    - name: Install GB English aspell dictionary
+      yum: name=aspell-en state=present
+    - name: Install libxslt-devel (pulls in libxml2-devel and libxslt)
+      yum: name=libxslt-devel state=present
