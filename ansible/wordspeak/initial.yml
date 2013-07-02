@@ -1,5 +1,6 @@
 ---
 - hosts: webservers
+  user: root
   sudo: yes
   gather_facts: no
   vars_files:
@@ -35,12 +36,12 @@
              state=link owner=root group=root
 
     # ntp
-    - yum: name=ntp state=latest
+    - yum: name=ntp state=present
     - name: Ensure NTP is up and running
       action: service name=ntpd state=started
 
     # nginx
-    - yum: name=nginx state=latest
+    - yum: name=nginx state=present
     - name: Setup base nginx config
       template: src=templates/nginx.j2 dest=/etc/nginx/nginx.conf
                  owner=root group=root mode=0644
@@ -53,19 +54,9 @@
                  dest=/etc/nginx/conf.d/staging_wordspeak_org.conf
                  owner=root group=root mode=0644
 
-    # Python stuff
-    - name: Install pip for system python
-      yum: name=python-pip state=latest
-
-    - name: Install virtualenv as system site-package
-      pip: name=virtualenv
-
-    - yum: name=mosh state=latest
-    - yum: name=tmux state=latest
-    - yum: name=git state=latest
-    - yum: name=enchant state=latest
-    - yum: name=enchant-aspell state=latest
-    - yum: name=aspell-en state=latest
+    - yum: name=mosh state=present
+    - yum: name=tmux state=present
+    - yum: name=git state=present
 
 
 
