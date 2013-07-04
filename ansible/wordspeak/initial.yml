@@ -1,6 +1,6 @@
 ---
-- hosts: webservers
-  user: root
+- hosts: vagrant
+  user: vagrant
   sudo: yes
   gather_facts: no
   vars_files:

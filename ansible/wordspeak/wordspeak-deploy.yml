@@ -1,6 +1,6 @@
 ---
 # system packages to support the build and deployment of the wordspeak site
-- hosts: webservers
+- hosts: vagrant
   user: root
   sudo: yes
   gather_facts: no
