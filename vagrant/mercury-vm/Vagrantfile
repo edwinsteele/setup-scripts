@@ -14,6 +14,19 @@ Vagrant.configure("2") do |config|
   # argument is a set of non-required options.
   config.vm.synced_folder "/Users/esteele/Documents/VagrantShared", "/vagrant_shared"
 
+  config.vm.provision :ansible do |ansible|
+    ansible.playbook = "../../ansible/wordspeak/initial.yml"
+    ansible.inventory_file = "ansible_hosts"
+  end
+  config.vm.provision :ansible do |ansible|
+    ansible.playbook = "../../ansible/wordspeak/wordspeak-deploy.yml"
+    ansible.inventory_file = "ansible_hosts"
+  end
+  config.vm.provision :ansible do |ansible|
+    ansible.playbook = "../../ansible/wordspeak/esteele.yml"
+    ansible.inventory_file = "ansible_hosts"
+  end
+
   config.vm.provider :virtualbox do |vb|
      vb.customize ["modifyvm", :id, "--memory", "512"]
   end
