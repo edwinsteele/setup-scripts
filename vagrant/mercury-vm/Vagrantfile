@@ -2,9 +2,10 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "Puppetlabs Fedora 18 x86_64, VBox 4.2.10, No Puppet or Chef"
-  config.vm.box_url = "http://puppet-vagrant-boxes.puppetlabs.com/fedora-18-x64-vbox4210-nocm.box"
-  #config.vm.hostname = "vagrant-fedora17"
+  #config.vm.box = "Puppetlabs Fedora 18 x86_64, VBox 4.2.10, No Puppet or Chef"
+  #config.vm.box_url = "http://puppet-vagrant-boxes.puppetlabs.com/fedora-18-x64-vbox4210-nocm.box"
+  config.vm.box = "Puppet Labs CentOS 6.4 x64 vbox4210 nocm"
+  config.vm.box_url = "http://puppet-vagrant-boxes.puppetlabs.com/centos-64-x64-vbox4210-nocm.box"
   config.vm.network :private_network, ip: "192.168.33.10"
   config.vm.network :forwarded_port, guest: 80, host: 8080, auto_correct: true
 
