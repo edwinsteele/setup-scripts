@@ -42,7 +42,7 @@
                 creates=/tmp/LinkChecker-8.4.tar
     # Pip module can't install from a tar file
     - name: Pip install linkchecker from local files into wordspeak venv
-      command: /home/esteele/.virtualenvs/wordspeak/bin/pip /tmp/LinkChecker-8.4.tar
+      command: /home/esteele/.virtualenvs/wordspeak/bin/pip install /tmp/LinkChecker-8.4.tar
             creates=/home/esteele/.virtualenvs/wordspeak/lib/python2.7/site-packages/LinkChecker-8.4-py2.7.egg-info/PKG-INFO
   
     # git checkout of wordspeak repo to ~/Code/wordspeak
