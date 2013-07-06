@@ -1,7 +1,7 @@
 ---
 # system packages to support the build and deployment of the wordspeak site
 - hosts: vagrant
-  user: root
+  user: vagrant
   sudo: yes
   gather_facts: no
   vars_files:
