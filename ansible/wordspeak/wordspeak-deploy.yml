@@ -8,6 +8,9 @@
     - vars/defaults.yml
 
   tasks:
+    - name: Install xz for subsequent Linkchecker setup
+      yum: name=xz state=present
+
     # Python stuff
     - name: Install pip for system python
       yum: name=python-pip state=present
