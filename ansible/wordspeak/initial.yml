@@ -32,8 +32,7 @@
         - Reload sshd
 
     - name: Set timezone as Sydney
-      file: src=/usr/share/zoneinfo/Australia/Sydney dest=/etc/localtime
-             state=link owner=root group=root
+      copy: src=/usr/share/zoneinfo/Australia/Sydney dest=/etc/localtime
 
     # ntp
     - yum: name=ntp state=present
