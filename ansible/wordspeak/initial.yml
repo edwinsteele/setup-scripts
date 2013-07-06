@@ -2,7 +2,7 @@
 - hosts: vagrant
   user: vagrant
   sudo: yes
-  gather_facts: no
+  gather_facts: yes
   vars_files:
     - vars/defaults.yml
 
@@ -31,6 +31,22 @@
       notify:
         - Reload sshd
 
+    # Firewall
+    - name: Enable inbound TCP port 80 in firewall
+      action: lineinfile dest=/etc/sysconfig/iptables state=present
+               line='-A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT'
+               regexp='^-A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT$'
+               insertafter='^-A INPUT -i lo -j ACCEPT$'
+      notify: Restart iptables
+
+    - name: Enable inbound UDP port 60000-60001 in firewall for mosh
+      action: lineinfile dest=/etc/sysconfig/iptables state=present
+               line='-A INPUT -m state --state NEW -m multiport -p udp --dports 60000:60001 -j ACCEPT'
+               regexp='^-A INPUT -m state --state NEW -m multiport -p udp --dports 60000:60001 -j ACCEPT$'
+               insertafter='^-A INPUT -i lo -j ACCEPT$'
+      notify: Restart iptables
+
+    # FIXME - this copies from the host, not within the VM!!!
     - name: Set timezone as Sydney
       copy: src=/usr/share/zoneinfo/Australia/Sydney dest=/etc/localtime
 
@@ -43,7 +59,8 @@
     - name: Install EPEL for RHEL6 (only if RHEL6)
       command: yum -y install http://mirror.iprimus.com.au/epel/6/i386/epel-release-6-8.noarch.rpm
                 creates=/etc/yum.repos.d/epel.repo
-      when: ansible_os_family == “RedHat” and ansible_lsb.major_release|int >= 6
+      #when: "ansible_os_family == 'RedHat' and ansible_distribution_version == '6.4'"  # FIXME - just want 6 from 6.4
+      when: ansible_os_family == "RedHat"
 
     # nginx
     - yum: name=nginx state=present
@@ -68,3 +85,6 @@
   handlers:
     - name: Reload sshd
       action: service name=sshd state=reloaded
+
+    - name: Restart iptables
+      action: service name=iptables state=restarted
