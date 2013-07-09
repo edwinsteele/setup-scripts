@@ -5,7 +5,7 @@
   user: vagrant
   sudo: yes
   sudo_user: esteele
-  gather_facts: no
+  gather_facts: yes
 
   tasks:
     - name: Setup git user.email variable for esteele

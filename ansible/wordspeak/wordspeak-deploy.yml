@@ -3,7 +3,7 @@
 - hosts: vagrant
   user: vagrant
   sudo: yes
-  gather_facts: no
+  gather_facts: yes
   vars_files:
     - vars/defaults.yml
 
@@ -28,3 +28,12 @@
       yum: name=aspell-en state=present
     - name: Install libxslt-devel (pulls in libxml2-devel and libxslt)
       yum: name=libxslt-devel state=present
+
+    # Still working out whether redhat scl is the least undesirable way to go here
+    #- name: Get Python 2.7 Software Collection Repo (RHEL6 only)
+    #  get_url: url=http://people.redhat.com/bkabrda/scl_python27.repo
+    #            dest=/etc/yum.repos.d/scl_python27.repo
+    #  when: ansible_os_family == "RedHat"
+
+    # - name: Install python 2.7 from the SCR
+    #  yum: name=python27 state=present
