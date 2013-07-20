@@ -2,7 +2,6 @@
 # Non-system packages to allow the build and deployment of the wordspeak site
 
 - hosts: vagrant
-  user: vagrant
   sudo: yes
   sudo_user: esteele
   gather_facts: yes
@@ -20,8 +19,8 @@
       file: path=/home/esteele/Sites/staging.wordspeak.org state=directory
              mode=0711 owner=esteele group=esteele
 
-    - name: Install Nikola 5.4.4 with deps into wordspeak venv
-      pip: name=nikola version=5.4.4
+    - name: Install Nikola with deps into wordspeak venv
+      pip: name=nikola
             virtualenv=/home/esteele/.virtualenvs/wordspeak
 
     - name: Create Nikola Cache directory
