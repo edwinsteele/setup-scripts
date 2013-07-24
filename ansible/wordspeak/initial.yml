@@ -1,12 +1,18 @@
 ---
 - hosts: vagrant
-  user: vagrant
+  user: root
   sudo: yes
   gather_facts: yes
   vars_files:
     - vars/defaults.yml
 
   tasks:
+
+    - name: Install python-selinux compatibility packages
+      yum: name=policycoreutils-python state=present
+
+    - name: Install other python-selinux compatibility packages
+      yum: name=libselinux-python state=present
 
     # Configure users and groups
     - name: create admin group
@@ -79,6 +85,7 @@
     - yum: name=mosh state=present
     - yum: name=tmux state=present
     - yum: name=git state=present
+    - yum: name=wget state=present
 
 
 
