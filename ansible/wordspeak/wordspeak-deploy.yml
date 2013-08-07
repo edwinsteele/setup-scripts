@@ -11,13 +11,6 @@
     - name: Install xz for subsequent Linkchecker setup
       yum: name=xz state=present
 
-    # Python stuff
-    - name: Install pip for system python
-      yum: name=python-pip state=present
-
-    - name: Install virtualenv as system site-package
-      pip: name=virtualenv
-
     - name: Install gcc for module compilation
       yum: name=gcc state=present
     - name: Install python-devel for module compilation
@@ -47,3 +40,23 @@
     - name: Install Python 2.7 from PUIAS computational repo (RHEL6 only)
       yum: name=python27 state=present
       when: ansible_os_family == "RedHat"
+
+    - name: Install Python 2.7 from PUIAS computational repo (RHEL6 only)
+      yum: name=python27-devel state=present
+      when: ansible_os_family == "RedHat"
+
+    - name: Install Python 2.7 from PUIAS computational repo (RHEL6 only)
+      yum: name=python27-setuptools state=present
+      when: ansible_os_family == "RedHat"
+
+    - name: Install pip for system python 2.6
+      yum: name=python-pip state=present
+
+    - name: Install virtualenv as system site-package (2.6)
+      pip: name=virtualenv
+
+    - name: Install pip-2.7 using easy_install
+      command: /usr/bin/easy_install-2.7 pip creates=/usr/bin/pip-2.7
+
+    - name: Install virtualenv-2.7 using easy_install
+      command: /usr/bin/easy_install-2.7 virtualenv creates=/usr/bin/virtualenv-2.7
