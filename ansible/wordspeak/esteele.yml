@@ -19,8 +19,12 @@
       file: path=/home/esteele/Sites/staging.wordspeak.org state=directory
              mode=0711 owner=esteele group=esteele
 
+    - name: Install pytz
+      pip: name=pytz extra_args=--pre virtualenv_command=virtualenv-2.7
+            virtualenv=/home/esteele/.virtualenvs/wordspeak
+
     - name: Install Nikola with deps into wordspeak venv
-      pip: name=nikola
+      pip: name=nikola virtualenv_command=virtualenv-2.7
             virtualenv=/home/esteele/.virtualenvs/wordspeak
 
     - name: Create Nikola Cache directory
@@ -39,10 +43,9 @@
     - name: Uncompress linkchecker source
       command: xz -d /tmp/LinkChecker-8.4.tar.xz chdir=/tmp 
                 creates=/tmp/LinkChecker-8.4.tar
+
     # Pip module can't install from a tar file
-    # FIXME - centos 6.4 has python 2.6, not 2.7 (like fedora)
     - name: Pip install linkchecker from local files into wordspeak venv
       command: /home/esteele/.virtualenvs/wordspeak/bin/pip install /tmp/LinkChecker-8.4.tar
-            creates=/home/esteele/.virtualenvs/wordspeak/lib/python2.6/site-packages/LinkChecker-8.4-py2.6.egg-info/PKG-INFO
+            creates=/home/esteele/.virtualenvs/wordspeak/lib/python2.7/site-packages/LinkChecker-8.4-py2.7.egg-info/PKG-INFO
   
-    # git checkout of wordspeak repo to ~/Code/wordspeak
