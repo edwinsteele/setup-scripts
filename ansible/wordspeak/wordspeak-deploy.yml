@@ -17,7 +17,7 @@
     #  if the repo is known, so we need to make sure the repo is always
     #  known
     - name: Install flexbox repo rpm
-      yum: name=http://sourceforge.net/projects/flexbox/files/flexbox-release-1-1.noarch.rpm/download
+      yum: name=http://aarnet.dl.sourceforge.net/project/flexbox/flexbox-release-1-1.noarch.rpm
             state=present
 
     - name: Install xz for subsequent Linkchecker setup
