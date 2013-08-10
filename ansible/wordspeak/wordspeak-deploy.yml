@@ -41,23 +41,23 @@
     - name: Install libxslt-devel (pulls in libxml2-devel and libxslt)
       yum: name=libxslt-devel state=present
 
-    - name: Retrieve PUIAS GPG key (RHEL6 only)
+    - name: Retrieve PUIAS GPG key
       get_url: url=http://springdale.math.ias.edu/data/puias/6/x86_64/os/RPM-GPG-KEY-puias
                 dest=/etc/pki/rpm-gpg/RPM-GPG-KEY-puias
 
-    - name: Import PUIAS GPG key (RHEL6 only)
+    - name: Import PUIAS GPG key
       command: rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-puias
 
-    - name: Setup PUIAS computational repo (RHEL6 only)
+    - name: Setup PUIAS computational repo
       template: src=templates/puais-computational.repo.j2 dest=/etc/yum.repos.d/puais-computational.repo
 
-    - name: Install Python 2.7 from PUIAS computational repo (RHEL6 only)
+    - name: Install Python 2.7 from PUIAS computational repo
       yum: name=python27 state=present
 
-    - name: Install Python 2.7 devel from PUIAS computational repo (RHEL6 only)
+    - name: Install Python 2.7 devel from PUIAS computational repo
       yum: name=python27-devel state=present
 
-    - name: Install Python 2.7 setuptools from PUIAS computational repo (RHEL6 only)
+    - name: Install Python 2.7 setuptools from PUIAS computational repo
       yum: name=python27-setuptools state=present
 
     - name: Install pip-2.7 using easy_install
