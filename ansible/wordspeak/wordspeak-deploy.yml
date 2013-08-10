@@ -8,13 +8,30 @@
     - vars/defaults.yml
 
   tasks:
+    # Need enchant 1.6 due to http://bugzilla.abisource.com/show_bug.cgi?id=12350 which is in 1.5 (RHEL6 default)
+    # Use flexbox repo: http://sourceforge.net/projects/flexbox/files/
+    #
+    # We install this at the top of this playbook because flexbox also
+    #  makes available python files that mess with yum, and so we need
+    #  to list flexbox in the disablerepo variable, but that only works
+    #  if the repo is known, so we need to make sure the repo is always
+    #  known
+    - name: Install flexbox repo rpm
+      yum: name=http://sourceforge.net/projects/flexbox/files/flexbox-release-1-1.noarch.rpm/download
+            state=present
+
     - name: Install xz for subsequent Linkchecker setup
       yum: name=xz state=present
 
     - name: Install gcc for module compilation
       yum: name=gcc state=present
-    - name: Install python-devel for module compilation
+    - name: Install python-devel for module compilation (system python 2.6)
       yum: name=python-devel state=present
+    - name: Install pip (system python 2.6)
+      yum: name=python-pip state=present disablerepo=flexbox
+    - name: Install virtualenv as system site-package (system python 2.6)
+      pip: name=virtualenv
+
     - name: Install enchant for spell checking
       yum: name=enchant state=present
     - name: Install enchant-aspell for aspell compatibility
@@ -41,19 +58,13 @@
       yum: name=python27 state=present
       when: ansible_os_family == "RedHat"
 
-    - name: Install Python 2.7 from PUIAS computational repo (RHEL6 only)
+    - name: Install Python 2.7 devel from PUIAS computational repo (RHEL6 only)
       yum: name=python27-devel state=present
       when: ansible_os_family == "RedHat"
 
-    - name: Install Python 2.7 from PUIAS computational repo (RHEL6 only)
+    - name: Install Python 2.7 setuptools from PUIAS computational repo (RHEL6 only)
       yum: name=python27-setuptools state=present
       when: ansible_os_family == "RedHat"
-
-    - name: Install pip for system python 2.6
-      yum: name=python-pip state=present
-
-    - name: Install virtualenv as system site-package (2.6)
-      pip: name=virtualenv
 
     - name: Install pip-2.7 using easy_install
       command: /usr/bin/easy_install-2.7 pip creates=/usr/bin/pip-2.7
