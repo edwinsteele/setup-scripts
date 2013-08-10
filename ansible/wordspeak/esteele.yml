@@ -62,7 +62,10 @@
       pip: name=pyenchant virtualenv=/home/esteele/.virtualenvs/wordspeak
 
     - name: Setup ~esteele/Code
-      command: mkdir /home/esteele/Code creates=/home/esteele/Code
+      file: path=/home/esteele/Code state=directory
+
+    - name: Fix perms on ~esteele to allow ~/Sites to be served up
+      file: path=/home/esteele state=directory mode=0711
 
     # Git setup can't be done via ansible because of the private keys
     #- name: Checkout wordspeak repo
