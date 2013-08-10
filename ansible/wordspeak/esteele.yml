@@ -64,4 +64,10 @@
     - name: Setup ~esteele/Code
       command: mkdir /home/esteele/Code creates=/home/esteele/Code
 
-    # git clone git@github.com:edwinsteele/wordspeak.org.git
+    # Git setup can't be done via ansible because of the private keys
+    #- name: Checkout wordspeak repo
+    #  git: repo=ssh://git@github.com/edwinsteele/wordspeak.org.git
+    #        dest=/home/esteele/Code
+    #- name: Checkout d3-projects submodule
+    #  command: git submodule update --init chdir=/home/esteele/Code/wordspeak.org
+    #            creates=/home/esteele/Code/wordspeak.org/files/d3-projects/.git
