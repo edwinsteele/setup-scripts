@@ -52,9 +52,8 @@
                insertafter='^-A INPUT -i lo -j ACCEPT$'
       notify: Restart iptables
 
-    # FIXME - this copies from the host, not within the VM!!!
     - name: Set timezone as Sydney
-      copy: src=/usr/share/zoneinfo/Australia/Sydney dest=/etc/localtime
+      command: cp /usr/share/zoneinfo/Australia/Sydney /etc/localtime
 
     - name: Ensure NTP is up and running
       yum: name=ntp state=present
@@ -62,7 +61,7 @@
       action: service name=ntpd state=started enabled=yes
 
     # EPEL for RHEL6 (needed for nginx, mosh and tmux)
-    - name: Install EPEL for RHEL6 (only if RHEL6)
+    - name: Install EPEL for RHEL6
       command: yum -y install http://mirror.iprimus.com.au/epel/6/i386/epel-release-6-8.noarch.rpm
                 creates=/etc/yum.repos.d/epel.repo
 
