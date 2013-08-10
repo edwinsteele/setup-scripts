@@ -13,15 +13,15 @@
 
     - name: Setup git user.name variable for esteele
       ini_file: dest=/home/esteele/.gitconfig section=user
-                 option=user value="Edwin Steele"
+                 option=name value="Edwin Steele"
+
+    - name: Setup git push style for esteele
+      ini_file: dest=/home/esteele/.gitconfig section=push
+                 option=default value=current
 
     - name: Setup staging.wordspeak.org parent directory
       file: path=/home/esteele/Sites/staging.wordspeak.org state=directory
              mode=0711 owner=esteele group=esteele
-
-    - name: Install pytz
-      pip: name=pytz extra_args=--pre virtualenv_command=virtualenv-2.7
-            virtualenv=/home/esteele/.virtualenvs/wordspeak
 
     - name: Install Nikola with deps into wordspeak venv
       pip: name=nikola virtualenv_command=virtualenv-2.7
@@ -48,4 +48,20 @@
     - name: Pip install linkchecker from local files into wordspeak venv
       command: /home/esteele/.virtualenvs/wordspeak/bin/pip install /tmp/LinkChecker-8.4.tar
             creates=/home/esteele/.virtualenvs/wordspeak/lib/python2.7/site-packages/LinkChecker-8.4-py2.7.egg-info/PKG-INFO
+
+    - name: Install fabric for build deployment
+      pip: name=fabric virtualenv=/home/esteele/.virtualenvs/wordspeak
   
+    - name: Install requests for nikola
+      pip: name=requests virtualenv=/home/esteele/.virtualenvs/wordspeak
+
+    - name: Install webassets for nikola
+      pip: name=webassets virtualenv=/home/esteele/.virtualenvs/wordspeak
+
+    - name: Install pyenchant for build deployment
+      pip: name=pyenchant virtualenv=/home/esteele/.virtualenvs/wordspeak
+
+    - name: Setup ~esteele/Code
+      command: mkdir /home/esteele/Code creates=/home/esteele/Code
+
+    # git clone git@github.com:edwinsteele/wordspeak.org.git
