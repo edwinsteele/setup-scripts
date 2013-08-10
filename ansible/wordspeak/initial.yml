@@ -65,8 +65,6 @@
     - name: Install EPEL for RHEL6 (only if RHEL6)
       command: yum -y install http://mirror.iprimus.com.au/epel/6/i386/epel-release-6-8.noarch.rpm
                 creates=/etc/yum.repos.d/epel.repo
-      #when: "ansible_os_family == 'RedHat' and ansible_distribution_version == '6.4'"  # FIXME - just want 6 from 6.4
-      when: ansible_os_family == "RedHat"
 
     # nginx
     - name: Install nginx
