@@ -56,10 +56,10 @@
     - name: Set timezone as Sydney
       copy: src=/usr/share/zoneinfo/Australia/Sydney dest=/etc/localtime
 
-    # ntp
-    - yum: name=ntp state=present
     - name: Ensure NTP is up and running
-      action: service name=ntpd state=started
+      yum: name=ntp state=present
+    - name: Enable and start ntpd
+      action: service name=ntpd state=started enabled=yes
 
     # EPEL for RHEL6 (needed for nginx, mosh and tmux)
     - name: Install EPEL for RHEL6 (only if RHEL6)
@@ -69,7 +69,8 @@
       when: ansible_os_family == "RedHat"
 
     # nginx
-    - yum: name=nginx state=present
+    - name: Install nginx
+      yum: name=nginx state=present
     - name: Setup base nginx config
       template: src=templates/nginx.j2 dest=/etc/nginx/nginx.conf
                  owner=root group=root mode=0644
@@ -81,6 +82,8 @@
       template: src=templates/nginx_confd_staging_wordspeak_org.j2
                  dest=/etc/nginx/conf.d/staging_wordspeak_org.conf
                  owner=root group=root mode=0644
+    - name: Enable and start nginx
+      action: service name=nginx state=started enabled=yes
 
     - yum: name=mosh state=present
     - yum: name=tmux state=present
