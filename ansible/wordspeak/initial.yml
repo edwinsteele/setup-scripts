@@ -85,6 +85,7 @@
     - yum: name=mosh state=present
     - yum: name=tmux state=present
     - yum: name=git state=present
+    - yum: name=ack state=present
     - yum: name=wget state=present
 
 
