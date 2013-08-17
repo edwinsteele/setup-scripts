@@ -58,6 +58,9 @@
     - name: Install webassets for nikola
       pip: name=webassets virtualenv=/home/esteele/.virtualenvs/wordspeak
 
+    - name: Install mincss for nikola
+      pip: name=mincss virtualenv=/home/esteele/.virtualenvs/wordspeak
+
     - name: Install pyenchant for build deployment
       pip: name=pyenchant virtualenv=/home/esteele/.virtualenvs/wordspeak
 
