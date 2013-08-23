@@ -23,6 +23,10 @@
       file: path=/home/esteele/Sites/staging.wordspeak.org state=directory
              mode=0711 owner=esteele group=esteele
 
+    - name: Setup www.wordspeak.org parent directory
+      file: path=/home/esteele/Sites/www.wordspeak.org state=directory
+             mode=0711 owner=esteele group=esteele
+
     - name: Install Nikola with deps into wordspeak venv
       pip: name=nikola virtualenv_command=virtualenv-2.7
             virtualenv=/home/esteele/.virtualenvs/wordspeak

@@ -47,8 +47,8 @@
 
     - name: Enable inbound UDP port 60000-60001 in firewall for mosh
       action: lineinfile dest=/etc/sysconfig/iptables state=present
-               line='-A INPUT -m state --state NEW -m multiport -p udp --dports 60000:60001 -j ACCEPT'
-               regexp='^-A INPUT -m state --state NEW -m multiport -p udp --dports 60000:60001 -j ACCEPT$'
+               line='-A INPUT -m state --state NEW -m multiport -p udp --dports 60000:60100 -j ACCEPT'
+               regexp='^-A INPUT -m state --state NEW -m multiport -p udp --dports 60000:60100 -j ACCEPT$'
                insertafter='^-A INPUT -i lo -j ACCEPT$'
       notify: Restart iptables
 
@@ -75,9 +75,13 @@
       template: src=templates/nginx_confd_default.j2
                  dest=/etc/nginx/conf.d/default.conf
                  owner=root group=root mode=0644
-    - name: Setup nginx wordspeak staging config
+    - name: Setup nginx staging.wordspeak.org config
       template: src=templates/nginx_confd_staging_wordspeak_org.j2
                  dest=/etc/nginx/conf.d/staging_wordspeak_org.conf
+    - name: Setup nginx www.wordspeak.org config
+      template: src=templates/nginx_confd_www_wordspeak_org.j2
+                 dest=/etc/nginx/conf.d/www_wordspeak_org.conf
+                 owner=root group=root mode=0644
                  owner=root group=root mode=0644
     - name: Enable and start nginx
       action: service name=nginx state=started enabled=yes

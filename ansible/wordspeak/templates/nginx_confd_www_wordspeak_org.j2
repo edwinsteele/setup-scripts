@@ -1,0 +1,18 @@
+server {
+    server_name www.wordspeak.org wordspeak.org;
+
+    location / {
+        root   /home/esteele/Sites/www.wordspeak.org;
+        index  index.html;
+    }
+
+    access_log  /var/log/nginx/www.wordspeak.org-access.log;
+
+    # deny access to .htaccess files, if Apache's document root
+    # concurs with nginx's one
+    
+    location ~ /\.ht {
+        deny  all;
+    }
+}
+
