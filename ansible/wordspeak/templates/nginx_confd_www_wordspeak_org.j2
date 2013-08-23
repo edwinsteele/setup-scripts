@@ -1,5 +1,5 @@
 server {
-    server_name www.wordspeak.org wordspeak.org;
+    server_name wordspeak.org www.wordspeak.org;
 
     location / {
         root   /home/esteele/Sites/www.wordspeak.org;
@@ -7,6 +7,7 @@ server {
     }
 
     access_log  /var/log/nginx/www.wordspeak.org-access.log;
+    error_page 404 = /pages/404.html;
 
     # deny access to .htaccess files, if Apache's document root
     # concurs with nginx's one
