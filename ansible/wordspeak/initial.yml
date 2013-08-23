@@ -91,6 +91,7 @@
     - yum: name=git state=present
     - yum: name=ack state=present
     - yum: name=wget state=present
+    - yum: name=bind-utils state=present
 
 
 
