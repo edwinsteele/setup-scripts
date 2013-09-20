@@ -6,6 +6,17 @@ server {
         index  index.html;
     }
 
+    location ~* \.(jpg|jpeg|gif|png|ico) {
+        root   /home/esteele/Sites/www.wordspeak.org;
+        expires 365d;
+    }
+
+    location ~* \.(html|js|css) {
+        root   /home/esteele/Sites/www.wordspeak.org;
+        expires 7d;
+    }
+
+
     access_log  /var/log/nginx/www.wordspeak.org-access.log;
     error_page 404 = /pages/404.html;
 
