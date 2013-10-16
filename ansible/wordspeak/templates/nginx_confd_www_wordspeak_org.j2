@@ -11,6 +11,11 @@ server {
         expires 365d;
     }
 
+    location = (index.html|archive.html) {
+        root   /home/esteele/Sites/www.wordspeak.org;
+        expires 1h;
+    }
+
     location ~* \.(html|json|js|css) {
         root   /home/esteele/Sites/www.wordspeak.org;
         expires 7d;
