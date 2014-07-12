@@ -28,7 +28,7 @@
              mode=0711 owner=esteele group=esteele
 
     - name: Install Nikola with deps into wordspeak venv
-      pip: name=nikola virtualenv_command=virtualenv-2.7
+      pip: name=nikola virtualenv_command=virtualenv-2.7 version=5.5.1
             virtualenv=/home/esteele/.virtualenvs/wordspeak
 
     - name: Create Nikola Cache directory
@@ -41,17 +41,20 @@
 
     # Setup linkchecker. Pip doesn't support xz and the developer
     #  only provides xz archives.
-    - name: Fetch linkchecker source
-      get_url: url=http://github.com/downloads/wummel/linkchecker/LinkChecker-8.4.tar.xz
-                dest=/tmp/LinkChecker-8.4.tar.xz
-    - name: Uncompress linkchecker source
-      command: xz -d /tmp/LinkChecker-8.4.tar.xz chdir=/tmp 
-                creates=/tmp/LinkChecker-8.4.tar
-
+    #- name: Fetch linkchecker source
+    #  get_url: url=http://github.com/downloads/wummel/linkchecker/LinkChecker-8.4.tar.xz
+    #            dest=/tmp/LinkChecker-8.4.tar.xz
+    #- name: Uncompress linkchecker source
+    #  command: xz -d /tmp/LinkChecker-8.4.tar.xz chdir=/tmp 
+    #            creates=/tmp/LinkChecker-8.4.tar
+    #
     # Pip module can't install from a tar file
-    - name: Pip install linkchecker from local files into wordspeak venv
-      command: /home/esteele/.virtualenvs/wordspeak/bin/pip install /tmp/LinkChecker-8.4.tar
-            creates=/home/esteele/.virtualenvs/wordspeak/lib/python2.7/site-packages/LinkChecker-8.4-py2.7.egg-info/PKG-INFO
+    #- name: Pip install linkchecker from local files into wordspeak venv
+    #  command: /home/esteele/.virtualenvs/wordspeak/bin/pip install /tmp/LinkChecker-8.4.tar
+    #        creates=/home/esteele/.virtualenvs/wordspeak/lib/python2.7/site-packages/LinkChecker-8.4-py2.7.egg-info/PKG-INFO
+    
+    - name: Install Linkchecker
+      pip: name=Linkchecker virtualenv=/home/esteele/.virtualenvs/wordspeak
 
     - name: Install fabric for build deployment
       pip: name=fabric virtualenv=/home/esteele/.virtualenvs/wordspeak
