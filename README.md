@@ -19,7 +19,11 @@ Assumes that your default ssh public key is installed on the server under the ac
 6. Setup the wordspeak site, with Nikola for building: `ansible-playbook -u root -i vagrant/mercury-vm/ansible_hosts ansible/wordspeak/esteele.yml`
 7. Copy ssh keys and ssh config
 8. Test github with `ssh -T git@github.com`.
-9. cd ~/Code && git clone https://github.com/edwinsteele/wordspeak.org.git  (listed at the end of esteele.yml)
-10. cd ~/Code/wordspeak && git submodule update --init   (listed at the end of esteele.yml)
+9. cd ~/Code && git clone git@github.com:edwinsteele/wordspeak.org.git (listed at the end of esteele.yml)
+11. cd ~/Code && git clone git@github.com:edwinsteele/dotfiles.git
+12. cd ~/Code/dotfiles && ./make.sh
+13. source ~/.virtualenvs/wordspeak/bin/activate
+14. pip install git+https://github.com/edwinsteele/nikola.git@ongoing_5.5_compat#egg=nikola_5.5_compat
+15. pip install -r ~/Code/wordspeak.org/requirements.txt
 
 
