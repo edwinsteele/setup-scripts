@@ -25,7 +25,7 @@
       action: user name=esteele group=esteele groups=admin shell=/bin/bash uid=1003
 
     - name: setup authorised key(s)
-      action: authorized_key user=esteele key='$FILE(/Users/esteele/.ssh/id_rsa.pub)'
+      action: authorized_key user=esteele key="{{ lookup('file', '/Users/esteele/.ssh/id_rsa.pub') }}"
 
     # Access, security and perms
     - name: write the sudoers file
