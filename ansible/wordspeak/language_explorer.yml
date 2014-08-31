@@ -1,0 +1,50 @@
+---
+# Non-system packages to allow the build and deployment of the wordspeak site
+
+- hosts: vagrant
+  sudo: yes
+  sudo_user: root
+  gather_facts: yes
+
+  tasks:
+    - name: Install Postgres server
+      yum: name=postgresql-server state=present
+
+    - name: Initialise postgres
+      command: service postgresql initdb
+      args: 
+              creates: /var/lib/pgsql/data/PG_VERSION
+
+    - name: Enable and start Postgres/Postmaster
+      action: service name=postgresql state=started enabled=yes
+
+    - name: Install Postgres client
+      yum: name=postgresql state=present
+
+    - name: Install pip (system python 2.6)
+      #re-enable the disabling of flexbox once this is used after all the other 3 playbooks are being loaded
+      #yum: name=python-pip state=present disablerepo=flexbox
+      yum: name=python-pip state=present
+
+    - name: Install postgres-devel for subsequent admin tasks
+      yum: name=postgresql-devel state=present
+
+    - name: Install python-devel for subsequent admin tasks
+      yum: name=python-devel state=present
+
+    - name: Install psycopg2 for subsequent admin tasks
+      pip: name=psycopg2 state=present
+
+    - name: Setup esteele postgres user
+      sudo: True
+      sudo_user: postgres
+      postgresql_user: name=esteele role_attr_flags=CREATEDB,NOSUPERUSER
+
+    - name: Setup esteele postgres db
+      sudo: True
+      sudo_user: postgres
+      postgresql_db: name=esteele
+
+# creates=/var/lib/pgsql/??
+# nginx
+# gunicorn
