@@ -52,6 +52,7 @@
                insertafter='^-A INPUT -i lo -j ACCEPT$'
       notify: Restart iptables
 
+    # XXX Fix this to use /etc/sysconfig/clock instead
     - name: Set timezone as Sydney
       command: cp /usr/share/zoneinfo/Australia/Sydney /etc/localtime
 

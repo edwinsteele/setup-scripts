@@ -1,5 +1,6 @@
 ---
-# Non-system packages to allow the build and deployment of the wordspeak site
+# Non-system packages to allow the build and deployment of the language_explorer
+# Assumes python27-setup.yml has been run before
 
 - hosts: vagrant
   sudo: yes
@@ -20,11 +21,6 @@
 
     - name: Install Postgres client
       yum: name=postgresql state=present
-
-    - name: Install pip (system python 2.6)
-      #re-enable the disabling of flexbox once this is used after all the other 3 playbooks are being loaded
-      #yum: name=python-pip state=present disablerepo=flexbox
-      yum: name=python-pip state=present
 
     - name: Install postgres-devel for subsequent admin tasks
       yum: name=postgresql-devel state=present

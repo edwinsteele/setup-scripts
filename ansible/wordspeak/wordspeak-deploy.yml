@@ -1,5 +1,6 @@
 ---
 # system packages to support the build and deployment of the wordspeak site
+# Make sure python27.yml is run before this...
 - hosts: vagrant
   user: root
   sudo: yes
@@ -10,27 +11,12 @@
   tasks:
     # Need enchant 1.6 due to http://bugzilla.abisource.com/show_bug.cgi?id=12350 which is in 1.5 (RHEL6 default)
     # Use flexbox repo: http://sourceforge.net/projects/flexbox/files/
-    #
-    # We install this at the top of this playbook because flexbox also
-    #  makes available python files that mess with yum, and so we need
-    #  to list flexbox in the disablerepo variable, but that only works
-    #  if the repo is known, so we need to make sure the repo is always
-    #  known
     - name: Install flexbox repo rpm
       yum: name=http://aarnet.dl.sourceforge.net/project/flexbox/flexbox-release-1-1.noarch.rpm
             state=present
 
     - name: Install xz for subsequent Linkchecker setup
       yum: name=xz state=present
-
-    - name: Install gcc for module compilation
-      yum: name=gcc state=present
-    - name: Install python-devel for module compilation (system python 2.6)
-      yum: name=python-devel state=present
-    - name: Install pip (system python 2.6)
-      yum: name=python-pip state=present disablerepo=flexbox
-    - name: Install virtualenv as system site-package (system python 2.6)
-      pip: name=virtualenv
 
     - name: Install enchant for spell checking
       yum: name=enchant state=present
@@ -41,27 +27,3 @@
     - name: Install libxslt-devel (pulls in libxml2-devel and libxslt)
       yum: name=libxslt-devel state=present
 
-    - name: Retrieve PUIAS GPG key
-      get_url: url=http://springdale.math.ias.edu/data/puias/6/x86_64/os/RPM-GPG-KEY-puias
-                dest=/etc/pki/rpm-gpg/RPM-GPG-KEY-puias
-
-    - name: Import PUIAS GPG key
-      command: rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-puias
-
-    - name: Setup PUIAS computational repo
-      template: src=templates/puais-computational.repo.j2 dest=/etc/yum.repos.d/puais-computational.repo
-
-    - name: Install Python 2.7 from PUIAS computational repo
-      yum: name=python27 state=present
-
-    - name: Install Python 2.7 devel from PUIAS computational repo
-      yum: name=python27-devel state=present
-
-    - name: Install Python 2.7 setuptools from PUIAS computational repo
-      yum: name=python27-setuptools state=present
-
-    - name: Install pip-2.7 using easy_install
-      command: /usr/bin/easy_install-2.7 pip creates=/usr/bin/pip-2.7
-
-    - name: Install virtualenv-2.7 using easy_install
-      command: /usr/bin/easy_install-2.7 virtualenv creates=/usr/bin/virtualenv-2.7
