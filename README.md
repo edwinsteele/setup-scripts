@@ -17,6 +17,7 @@ Assumes that your default ssh public key is installed on the server under the ac
 4. Initial system setup: `ansible-playbook -u root -i vagrant/mercury-vm/ansible_hosts ansible/wordspeak/initial.yml`
 5. Setup python2.7 and all the system modules required for wordspeak deployment: `ansible-playbook -u root -i vagrant/mercury-vm/ansible_hosts ansible/wordspeak/wordspeak-deploy.yml`
 6. Setup the wordspeak site, with Nikola for building: `ansible-playbook -u root -i vagrant/mercury-vm/ansible_hosts ansible/wordspeak/esteele.yml`
+7. Update /etc/hosts to have FQDN for host, not just machine name
 7. Copy ssh keys and ssh config
 8. Test github with `ssh -T git@github.com`.
 9. cd ~/Code && git clone git@github.com:edwinsteele/wordspeak.org.git (listed at the end of esteele.yml)
@@ -26,4 +27,12 @@ Assumes that your default ssh public key is installed on the server under the ac
 14. pip install git+https://github.com/edwinsteele/nikola.git@ongoing_5.5_compat#egg=nikola_5.5_compat
 15. pip install -r ~/Code/wordspeak.org/requirements.txt
 
+# Provisioning a VM on a local machine with Vagrant/VirtualBox
+Assumes virtualbox, vagrant 1.7
 
+1. workon ansible (venv should already exist)
+2. confirm that the IP address in setup-scripts/vagrant/mercury-vm/Vagrantfile is the same as setup-scripts/vagrant/mercury/vagrant-ansible_hosts
+3. In directory setup-scripts/vagrant/mercury, run "vagrant up" to boot an existing VM, or "vagrant destroy" and "vagrant up" to reprovision.
+4. Possibly do most of the post ansible steps above
+
+For ad-hoc running of ansible playbooks, after the esteele account has been created, run e.g.: ansible-playbook -u esteele -i ../../vagrant/mercury-vm/vagrant-ansible_hosts ./language_explorer.yml
