@@ -1,12 +1,12 @@
----
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+#
 # system packages to support the build and deployment of the wordspeak site
 # Make sure python27.yml is run before this...
 - hosts: vagrant
-  user: root
   sudo: yes
+  sudo_user: root
   gather_facts: yes
-  vars_files:
-    - vars/defaults.yml
 
   tasks:
     # Need enchant 1.6 due to http://bugzilla.abisource.com/show_bug.cgi?id=12350 which is in 1.5 (RHEL6 default)
@@ -27,3 +27,62 @@
     - name: Install libxslt-devel (pulls in libxml2-devel and libxslt)
       yum: name=libxslt-devel state=present
 
+    - name: Setup staging.wordspeak.org parent directory
+      file: path=/home/esteele/Sites/staging.wordspeak.org state=directory
+             mode=0711 owner=esteele group=esteele
+
+    - name: Setup www.wordspeak.org parent directory
+      file: path=/home/esteele/Sites/www.wordspeak.org state=directory
+             mode=0711 owner=esteele group=esteele
+
+    - name: Install Nikola with deps into wordspeak venv
+      pip: name=nikola virtualenv_command=virtualenv-2.7 version=5.5.1
+            virtualenv=/home/esteele/.virtualenvs/wordspeak
+
+    - name: Create Nikola Cache directory
+      file: path=/home/esteele/tmp/nikola_wordspeak_cache state=directory
+             mode=0755 owner=esteele group=esteele
+
+    - name: Create Nikola Output directory
+      file: path=/home/esteele/tmp/nikola_wordspeak_output state=directory
+             mode=0755 owner=esteele group=esteele
+
+    # Setup linkchecker. Pip doesn't support xz and the developer
+    #  only provides xz archives.
+    #- name: Fetch linkchecker source
+    #  get_url: url=http://github.com/downloads/wummel/linkchecker/LinkChecker-8.4.tar.xz
+    #            dest=/tmp/LinkChecker-8.4.tar.xz
+    #- name: Uncompress linkchecker source
+    #  command: xz -d /tmp/LinkChecker-8.4.tar.xz chdir=/tmp 
+    #            creates=/tmp/LinkChecker-8.4.tar
+    #
+    # Pip module can't install from a tar file
+    #- name: Pip install linkchecker from local files into wordspeak venv
+    #  command: /home/esteele/.virtualenvs/wordspeak/bin/pip install /tmp/LinkChecker-8.4.tar
+    #        creates=/home/esteele/.virtualenvs/wordspeak/lib/python2.7/site-packages/LinkChecker-8.4-py2.7.egg-info/PKG-INFO
+    
+    - name: Install Linkchecker
+      pip: name=Linkchecker virtualenv=/home/esteele/.virtualenvs/wordspeak
+
+    - name: Install fabric for build deployment
+      pip: name=fabric virtualenv=/home/esteele/.virtualenvs/wordspeak
+  
+    - name: Install requests for nikola
+      pip: name=requests virtualenv=/home/esteele/.virtualenvs/wordspeak
+
+    - name: Install webassets for nikola
+      pip: name=webassets virtualenv=/home/esteele/.virtualenvs/wordspeak
+
+    - name: Install mincss for nikola
+      pip: name=mincss virtualenv=/home/esteele/.virtualenvs/wordspeak
+
+    - name: Install pyenchant for build deployment
+      pip: name=pyenchant virtualenv=/home/esteele/.virtualenvs/wordspeak
+
+    # Git setup can't be done via ansible because of the private keys
+    #- name: Checkout wordspeak repo
+    #  git: repo=ssh://git@github.com/edwinsteele/wordspeak.org.git
+    #        dest=/home/esteele/Code
+    #- name: Checkout d3-projects submodule
+    #  command: git submodule update --init chdir=/home/esteele/Code/wordspeak.org
+    #            creates=/home/esteele/Code/wordspeak.org/files/d3-projects/.git

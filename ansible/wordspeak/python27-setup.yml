@@ -9,8 +9,6 @@
   gather_facts: yes
 
   tasks:
-    - name: Install pip (system python 2.6)
-      yum: name=python-pip state=present
     - name: Install gcc for module compilation
       yum: name=gcc state=present
     - name: Install python-devel for module compilation (system python 2.6)
@@ -36,3 +34,7 @@
 
     - name: Install virtualenv-2.7 using easy_install
       command: /usr/bin/easy_install-2.7 virtualenv creates=/usr/bin/virtualenv-2.7
+
+    # Install this last, so that pip points to system python (which is required for postgres tasks)
+    - name: Install pip (system python 2.6)
+      yum: name=python-pip state=present

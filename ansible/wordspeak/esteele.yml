@@ -3,84 +3,50 @@
 
 - hosts: vagrant
   sudo: yes
-  sudo_user: esteele
+  sudo_user: root
   gather_facts: yes
 
   tasks:
+    - name: create esteele group
+      action: group name=esteele gid=1003 system=no
+
+    - name: create user(s)
+      action: user name=esteele group=esteele groups=admin shell=/bin/bash uid=1003
+
+    - name: setup authorised key(s)
+      sudo: True
+      sudo_user: esteele
+      action: authorized_key user=esteele key="{{ lookup('file', '/Users/esteele/.ssh/id_rsa.pub') }}"
+
     - name: Setup git user.email variable for esteele
+      sudo: True
+      sudo_user: esteele
       ini_file: dest=/home/esteele/.gitconfig section=user
                  option=email value=edwin@wordspeak.org      
 
     - name: Setup git user.name variable for esteele
+      sudo: True
+      sudo_user: esteele
       ini_file: dest=/home/esteele/.gitconfig section=user
                  option=name value="Edwin Steele"
 
     - name: Setup git push style for esteele
+      sudo: True
+      sudo_user: esteele
       ini_file: dest=/home/esteele/.gitconfig section=push
                  option=default value=current
 
-    - name: Setup staging.wordspeak.org parent directory
-      file: path=/home/esteele/Sites/staging.wordspeak.org state=directory
-             mode=0711 owner=esteele group=esteele
-
-    - name: Setup www.wordspeak.org parent directory
-      file: path=/home/esteele/Sites/www.wordspeak.org state=directory
-             mode=0711 owner=esteele group=esteele
-
-    - name: Install Nikola with deps into wordspeak venv
-      pip: name=nikola virtualenv_command=virtualenv-2.7 version=5.5.1
-            virtualenv=/home/esteele/.virtualenvs/wordspeak
-
-    - name: Create Nikola Cache directory
-      file: path=/home/esteele/tmp/nikola_wordspeak_cache state=directory
-             mode=0755 owner=esteele group=esteele
-
-    - name: Create Nikola Output directory
-      file: path=/home/esteele/tmp/nikola_wordspeak_output state=directory
-             mode=0755 owner=esteele group=esteele
-
-    # Setup linkchecker. Pip doesn't support xz and the developer
-    #  only provides xz archives.
-    #- name: Fetch linkchecker source
-    #  get_url: url=http://github.com/downloads/wummel/linkchecker/LinkChecker-8.4.tar.xz
-    #            dest=/tmp/LinkChecker-8.4.tar.xz
-    #- name: Uncompress linkchecker source
-    #  command: xz -d /tmp/LinkChecker-8.4.tar.xz chdir=/tmp 
-    #            creates=/tmp/LinkChecker-8.4.tar
-    #
-    # Pip module can't install from a tar file
-    #- name: Pip install linkchecker from local files into wordspeak venv
-    #  command: /home/esteele/.virtualenvs/wordspeak/bin/pip install /tmp/LinkChecker-8.4.tar
-    #        creates=/home/esteele/.virtualenvs/wordspeak/lib/python2.7/site-packages/LinkChecker-8.4-py2.7.egg-info/PKG-INFO
-    
-    - name: Install Linkchecker
-      pip: name=Linkchecker virtualenv=/home/esteele/.virtualenvs/wordspeak
-
-    - name: Install fabric for build deployment
-      pip: name=fabric virtualenv=/home/esteele/.virtualenvs/wordspeak
-  
-    - name: Install requests for nikola
-      pip: name=requests virtualenv=/home/esteele/.virtualenvs/wordspeak
-
-    - name: Install webassets for nikola
-      pip: name=webassets virtualenv=/home/esteele/.virtualenvs/wordspeak
-
-    - name: Install mincss for nikola
-      pip: name=mincss virtualenv=/home/esteele/.virtualenvs/wordspeak
-
-    - name: Install pyenchant for build deployment
-      pip: name=pyenchant virtualenv=/home/esteele/.virtualenvs/wordspeak
-
     - name: Setup ~esteele/Code
+      sudo: True
+      sudo_user: esteele
+      file: path=/home/esteele/Code state=directory
+
+    - name: Setup ~esteele/Sites
+      sudo: True
+      sudo_user: esteele
       file: path=/home/esteele/Code state=directory
 
     - name: Fix perms on ~esteele to allow ~/Sites to be served up
+      sudo: True
+      sudo_user: esteele
       file: path=/home/esteele state=directory mode=0711
-
-    # Git setup can't be done via ansible because of the private keys
-    #- name: Checkout wordspeak repo
-    #  git: repo=ssh://git@github.com/edwinsteele/wordspeak.org.git
-    #        dest=/home/esteele/Code
-    #- name: Checkout d3-projects submodule
-    #  command: git submodule update --init chdir=/home/esteele/Code/wordspeak.org
-    #            creates=/home/esteele/Code/wordspeak.org/files/d3-projects/.git

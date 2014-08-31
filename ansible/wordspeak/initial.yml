@@ -14,18 +14,8 @@
     - name: Install other python-selinux compatibility packages
       yum: name=libselinux-python state=present
 
-    # Configure users and groups
     - name: create admin group
       action: group name=admin gid=1002 system=no
-
-    - name: create esteele group
-      action: group name=esteele gid=1003 system=no
-
-    - name: create user(s)
-      action: user name=esteele group=esteele groups=admin shell=/bin/bash uid=1003
-
-    - name: setup authorised key(s)
-      action: authorized_key user=esteele key="{{ lookup('file', '/Users/esteele/.ssh/id_rsa.pub') }}"
 
     # Access, security and perms
     - name: write the sudoers file
