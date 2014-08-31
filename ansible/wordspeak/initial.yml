@@ -81,10 +81,10 @@
     - name: Setup nginx staging.wordspeak.org config
       template: src=templates/nginx_confd_staging_wordspeak_org.j2
                  dest=/etc/nginx/conf.d/staging_wordspeak_org.conf
+                 owner=root group=root mode=0644
     - name: Setup nginx www.wordspeak.org config
       template: src=templates/nginx_confd_www_wordspeak_org.j2
                  dest=/etc/nginx/conf.d/www_wordspeak_org.conf
-                 owner=root group=root mode=0644
                  owner=root group=root mode=0644
     - name: Enable and start nginx
       action: service name=nginx state=started enabled=yes
