@@ -1,4 +1,6 @@
----
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+# 
 - hosts: vagrant
   user: root
   sudo: yes
@@ -32,13 +34,6 @@
       action: lineinfile dest=/etc/sysconfig/iptables state=present
                line='-A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT'
                regexp='^-A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT$'
-               insertafter='^-A INPUT -i lo -j ACCEPT$'
-      notify: Restart iptables
-
-    - name: Enable inbound UDP port 60000-60001 in firewall for mosh
-      action: lineinfile dest=/etc/sysconfig/iptables state=present
-               line='-A INPUT -m state --state NEW -m multiport -p udp --dports 60000:60100 -j ACCEPT'
-               regexp='^-A INPUT -m state --state NEW -m multiport -p udp --dports 60000:60100 -j ACCEPT$'
                insertafter='^-A INPUT -i lo -j ACCEPT$'
       notify: Restart iptables
 
@@ -80,7 +75,7 @@
     - name: Enable and start nginx
       action: service name=nginx state=started enabled=yes
 
-    - yum: name=mosh state=present
+    - yum: name=bash-completion state=present
     - yum: name=tmux state=present
     - yum: name=git state=present
     - yum: name=ack state=present
