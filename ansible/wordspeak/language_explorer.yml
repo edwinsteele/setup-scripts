@@ -1,4 +1,6 @@
----
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+# 
 # Non-system packages to allow the build and deployment of the language_explorer
 # Assumes python27-setup.yml has been run before
 
@@ -41,6 +43,16 @@
       sudo_user: postgres
       postgresql_db: name=esteele
 
-# creates=/var/lib/pgsql/??
-# nginx
-# gunicorn
+    - name: Setup language_explorer postgres db
+      sudo: True
+      sudo_user: postgres
+      postgresql_db: name=language_explorer
+
+    - name: Setup language_explorer venv with gunicorn
+      sudo: True
+      sudo_user: esteele
+      pip: name=gunicorn virtualenv_command=virtualenv-2.7
+            virtualenv=/home/esteele/.virtualenvs/language_explorer
+
+# nginx setup
+# gunicorn setup
