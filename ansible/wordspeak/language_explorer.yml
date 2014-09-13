@@ -54,5 +54,22 @@
       pip: name=gunicorn virtualenv_command=virtualenv-2.7
             virtualenv=/home/esteele/.virtualenvs/language_explorer
 
-# nginx setup
-# gunicorn setup
+    - name: Setup nginx language_explorer.wordspeak.org config
+      template: src=templates/nginx_confd_language_explorer_wordspeak.org.j2
+                 dest=/etc/nginx/conf.d/language_explorer_wordspeak_org.conf
+                 owner=root group=root mode=0644
+      notify: Reload nginx
+
+    #- name: Setup gunicorn init.d script
+    #  template: src=templates/gunicorn_init_d.j2 dest=/etc/init.d/gunicorn
+    #             owner=root group=root mode=0755
+
+    # We don't attempt to start gunicorn because we haven't finished the install of language_explorer
+    #- name: Enable gunicorn for next reboot
+    #  action: service name=gunicorn enabled=yes
+
+
+  handlers:
+    - name: Reload nginx
+      action: service name=nginx state=reloaded
+
