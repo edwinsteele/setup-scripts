@@ -1,5 +1,46 @@
 server {
+    listen 80;
     server_name wordspeak.org www.wordspeak.org;
+    #return 301 https://$host$request_uri;
+
+    location / {
+        root   /home/esteele/Sites/www.wordspeak.org;
+        index  index.html;
+    }
+
+    location ~* \.(jpg|jpeg|gif|png|ico) {
+        root   /home/esteele/Sites/www.wordspeak.org;
+        expires 365d;
+    }
+
+    location = (index.html|archive.html) {
+        root   /home/esteele/Sites/www.wordspeak.org;
+        expires 1h;
+    }
+
+    location ~* \.(html|json|js|css) {
+        root   /home/esteele/Sites/www.wordspeak.org;
+        expires 7d;
+    }
+
+
+    access_log  /var/log/nginx/www.wordspeak.org-access.log;
+    error_page 404 = /pages/404.html;
+
+    # deny access to .htaccess files, if Apache's document root
+    # concurs with nginx's one
+    
+    location ~ /\.ht {
+        deny  all;
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name wordspeak.org www.wordspeak.org;
+
+    ssl_certificate /etc/ssl/certs/wordspeak.org-certchain.ssl.crt;
+    ssl_certificate_key /etc/ssl/certs/wordspeak.org.ssl.key;
 
     location / {
         root   /home/esteele/Sites/www.wordspeak.org;

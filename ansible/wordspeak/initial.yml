@@ -36,6 +36,12 @@
                regexp='^-A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT$'
                insertafter='^-A INPUT -i lo -j ACCEPT$'
       notify: Restart iptables
+    - name: Enable inbound TCP port 443 in firewall
+      action: lineinfile dest=/etc/sysconfig/iptables state=present
+               line='-A INPUT -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT'
+               regexp='^-A INPUT -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT$'
+               insertafter='^-A INPUT -i lo -j ACCEPT$'
+      notify: Restart iptables
 
     # XXX Fix this to use /etc/sysconfig/clock instead
     - name: Set timezone as Sydney
@@ -46,10 +52,17 @@
     - name: Enable and start ntpd
       action: service name=ntpd state=started enabled=yes
 
-    # EPEL for RHEL6 (needed for nginx, mosh and tmux)
+    # EPEL for RHEL6 (needed for nginx and tmux)
+    #TODO - install key with rpm_key
     - name: Install EPEL for RHEL6
       command: yum -y install http://mirror.iprimus.com.au/epel/6/i386/epel-release-6-8.noarch.rpm
                 creates=/etc/yum.repos.d/epel.repo
+
+    # NGINX repo
+    #TODO - install key with rpm_key
+    - name: Install NGINX repo for CentOS6
+      command: yum -y install http://nginx.org/packages/centos/6/noarch/RPMS/nginx-release-centos-6-0.el6.ngx.noarch.rpm
+                creates=/etc/yum.repos.d/nginx.repo
 
     # nginx
     - name: Install nginx
@@ -72,6 +85,9 @@
       template: src=templates/nginx_confd_www_wordspeak_org.j2
                  dest=/etc/nginx/conf.d/www_wordspeak_org.conf
                  owner=root group=root mode=0644
+
+    # TODO - Put cert and key in place
+
     - name: Enable and start nginx
       action: service name=nginx state=started enabled=yes
 

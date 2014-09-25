@@ -11,6 +11,7 @@
   tasks:
     # Need enchant 1.6 due to http://bugzilla.abisource.com/show_bug.cgi?id=12350 which is in 1.5 (RHEL6 default)
     # Use flexbox repo: http://sourceforge.net/projects/flexbox/files/
+    # TODO Load key with rpm_key and enable gpg in repo conf
     - name: Install flexbox repo rpm
       yum: name=http://aarnet.dl.sourceforge.net/project/flexbox/flexbox-release-1-1.noarch.rpm
             state=present

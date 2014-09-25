@@ -17,8 +17,12 @@ Assumes that your default ssh public key is installed on the server under the ac
 4. Initial system setup: `ansible-playbook -u root -i vagrant/mercury-vm/ansible_hosts ansible/wordspeak/initial.yml`
 5. Setup python2.7 and all the system modules required for wordspeak deployment: `ansible-playbook -u root -i vagrant/mercury-vm/ansible_hosts ansible/wordspeak/wordspeak-deploy.yml`
 6. Setup the wordspeak site, with Nikola for building: `ansible-playbook -u root -i vagrant/mercury-vm/ansible_hosts ansible/wordspeak/esteele.yml`
+6. Setup the language_explorer site: `ansible-playbook -u root -i vagrant/mercury-vm/ansible_hosts ansible/wordspeak/language_explorer.yml`
+7. Logon to the VM to perform the rest of the steps
 7. Update /etc/hosts to have FQDN for host, not just machine name
 7. Copy ssh keys and ssh config
+8. Copy wordspeak.org-certchain.crt to /etc/ssl/certs/wordspeak.org-certchain.ssl.crt  (root 644)
+9. Copy my-private-decrypted.key to /etc/ssl/certs/wordspeak.org.ssl.key (root 400)
 8. Test github with `ssh -T git@github.com`.
 9. cd ~/Code && git clone git@github.com:edwinsteele/wordspeak.org.git (listed at the end of esteele.yml)
 11. cd ~/Code && git clone git@github.com:edwinsteele/dotfiles.git
