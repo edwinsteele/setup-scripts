@@ -21,7 +21,9 @@ Assumes that your default ssh public key is installed on the server under the ac
 7. Logon to the VM to perform the rest of the steps
 7. Update /etc/hosts to have FQDN for host, not just machine name
 7. Copy ssh keys and ssh config
-8. Copy wordspeak.org-certchain.crt to /etc/ssl/certs/wordspeak.org-certchain.ssl.crt  (root 644)
+8. cd ~/Code/local/startssl; ./make_bundles.sh
+8. Copy wordspeak.org.chained.ssl.crt to /etc/ssl/certs/wordspeak.org.chained.ssl.crt  (root 644)
+8. Copy wordspeak.org.chained.trusted.crt to /etc/ssl/certs/wordspeak.org.chained.trusted.ssl.crt  (root 644)
 9. Copy my-private-decrypted.key to /etc/ssl/certs/wordspeak.org.ssl.key (root 400)
 8. Test github with `ssh -T git@github.com`.
 9. cd ~/Code && git clone git@github.com:edwinsteele/wordspeak.org.git (listed at the end of esteele.yml)

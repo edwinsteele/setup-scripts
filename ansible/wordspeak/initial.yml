@@ -86,6 +86,10 @@
                  dest=/etc/nginx/conf.d/www_wordspeak_org.conf
                  owner=root group=root mode=0644
 
+    - name: Generate 2048bit random parameter for nginx DH Elliptic Curves
+      command: openssl dhparam -outform pem -out /etc/pki/tls/misc/nginx-dhparam2048.pem 2048
+                creates=/etc/pki/tls/misc/nginx-dhparam2048.pem
+
     # TODO - Put cert and key in place
 
     - name: Enable and start nginx
