@@ -90,7 +90,15 @@
       command: openssl dhparam -outform pem -out /etc/pki/tls/misc/nginx-dhparam2048.pem 2048
                 creates=/etc/pki/tls/misc/nginx-dhparam2048.pem
 
-    # TODO - Put cert and key in place
+    - name: Copy ssl chained cert
+      copy: src=/Users/esteele/Code/local/startssl/wordspeak.org.chained.crt
+             dest=/etc/ssl/certs/wordspeak.org.chained.crt owner=root group=root mode=0644
+    - name: Copy ssl trusted chained cert
+      copy: src=/Users/esteele/Code/local/startssl/wordspeak.org.chained.trusted.crt
+             dest=/etc/ssl/certs/wordspeak.org.chained.trusted.crt owner=root group=root mode=0644
+    - name: Copy certificate key
+      copy: src=/Users/esteele/Code/local/startssl/my-private-decrypted.key
+             dest=/etc/ssl/certs/wordspeak.org.ssl.key owner=root group=root mode=0600
 
     - name: Enable and start nginx
       action: service name=nginx state=started enabled=yes
@@ -101,6 +109,7 @@
     - yum: name=ack state=present
     - yum: name=wget state=present
     - yum: name=bind-utils state=present
+    - yum: name=vim-enhanced state=present
 
 
 
