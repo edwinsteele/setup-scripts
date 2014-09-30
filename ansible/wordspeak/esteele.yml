@@ -30,6 +30,11 @@
       ini_file: dest=/home/esteele/.gitconfig section=user
                  option=name value="Edwin Steele"
 
+    - name: Setup private_profile placeholder
+      sudo: True
+      sudo_user: esteele
+      file: path=/home/esteele/.profile_private mode=0600 state=touch
+
     - name: Setup git push style for esteele
       sudo: True
       sudo_user: esteele
