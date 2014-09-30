@@ -14,6 +14,14 @@
     - name: Install python-devel for module compilation (system python 2.6)
       yum: name=python-devel state=present
 
+    # Hack to setup psycopg2 before we replace the default python interpreter
+    - name: Install pip (system python 2.6)
+      yum: name=python-pip state=present
+    - name: Install postgres-devel for subsequent admin tasks
+      yum: name=postgresql-devel state=present
+    - name: Install psycopg2 for subsequent admin tasks
+      pip: name=psycopg2 state=present
+
     - name: Retrieve PUIAS GPG key
       get_url: url=http://springdale.math.ias.edu/data/puias/6/x86_64/os/RPM-GPG-KEY-puias
                 dest=/etc/pki/rpm-gpg/RPM-GPG-KEY-puias
@@ -35,6 +43,3 @@
     - name: Install virtualenv-2.7 using easy_install
       command: /usr/bin/easy_install-2.7 virtualenv creates=/usr/bin/virtualenv-2.7
 
-    # Install this last, so that pip points to system python (which is required for postgres tasks)
-    - name: Install pip (system python 2.6)
-      yum: name=python-pip state=present
