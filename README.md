@@ -14,7 +14,8 @@ Assumes that your default ssh public key is installed on the server under the ac
 1. workon ansible  (venv should already exist)
 2. replace the host in vagrant/mercury-vm/ansible_hosts with the newly provisioned host
 3. cd ~/Code/local/startssl; ./make_bundles.sh
-4. test connectivity: `ansible -u root all -i vagrant/mercury-vm/ansible_hosts -m ping`. This will give a pong response. 
+4. cd ~/Code/nikola; python setup.py sdist --format=bztar
+4. test ansible connectivity: `ansible -u root all -i vagrant/mercury-vm/ansible_hosts -m ping`. This will give a pong response. 
 5. Initial system setup: `ansible-playbook -u root -i vagrant/mercury-vm/ansible_hosts ansible/wordspeak/initial.yml`
 11. Setup python2.7: `ansible-playbook -u root -i vagrant/mercury-vm/ansible_hosts ansible/wordspeak/python27-setup.yml`
 12. Setup my user account: `ansible-playbook -u root -i vagrant/mercury-vm/ansible_hosts ansible/wordspeak/esteele.yml`
@@ -25,10 +26,12 @@ Assumes that your default ssh public key is installed on the server under the ac
 17. Copy esteele ssh keys and ssh config
 18. Test github with `ssh -T git@github.com`.
 19. cd ~/Code && git clone git@github.com:edwinsteele/wordspeak.org.git (listed at the end of esteele.yml)
+19. cd ~/Code/wordspeak.org && git submodule update --init  (listed at the end of esteele.yml)
 20. cd ~/Code && git clone git@github.com:edwinsteele/dotfiles.git
 21. cd ~/Code/dotfiles && ./make.sh
 22. source ~/.virtualenvs/wordspeak/bin/activate
-23. pip install git+https://github.com/edwinsteele/nikola.git@ongoing_5.5_compat#egg=nikola_5.5_compat
+23. copy sdist of my nikola fork from ~/Code/nikola/dist (installing from github seems prone to failure)
+23. pip install /tmp/Nikola-5.5.1-.tar.bz2  (for example)
 24. pip install -r ~/Code/wordspeak.org/requirements.txt
 
 # Provisioning a VM on a local machine with Vagrant/VirtualBox
