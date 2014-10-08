@@ -53,7 +53,7 @@
       action: service name=ntpd state=started enabled=yes
 
     - name: Create swap space as /swapfile
-      command:  fallocate -l 1G /swapfile
+      command: dd if=/dev/zero of=/swapfile bs=1024 count=1000000
       when: ansible_swaptotal_mb < 1
 
     - name: Make /swapfile into a swapfile
