@@ -52,6 +52,21 @@
     - name: Enable and start ntpd
       action: service name=ntpd state=started enabled=yes
 
+    - name: Create swap space as /swapfile
+      command:  fallocate -l 1G /swapfile
+      when: ansible_swaptotal_mb < 1
+
+    - name: Make /swapfile into a swapfile
+      command: mkswap /swapfile
+      when: ansible_swaptotal_mb < 1
+
+    - name: Enable swap on /swapfile
+      command: swapon /swapfile
+      when: ansible_swaptotal_mb < 1
+
+    - name: Add /swapfile to fstab
+      action: lineinfile dest=/etc/fstab regexp="swapfile" line="/swapfile none swap sw 0 0" state=present
+
     # EPEL for RHEL6 (needed for nginx and tmux)
     #TODO - install key with rpm_key
     - name: Install EPEL for RHEL6
