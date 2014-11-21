@@ -18,7 +18,8 @@
 
     - name: Install xz for subsequent Linkchecker setup
       yum: name=xz state=present
-
+    - name: Install java for yuicompressor
+      yum: name=java-1.6.0-openjdk.x86_64 state=present
     - name: Install enchant for spell checking
       yum: name=enchant state=present
     - name: Install enchant-aspell for aspell compatibility
