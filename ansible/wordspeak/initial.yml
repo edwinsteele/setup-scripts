@@ -30,14 +30,17 @@
         - Reload sshd
 
     # Firewall
+    - name: create a base firewall config
+      template: src=templates/iptables.j2 dest=/etc/sysconfig/iptables
+                 owner=root group=root mode=0600
     - name: Enable inbound TCP port 80 in firewall
-      action: lineinfile dest=/etc/sysconfig/iptables state=present
+      action: lineinfile dest=/etc/sysconfig/iptables create=yes state=present
                line='-A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT'
                regexp='^-A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT$'
                insertafter='^-A INPUT -i lo -j ACCEPT$'
       notify: Restart iptables
     - name: Enable inbound TCP port 443 in firewall
-      action: lineinfile dest=/etc/sysconfig/iptables state=present
+      action: lineinfile dest=/etc/sysconfig/iptables create=yes state=present
                line='-A INPUT -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT'
                regexp='^-A INPUT -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT$'
                insertafter='^-A INPUT -i lo -j ACCEPT$'
@@ -67,11 +70,10 @@
     - name: Add /swapfile to fstab
       action: lineinfile dest=/etc/fstab regexp="swapfile" line="/swapfile none swap sw 0 0" state=present
 
-    # EPEL for RHEL6 (needed for nginx and tmux)
+    # EPEL for RHEL6 (needed for tmux)
     #TODO - install key with rpm_key
     - name: Install EPEL for RHEL6
-      command: yum -y install http://mirror.iprimus.com.au/epel/6/i386/epel-release-6-8.noarch.rpm
-                creates=/etc/yum.repos.d/epel.repo
+      yum: name=epel-release state=present
 
     # NGINX repo
     #TODO - install key with rpm_key
