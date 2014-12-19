@@ -38,8 +38,8 @@ Assumes that your default ssh public key is installed on the server under the ac
 Assumes virtualbox, vagrant 1.7
 
 1. workon ansible (venv should already exist)
-2. confirm that the IP address in setup-scripts/vagrant/mercury-vm/Vagrantfile is the same as setup-scripts/vagrant/mercury/vagrant-ansible_hosts
-3. In directory setup-scripts/vagrant/mercury, run "vagrant up" to boot an existing VM, or "vagrant destroy" and "vagrant up" to reprovision.
+2. confirm that the IP address in setup-scripts/vagrant/mercury-vm/Vagrantfile is the same as setup-scripts/vagrant/mercury-vm/vagrant-ansible_hosts
+3. In directory setup-scripts/vagrant/mercury-vm, run "vagrant up" to boot an existing VM, or "vagrant destroy" and "vagrant up" to reprovision.
 4. Possibly do most of the post ansible steps above
 
 For ad-hoc running of ansible playbooks, after the esteele account has been created, run e.g.: ansible-playbook -u esteele -i ../../vagrant/mercury-vm/vagrant-ansible_hosts ./language_explorer.yml
