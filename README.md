@@ -23,6 +23,7 @@ Assumes that your default ssh public key is installed on the server under the ac
 14. Setup the language_explorer site: `ansible-playbook -u root -i vagrant/mercury-vm/ansible_hosts ansible/wordspeak/language_explorer.yml`
 15. Logon to the VM to perform the rest of the steps
 16. Update /etc/hosts to have FQDN for host, not just machine name
+16. Run ~/.dropbox-dist/dropboxd , paste the activation URL into a browser , ctrl-c the dropboxd process and then ~/.dropbox-dist/dropbox.py start
 17. Copy esteele ssh keys and ssh config
 18. Test github with `ssh -T git@github.com`.
 19. cd ~/Code && git clone git@github.com:edwinsteele/wordspeak.org.git (listed at the end of esteele.yml)

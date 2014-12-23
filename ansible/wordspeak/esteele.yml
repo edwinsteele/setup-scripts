@@ -55,3 +55,15 @@
       sudo: True
       sudo_user: esteele
       file: path=/home/esteele state=directory mode=0711
+
+   - name: Download dropbox daemon
+     sudo: True
+     sudo_user: esteele
+     shell: cd ~ && wget -O - "https://www.dropbox.com/download?plat=lnx.x86_64" | tar xzf -
+     creates: /home/esteele/.dropbox-dist
+
+   - name: Download dropbox daemon
+     sudo: True
+     sudo_user: esteele
+     get_url: url=https://www.dropbox.com/download?dl=packages/dropbox.py dest=/home/esteele/.dropbox-dist/dropbox.py mode=0750
+
