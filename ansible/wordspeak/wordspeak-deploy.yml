@@ -36,8 +36,6 @@
       yum: name=http://aarnet.dl.sourceforge.net/project/flexbox/flexbox-release-1-1.noarch.rpm
             state=present
 
-    - name: Install xz for subsequent Linkchecker setup
-      yum: name=xz state=present
     - name: Install java for yuicompressor
       yum: name=java-1.6.0-openjdk.x86_64 state=present
     - name: Install enchant for spell checking
@@ -57,10 +55,6 @@
       file: path=/home/esteele/Sites/www.wordspeak.org state=directory
              mode=0711 owner=esteele group=esteele
 
-    #- name: Install Nikola with deps into wordspeak venv
-    #  pip: name=nikola virtualenv_command=virtualenv-2.7 version=5.5.1
-    #        virtualenv=/home/esteele/.virtualenvs/wordspeak
-
     - name: Create Nikola Cache directory
       file: path=/home/esteele/tmp/nikola_wordspeak_cache state=directory
              mode=0755 owner=esteele group=esteele
@@ -69,11 +63,11 @@
       file: path=/home/esteele/tmp/nikola_wordspeak_output state=directory
              mode=0755 owner=esteele group=esteele
 
-    # Just install something so that the venv gets created. Pick lxml also because it regularly has problems building as a part of a big pip install, quite possibly due to memory starvation on the vm
-    - name: Install lxml for nikola
+    # Just install something so that the venv gets created.
+    - name: Install requests for nikola
       sudo: True
       sudo_user: esteele
-      pip: name=lxml virtualenv=/home/esteele/.virtualenvs/wordspeak version=3.2.3
+      pip: name=requests virtualenv_command=/usr/local/bin/virtualenv-2.7 virtualenv=/home/esteele/.virtualenvs/wordspeak_n7 version=2.4.3
 
     # Git setup can't be done via ansible because of the private keys
     #- name: Checkout wordspeak repo

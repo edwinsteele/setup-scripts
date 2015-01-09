@@ -31,9 +31,8 @@ Assumes that your default ssh public key is installed on the server under the ac
 19. cd ~/Code/wordspeak.org && git submodule update --init  (listed at the end of esteele.yml)
 20. cd ~/Code && git clone git@github.com:edwinsteele/dotfiles.git
 21. cd ~/Code/dotfiles && ./make.sh
-22. source ~/.virtualenvs/wordspeak/bin/activate
-23. copy sdist of my nikola fork from ~/Code/nikola/dist (installing from github seems prone to failure)
-23. pip install /tmp/Nikola-5.5.1-.tar.bz2  (for example)
+22. virtualenv ~/.virtualenvs/wordspeak_n7
+23. source ~/.virtualenvs/wordspeak_n7/bin/activate
 24. pip install -r ~/Code/wordspeak.org/requirements.txt
 
 # Provisioning a VM on a local machine with Vagrant/VirtualBox
