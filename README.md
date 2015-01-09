@@ -17,6 +17,7 @@ Assumes that your default ssh public key is installed on the server under the ac
 4. cd ~/Code/nikola; python setup.py sdist --format=bztar
 4. test ansible connectivity: `ansible -u root all -i vagrant/mercury-vm/ansible_hosts -m ping`. This will give a pong response. 
 5. Initial system setup: `ansible-playbook -u root -i vagrant/mercury-vm/ansible_hosts ansible/wordspeak/initial.yml`
+5. Initial system setup: `ansible-playbook -u root -i vagrant/mercury-vm/ansible_hosts ansible/wordspeak/base_nginx.yml`
 11. Setup python2.7: `ansible-playbook -u root -i vagrant/mercury-vm/ansible_hosts ansible/wordspeak/python27-setup.yml`
 12. Setup my user account: `ansible-playbook -u root -i vagrant/mercury-vm/ansible_hosts ansible/wordspeak/esteele.yml`
 13. Setup all the system modules required for wordspeak deployment: `ansible-playbook -u root -i vagrant/mercury-vm/ansible_hosts ansible/wordspeak/wordspeak-deploy.yml`

@@ -9,6 +9,26 @@
   gather_facts: yes
 
   tasks:
+    # NGINX stuff
+    - name: Setup nginx staging.wordspeak.org config
+      template: src=templates/nginx_confd_staging_wordspeak_org.j2
+                 dest=/etc/nginx/conf.d/staging_wordspeak_org.conf
+                 owner=root group=root mode=0644
+    - name: Setup nginx www.wordspeak.org config
+      template: src=templates/nginx_confd_www_wordspeak_org.j2
+                 dest=/etc/nginx/conf.d/www_wordspeak_org.conf
+                 owner=root group=root mode=0644
+
+    - name: Copy ssl chained cert
+      copy: src=/Users/esteele/Code/local/startssl/wordspeak.org.chained.crt
+             dest=/etc/ssl/certs/wordspeak.org.chained.crt owner=root group=root mode=0644
+    - name: Copy ssl trusted chained cert
+      copy: src=/Users/esteele/Code/local/startssl/wordspeak.org.chained.trusted.crt
+             dest=/etc/ssl/certs/wordspeak.org.chained.trusted.crt owner=root group=root mode=0644
+    - name: Copy certificate key
+      copy: src=/Users/esteele/Code/local/startssl/my-private-decrypted.key
+             dest=/etc/ssl/certs/wordspeak.org.ssl.key owner=root group=root mode=0600
+    
     # Need enchant 1.6 due to http://bugzilla.abisource.com/show_bug.cgi?id=12350 which is in 1.5 (RHEL6 default)
     # Use flexbox repo: http://sourceforge.net/projects/flexbox/files/
     # TODO Load key with rpm_key and enable gpg in repo conf
