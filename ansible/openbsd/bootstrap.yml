@@ -1,0 +1,11 @@
+- hosts: vagrant
+  user: root
+  sudo: yes
+  gather_facts: no
+  vars_files:
+    - vars/defaults.yml
+
+  tasks:
+    # Bootstrap
+    - raw: pkg_add {{PKG_PATH}}python-2.7.8.tgz
+

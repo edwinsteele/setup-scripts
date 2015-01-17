@@ -1,0 +1,50 @@
+- hosts: vagrant
+  user: root
+  sudo: yes
+  gather_facts: yes
+  vars_files:
+    - vars/defaults.yml
+
+
+  tasks:
+    - name: create admin group
+      group: name=admin gid=1002 system=no
+
+    - name: Only allow root login with keys
+      lineinfile: dest=/etc/ssh/sshd_config
+                insertafter="^#PermitRootLogin"
+                line="PermitRootLogin without-password" validate="sshd -t -f %s"
+      notify:
+        - Restart sshd
+
+    - name: Don't allow auth with password
+      lineinfile: dest=/etc/ssh/sshd_config
+                insertafter="^#PasswordAuthentication"
+                line="PasswordAuthentication no" validate="sshd -t -f %s"
+      notify:
+        - Restart sshd
+  
+    - name: Give the admin group sudo privileges
+      lineinfile: 'dest=/etc/sudoers line="%admin        ALL=(ALL) SETENV: ALL" validate="visudo -f %s"'
+
+    # Install key packages
+    #  (tmux and dig/nslookup are in the base install)
+    - openbsd_pkg: name=git state=present
+      environment:
+          PKG_PATH: "{{PKG_PATH}}"
+    - openbsd_pkg: name=p5-ack state=present
+      environment:
+          PKG_PATH: "{{PKG_PATH}}"
+    - openbsd_pkg: name=wget state=present
+      environment:
+          PKG_PATH: "{{PKG_PATH}}"
+    - openbsd_pkg: name=curl state=present
+      environment:
+          PKG_PATH: "{{PKG_PATH}}"
+    - openbsd_pkg: name=vim--no_x11 state=present
+      environment:
+          PKG_PATH: "{{PKG_PATH}}"
+
+  handlers:
+    - name: Restart sshd
+      service: name=sshd state=restarted
