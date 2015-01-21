@@ -35,17 +35,23 @@
     - name: Copy Python 2.7.9 RPM to the new machine
       copy: src=/Users/esteele/Software/python27-for-centos6/rpms/python27-2.7.9-1.x86_64.rpm
              dest=/tmp/python27-2.7.9-1.x86_64.rpm
+      when: ansible_os_family == "RedHat"
     - name: Copy Python 2.7.9 devel RPM to the new machine
       copy: src=/Users/esteele/Software/python27-for-centos6/rpms/python27-devel-2.7.9-1.x86_64.rpm
              dest=/tmp/python27-devel-2.7.9-1.x86_64.rpm
+      when: ansible_os_family == "RedHat"
 
     - name: Install Python 2.7.9 from recently copied files
       yum: name=/tmp/python27-2.7.9-1.x86_64.rpm state=present
+      when: ansible_os_family == "RedHat"
     - name: Install Python devel 2.7.9 from recently copied files
       yum: name=/tmp/python27-devel-2.7.9-1.x86_64.rpm state=present
+      when: ansible_os_family == "RedHat"
 
+    # Only need to run this on redhat as pip is installed with openbsd pkg
     - name: Install pip and easy_install using ensurepip (works with 2.7.9+)
       command: /usr/local/bin/python2.7 -m ensurepip --upgrade creates=/usr/local/bin/pip2.7
+      when: ansible_os_family == "RedHat"
 
     - name: Install virtualenv using easy_install
       command: /usr/local/bin/easy_install-2.7 virtualenv creates=/usr/local/bin/virtualenv-2.7
