@@ -1,2 +1,0 @@
-sshd_allow_password_authentication: 'no'
-sshd_permit_root_login: 'without-password'
