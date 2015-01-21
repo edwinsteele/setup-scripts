@@ -44,6 +44,9 @@
     - openbsd_pkg: name=vim--no_x11 state=present
       environment:
           PKG_PATH: "{{PKG_PATH}}"
+    - openbsd_pkg: name=lsof state=present
+      environment:
+          PKG_PATH: "{{PKG_PATH}}"
 
   handlers:
     - name: Restart sshd
