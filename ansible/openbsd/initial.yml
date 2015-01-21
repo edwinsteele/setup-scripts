@@ -1,9 +1,7 @@
-- hosts: vagrant
+- hosts: all
   user: root
   sudo: yes
   gather_facts: yes
-  vars_files:
-    - vars/defaults.yml
 
 
   tasks:
