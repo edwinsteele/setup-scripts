@@ -3,7 +3,7 @@
 # vi: set ft=ruby :
 #
 # system packages to support use of python27 and virtualenvs
-- hosts: vagrant
+- hosts: all
   sudo: yes
   sudo_user: root
   gather_facts: yes
@@ -11,16 +11,25 @@
   tasks:
     - name: Install gcc for module compilation
       yum: name=gcc state=present
+      when: ansible_os_family == "RedHat"
     - name: Install python-devel for module compilation (system python 2.6)
       yum: name=python-devel state=present
+      when: ansible_os_family == "RedHat"
 
     # Hack to setup psycopg2 before we replace the default python interpreter
     - name: Install pip (system python 2.6)
       yum: name=python-pip state=present
+      when: ansible_os_family == "RedHat"
+    - name: Install pip (system python)
+      openbsd_pkg: name=py-pip state=present
+      when: ansible_os_family == "OpenBSD"
+      environment:
+          PKG_PATH: "{{PKG_PATH}}"
     - name: Install postgres-devel for subsequent admin tasks
       yum: name=postgresql-devel state=present
+      when: ansible_os_family == "RedHat"
     - name: Install psycopg2 for subsequent admin tasks
-      pip: name=psycopg2 state=present
+      pip: name=psycopg2 state=present executable="{{system_pip_location}}"
 
       # Python 2.7.9 RPMs made with https://github.com/jyoo/python27-for-centos6
     - name: Copy Python 2.7.9 RPM to the new machine
