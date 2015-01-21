@@ -1,7 +1,7 @@
 ---
 # Non-system packages to allow the build and deployment of the wordspeak site
 
-- hosts: vagrant
+- hosts: all
   sudo: yes
   sudo_user: root
   gather_facts: yes

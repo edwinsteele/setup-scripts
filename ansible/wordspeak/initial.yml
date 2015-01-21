@@ -1,7 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 # 
-- hosts: vagrant
+- hosts: all
   user: root
   sudo: yes
   gather_facts: yes

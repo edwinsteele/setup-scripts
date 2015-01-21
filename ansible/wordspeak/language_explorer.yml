@@ -4,7 +4,7 @@
 # Non-system packages to allow the build and deployment of the language_explorer
 # Assumes python27-setup.yml has been run before
 
-- hosts: vagrant
+- hosts: all
   sudo: yes
   sudo_user: root
   gather_facts: yes
