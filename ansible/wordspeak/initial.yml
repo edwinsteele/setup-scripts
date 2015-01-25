@@ -84,18 +84,9 @@
       when: ansible_swaptotal_mb < 1000
       when: ansible_os_family == "RedHat"
 
-    - name: Create swap space as /home/swapfile
-      command: dd if=/dev/zero of=/home/swapfile bs=1024 count=1000000
-      when: ansible_swaptotal_mb < 1000
-      when: ansible_os_family == "OpenBSD"
-
     - name: Set permissions on /swapfile
       file: path=/swapfile mode=0600
       when: ansible_os_family == "RedHat"
-
-    - name: Set permissions on /home/swapfile
-      file: path=/home/swapfile mode=0600
-      when: ansible_os_family == "OpenBSD"
 
     - name: Make /swapfile into a swapfile
       command: mkswap /swapfile
@@ -107,18 +98,9 @@
       when: ansible_swaptotal_mb < 1000
       when: ansible_os_family == "RedHat"
 
-    - name: Enable swap on /swapfile (OpenBSD)
-      command: swapctl -a /home/swapfile
-      when: ansible_swaptotal_mb < 1000
-      when: ansible_os_family == "OpenBSD"
-
     - name: Add /swapfile to fstab (Linux)
       action: lineinfile dest=/etc/fstab regexp="swapfile" line="/swapfile none swap sw 0 0" state=present
       when: ansible_os_family == "RedHat"
-
-    - name: Add /home/swapfile to fstab (OpenBSD)
-      action: lineinfile dest=/etc/fstab regexp="swapfile" line="/home/swapfile none swap sw 0 0" state=present
-      when: ansible_os_family == "OpenBSD"
 
     # EPEL for RHEL6 (needed for tmux)
     #TODO - install key with rpm_key
