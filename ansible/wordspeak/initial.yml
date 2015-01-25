@@ -21,7 +21,7 @@
 
     # Access, security and perms
     - name: Give the admin group sudo privileges
-      lineinfile: 'dest=/etc/sudoers line="%admin        ALL=(ALL) SETENV: ALL" validate="visudo -f %s"'
+      lineinfile: 'dest=/etc/sudoers line="%admin        ALL=(ALL) NOPASSWD: SETENV: ALL" validate="visudo -f %s"'
 
     - name: Only allow root login with keys
       lineinfile: dest=/etc/ssh/sshd_config
