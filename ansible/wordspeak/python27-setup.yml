@@ -28,6 +28,11 @@
     - name: Install postgres-devel for subsequent admin tasks
       yum: name=postgresql-devel state=present
       when: ansible_os_family == "RedHat"
+    - name: Install postgres-client to provide packages needed for psycopg2
+      openbsd_pkg: name=postgresql-client state=present
+      when: ansible_os_family == "OpenBSD"
+      environment:
+          PKG_PATH: "{{PKG_PATH}}"
     - name: Install psycopg2 for subsequent admin tasks
       pip: name=psycopg2 state=present executable="{{system_pip_location}}"
 
