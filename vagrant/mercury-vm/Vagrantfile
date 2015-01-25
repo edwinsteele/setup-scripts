@@ -14,34 +14,38 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder "/Users/esteele/Documents/VagrantShared", "/vagrant_shared"
 
   config.vm.provision :ansible do |ansible|
-    ansible.inventory_path = "vagrant-ansible_hosts"
+    ansible.inventory_path = "../../ansible/hosts"
+    ansible.limit = "local-linux"
     ansible.extra_vars = { ansible_ssh_user: 'vagrant' }
-    #ansible.raw_arguments = ['--ask-pass']
     ansible.playbook = "../../ansible/wordspeak/initial.yml"
   end
   config.vm.provision :ansible do |ansible|
-    ansible.inventory_path = "vagrant-ansible_hosts"
+    ansible.inventory_path = "../../ansible/hosts"
+    ansible.limit = "local-linux"
     ansible.extra_vars = { ansible_ssh_user: 'vagrant' }
-    #ansible.raw_arguments = ['--ask-pass']
     ansible.playbook = "../../ansible/wordspeak/base_nginx.yml"
   end
   config.vm.provision :ansible do |ansible|
-    ansible.inventory_path = "vagrant-ansible_hosts"
+    ansible.inventory_path = "../../ansible/hosts"
+    ansible.limit = "local-linux"
     ansible.extra_vars = { ansible_ssh_user: 'vagrant' }
     ansible.playbook = "../../ansible/wordspeak/python27-setup.yml"
   end
   config.vm.provision :ansible do |ansible|
-    ansible.inventory_path = "vagrant-ansible_hosts"
+    ansible.inventory_path = "../../ansible/hosts"
+    ansible.limit = "local-linux"
     ansible.extra_vars = { ansible_ssh_user: 'vagrant' }
     ansible.playbook = "../../ansible/wordspeak/esteele.yml"
   end
   config.vm.provision :ansible do |ansible|
-    ansible.inventory_path = "vagrant-ansible_hosts"
+    ansible.inventory_path = "../../ansible/hosts"
+    ansible.limit = "local-linux"
     ansible.extra_vars = { ansible_ssh_user: 'vagrant' }
     ansible.playbook = "../../ansible/wordspeak/wordspeak-deploy.yml"
   end
   config.vm.provision :ansible do |ansible|
-    ansible.inventory_path = "vagrant-ansible_hosts"
+    ansible.inventory_path = "../../ansible/hosts"
+    ansible.limit = "local-linux"
     ansible.extra_vars = { ansible_ssh_user: 'vagrant' }
     ansible.playbook = "../../ansible/wordspeak/language_explorer.yml"
   end
