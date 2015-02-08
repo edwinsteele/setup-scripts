@@ -29,6 +29,17 @@
       copy: src=/Users/esteele/Code/local/startssl/my-private-decrypted.key
              dest=/etc/ssl/certs/wordspeak.org.ssl.key owner=root group=wheel mode=0600
     
+    - name: Create .ssh directory
+      file: dir=/home/esteele/.ssh owner=esteele group=esteele mode=0700
+
+    - name: Copy wordspeak deploy key
+      copy: src=/Users/esteele/Code/local/sshkeys/github_wordspeak_deploy
+             dest=/home/esteele/.ssh/github_wordspeak_deploy owner=esteele group=esteele mode=0600
+
+    - name: Setup personal ssh config
+      copy: src=templates/esteele_ssh_config
+             dest=/home/esteele/.ssh/config owner=esteele group=esteele mode=0600
+
     # Need enchant 1.6 due to http://bugzilla.abisource.com/show_bug.cgi?id=12350 which is in 1.5 (RHEL6 default)
     # Use flexbox repo: http://sourceforge.net/projects/flexbox/files/
     # TODO Load key with rpm_key and enable gpg in repo conf
