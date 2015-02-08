@@ -21,7 +21,7 @@
 
     # Access, security and perms
     - name: Give the admin group sudo privileges
-      lineinfile: 'dest=/etc/sudoers line="%admin        ALL=(ALL) NOPASSWD: SETENV: ALL" validate="visudo -f %s"'
+      lineinfile: 'dest=/etc/sudoers line="%admin        ALL=(ALL) NOPASSWD: SETENV: ALL" validate="visudo -c -f %s"'
 
     - name: Only allow root login with keys
       lineinfile: dest=/etc/ssh/sshd_config
@@ -81,8 +81,7 @@
 
     - name: Create swap space as /swapfile
       command: dd if=/dev/zero of=/swapfile bs=1024 count=1000000
-      when: ansible_swaptotal_mb < 1000
-      when: ansible_os_family == "RedHat"
+      when: ansible_swaptotal_mb < 1000 and ansible_os_family == "RedHat"
 
     - name: Set permissions on /swapfile
       file: path=/swapfile mode=0600
@@ -90,13 +89,11 @@
 
     - name: Make /swapfile into a swapfile
       command: mkswap /swapfile
-      when: ansible_swaptotal_mb < 1000
-      when: ansible_os_family == "RedHat"
+      when: ansible_swaptotal_mb < 1000 and ansible_os_family == "RedHat"
 
     - name: Enable swap on /swapfile (Linux)
       command: swapon /swapfile
-      when: ansible_swaptotal_mb < 1000
-      when: ansible_os_family == "RedHat"
+      when: ansible_swaptotal_mb < 1000 and ansible_os_family == "RedHat"
 
     - name: Add /swapfile to fstab (Linux)
       action: lineinfile dest=/etc/fstab regexp="swapfile" line="/swapfile none swap sw 0 0" state=present
