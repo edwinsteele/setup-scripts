@@ -55,7 +55,6 @@ Assumes that your default ssh public key is installed on the server under the ac
 
 15. Logon to the VM to perform the rest of the steps
 16. Update `/etc/hosts` to have FQDN for host, not just machine name
-17. Copy esteele ssh keys and ssh config
 18. Test github with `ssh -T git@github.com`.
 19. `cd ~/Code && git clone git@github.com:edwinsteele/wordspeak.org.git` (listed at the end of esteele.yml)
 19. `cd ~/Code/wordspeak.org && git submodule update --init`  (listed at the end of esteele.yml)
@@ -72,5 +71,9 @@ Assumes virtualbox, vagrant 1.7
 3. In directory setup-scripts/vagrant/mercury-vm, run "vagrant up" to boot an existing VM, or "vagrant destroy" and "vagrant up" to reprovision.
 4. Possibly do most of the post ansible steps above
 
-For ad-hoc running of ansible playbooks, after the esteele account has been created, run e.g.: `ansible-playbook -u esteele -i ../../vagrant/mercury-vm/vagrant-ansible_hosts ./language_explorer.yml`
+For ad-hoc running of ansible playbooks, after the esteele account has been created, run e.g.: `ansible-playbook -u esteele -i ../../vagrant/mercury-vm/vagrant-ansible_hosts ./language_explorer.yml` (and change the user line to esteele instead of root in the playbook). 
+TODO - see if we can remove the user line entirely and specify all the time on commandline
+
+# Extra notes
+ansible -i hosts local-linux -m setup to get variables
 
