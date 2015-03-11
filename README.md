@@ -22,7 +22,7 @@ Assumes that your default ssh public key is installed on the server under the ac
 
 ## Provisioning a Linux VM
 
-4. test ansible connectivity: `ansible -u root -i hosts --limit local-linux -m ping`. This will give a pong response. 
+4. test ansible connectivity: `ansible -u root -i hosts local-linux -m ping`. This will give a pong response. 
 5. `ansible-playbook -u root -i hosts --limit local-linux ansible/wordspeak/initial.yml`
 5. `ansible-playbook -u root -i hosts --limit local-linux ansible/wordspeak/base_nginx.yml`
 11. `ansible-playbook -u root -i hosts --limit local-linux ansible/wordspeak/python27-setup.yml`
@@ -39,6 +39,8 @@ Assumes that your default ssh public key is installed on the server under the ac
 * setup root .ssh/authorized_keys
 
 ## Provisioning a local VM
+
+Note that it's not possible to test ansible connectivity on OpenBSD hosts until they have a python interpreter, which is first setup in the bootstrap.yml playbook below
 
 Replace `local-openbsd-amd64` with `local-openbsd-macppc` if this is an openbsd macppc machine
 
