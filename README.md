@@ -40,12 +40,14 @@ Assumes that your default ssh public key is installed on the server under the ac
 
 ## Provisioning a local VM
 
-* `ansible-playbook -u root -i hosts --limit local-openbsd openbsd/bootstrap.yml`
-* `ansible-playbook -u root -i hosts --limit local-openbsd wordspeak/initial.yml`
-* `ansible-playbook -u root -i hosts --limit local-openbsd wordspeak/base_nginx.yml`
-* `ansible-playbook -u root -i hosts --limit local-openbsd wordspeak/python27-setup.yml`
-* `ansible-playbook -u root -i hosts --limit local-openbsd wordspeak/esteele.yml`
-* `ansible-playbook -u root -i hosts --limit local-openbsd wordspeak/wordspeak-deploy.yml`
+Replace `local-openbsd-amd64` with `local-openbsd-macppc` if this is an openbsd macppc machine
+
+* `ansible-playbook -u root -i hosts --limit local-openbsd-amd64 openbsd/bootstrap.yml`
+* `ansible-playbook -u root -i hosts --limit local-openbsd-amd64 wordspeak/initial.yml`
+* `ansible-playbook -u root -i hosts --limit local-openbsd-amd64 wordspeak/base_nginx.yml`
+* `ansible-playbook -u root -i hosts --limit local-openbsd-amd64 wordspeak/python27-setup.yml`
+* `ansible-playbook -u root -i hosts --limit local-openbsd-amd64 wordspeak/esteele.yml`
+* `ansible-playbook -u root -i hosts --limit local-openbsd-amd64 wordspeak/wordspeak-deploy.yml`
 
 
 ## Todo

@@ -1,8 +1,11 @@
 [local-linux]
 192.168.33.10
 
-[local-openbsd]
+[local-openbsd-amd64]
 192.168.33.11
+
+[local-openbsd-macppc]
+192.168.1.2
 
 [local-linux:vars]
 system_pip_location=/usr/bin/pip
@@ -11,8 +14,14 @@ sshd_allow_password_authentication='no'
 sshd_permit_root_login='without-password'
 
 
-[local-openbsd:vars]
+[local-openbsd-amd64:vars]
 ansible_python_interpreter=/usr/local/bin/python2.7
 system_pip_location=/usr/local/bin/pip-2.7
 current_pip_location=/usr/local/bin/pip-2.7
 PKG_PATH='http://mirror.aarnet.edu.au/pub/OpenBSD/5.6/packages/amd64/'
+
+[local-openbsd-macppc:vars]
+ansible_python_interpreter=/usr/local/bin/python2.7
+system_pip_location=/usr/local/bin/pip-2.7
+current_pip_location=/usr/local/bin/pip-2.7
+PKG_PATH='http://mirror.aarnet.edu.au/pub/OpenBSD/5.6/packages/macppc/'
