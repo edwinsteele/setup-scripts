@@ -24,4 +24,4 @@ PKG_PATH='http://mirror.aarnet.edu.au/pub/OpenBSD/5.6/packages/amd64/'
 ansible_python_interpreter=/usr/local/bin/python2.7
 system_pip_location=/usr/local/bin/pip-2.7
 current_pip_location=/usr/local/bin/pip-2.7
-PKG_PATH='http://mirror.aarnet.edu.au/pub/OpenBSD/5.6/packages/macppc/'
+PKG_PATH='http://mirror.aarnet.edu.au/pub/OpenBSD/5.6/packages/powerpc/'
