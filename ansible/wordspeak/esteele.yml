@@ -56,14 +56,3 @@
       sudo: True
       sudo_user: esteele
       file: path=/home/esteele/Code state=directory
-
-    - name: Setup ~esteele/Sites
-      sudo: True
-      sudo_user: esteele
-      file: path=/home/esteele/Code state=directory
-
-    - name: Fix perms on ~esteele to allow ~/Sites to be served up
-      sudo: True
-      sudo_user: esteele
-      file: path=/home/esteele state=directory mode=0711
-
