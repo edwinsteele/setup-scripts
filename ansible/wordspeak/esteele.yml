@@ -11,7 +11,7 @@
       action: group name=esteele gid=1003 system=no
 
     - name: create user(s)
-      action: user name=esteele group=esteele groups=admin uid=1003
+      action: user name=esteele group=esteele groups=wheel
 
     - name: Set login class (OpenBSD)
       user: login_class=staff name=esteele
