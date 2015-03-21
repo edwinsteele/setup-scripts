@@ -17,18 +17,18 @@ Assumes that your default ssh public key is installed on the server under the ac
 1. `workon ansible`  (the virtualenv should already exist from previous work)
 2. `cd ~/Code/setup-scripts/ansible`
 2. Replace the host in `hosts` with the IP address of the newly provisioned host, placing it in the group section that corresponds to the `--limit` argument used in the `ansible-playbook` commands for the appropriate type of VM install
-3. cd ~/Code/local/startssl; ./make_bundles.sh
+3. `cd ~/Code/local/startssl; ./make_bundles.sh`
 
 
 ## Provisioning a Linux VM
 
 4. test ansible connectivity: `ansible -u root -i hosts local-linux -m ping`. This will give a pong response. 
-5. `ansible-playbook -u root -i hosts --limit local-linux ansible/wordspeak/initial.yml`
-5. `ansible-playbook -u root -i hosts --limit local-linux ansible/wordspeak/base_nginx.yml`
-11. `ansible-playbook -u root -i hosts --limit local-linux ansible/wordspeak/python27-setup.yml`
-12. `ansible-playbook -u root -i hosts --limit local-linux ansible/wordspeak/esteele.yml`
-13. `ansible-playbook -u root -i hosts --limit local-linux ansible/wordspeak/wordspeak-deploy.yml`
-14. `ansible-playbook -u root -i vagrant/mercury-vm/ansible_hosts ansible/wordspeak/language_explorer.yml`
+5. `ansible-playbook -u root -i hosts --limit local-linux wordspeak/initial.yml`
+5. `ansible-playbook -u root -i hosts --limit local-linux wordspeak/base_nginx.yml`
+11. `ansible-playbook -u root -i hosts --limit local-linux wordspeak/python27-setup.yml`
+12. `ansible-playbook -u root -i hosts --limit local-linux wordspeak/esteele.yml`
+13. `ansible-playbook -u root -i hosts --limit local-linux wordspeak/wordspeak-deploy.yml`
+14. `ansible-playbook -u root -i hosts --limit local-linux wordspeak/language_explorer.yml`
 
 
 # Provisioning an OpenBSD VM
