@@ -78,6 +78,8 @@ Assumes virtualbox, vagrant 1.7
 For ad-hoc running of ansible playbooks, after the esteele account has been created, run e.g.: `ansible-playbook -u esteele -i ../../vagrant/mercury-vm/vagrant-ansible_hosts ./language_explorer.yml` (and change the user line to esteele instead of root in the playbook). 
 TODO - see if we can remove the user line entirely and specify all the time on commandline
 
+Assumes that the VM can talk to the VirtualBox Host, and to the outside world. This can be done by configuring the VM with two network adapters, one as NAT and the other as host-only (which requires creation of a host-only network on the host)
+
 # Extra notes
 ansible -i hosts local-linux -m setup to get variables
 
