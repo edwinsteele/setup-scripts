@@ -77,10 +77,8 @@
     - name: Ensure NTP is up and running
       yum: name=ntp state=present
       when: ansible_os_family == "RedHat"
-    # XXX Service enabling not supported til OpenBSD 5.7
     - name: Enable and start ntpd
       action: service name=ntpd state=started enabled=yes
-      when: ansible_os_family == "RedHat"
 
     - name: Create swap space as /swapfile
       command: dd if=/dev/zero of=/swapfile bs=1024 count=1000000

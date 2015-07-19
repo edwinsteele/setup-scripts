@@ -1,7 +1,7 @@
 server "www.wordspeak.org" {
 	listen on * port 80
 	alias wordspeak.org
-	block return 301 https://www.wordspeak.org/$REQUEST_URI
+	block return 301 "https://www.wordspeak.org/$REQUEST_URI"
 
 }
 
@@ -9,8 +9,8 @@ server "www.wordspeak.org" {
 	listen on * tls port 443
 	alias wordspeak.org
 	tcp { nodelay }
-	tls certificate /etc/ssl/certs/wordspeak.org.chained.crt
-	tls key /etc/ssl/certs/wordspeak.org.ssl.key
+	tls certificate "/etc/ssl/certs/wordspeak.org.chained.crt"
+	tls key "/etc/ssl/certs/wordspeak.org.ssl.key"
 	root "/htdocs/www.wordspeak.org"
 }
 
@@ -21,7 +21,6 @@ server "staging.wordspeak.org" {
 }
 
 types {
-	# need geojson
 	include "/usr/share/misc/mime.types"
 	application/json	geojson
 }
