@@ -25,10 +25,12 @@
       template: src=templates/nginx_confd_staging_wordspeak_org.j2
                  dest=/etc/nginx/conf.d/staging_wordspeak_org.conf
                  owner=root group=wheel mode=0644
+      when: ansible_os_family == "RedHat"
     - name: Setup nginx www.wordspeak.org config
       template: src=templates/nginx_confd_www_wordspeak_org.j2
                  dest=/etc/nginx/conf.d/www_wordspeak_org.conf
                  owner=root group=wheel mode=0644
+      when: ansible_os_family == "RedHat"
 
     - name: Copy ssl chained cert
       copy: src=/Users/esteele/Code/local/startssl/wordspeak.org.chained.crt
@@ -41,7 +43,7 @@
              dest=/etc/ssl/certs/wordspeak.org.ssl.key owner=root group=wheel mode=0600
     
     - name: Create .ssh directory
-      file: dir=/home/esteele/.ssh owner=esteele group=esteele mode=0700
+      file: path=/home/esteele/.ssh owner=esteele group=esteele mode=0700 state=directory
 
     - name: Copy wordspeak deploy key
       copy: src=/Users/esteele/Code/local/sshkeys/github_wordspeak_deploy
