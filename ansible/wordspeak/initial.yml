@@ -81,12 +81,11 @@
       action: service name=ntpd state=started enabled=yes
 
     - name: Create swap space as /swapfile
-      command: dd if=/dev/zero of=/swapfile bs=1024 count=1000000
-      when: ansible_swaptotal_mb < 950 and ansible_os_family == "RedHat"
+      command: dd if=/dev/zero of=/swapfile bs=1024 count=500000
+      when: ansible_swaptotal_mb < 950
 
     - name: Set permissions on /swapfile
       file: path=/swapfile mode=0600
-      when: ansible_os_family == "RedHat"
 
     - name: Make /swapfile into a swapfile
       command: mkswap /swapfile
@@ -96,9 +95,17 @@
       command: swapon /swapfile
       when: ansible_swaptotal_mb < 950 and ansible_os_family == "RedHat"
 
+    - name: Enable swap on /swapfile (OpenBSD)
+      command: swapctl -a /swapfile
+      when: ansible_swaptotal_mb < 950 and ansible_os_family == "OpenBSD"
+
     - name: Add /swapfile to fstab (Linux)
       action: lineinfile dest=/etc/fstab regexp="swapfile" line="/swapfile none swap sw 0 0" state=present
       when: ansible_os_family == "RedHat"
+
+    - name: Add /swapfile to fstab (Linux)
+      action: lineinfile dest=/etc/fstab regexp="swapfile" line="/swapfile /swapfile swap sw 0 0" state=present
+      when: ansible_os_family == "OpenBSD"
 
     # EPEL for RHEL6 (needed for tmux)
     #TODO - install key with rpm_key
