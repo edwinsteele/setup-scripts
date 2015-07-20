@@ -46,7 +46,7 @@ Replace `local-openbsd-amd64` with `local-openbsd-macppc` if this is an openbsd 
 
 * `ansible-playbook -u root -i hosts --limit local-openbsd-amd64 openbsd/bootstrap.yml`
 * `ansible-playbook -u root -i hosts --limit local-openbsd-amd64 wordspeak/initial.yml`
-* `ansible-playbook -u root -i hosts --limit local-openbsd-amd64 wordspeak/base_nginx.yml`
+* `ansible-playbook -u root -i hosts --limit local-openbsd-amd64 wordspeak/openbsd_httpd.yml`
 * `ansible-playbook -u root -i hosts --limit local-openbsd-amd64 wordspeak/python27-setup.yml`
 * `ansible-playbook -u root -i hosts --limit local-openbsd-amd64 wordspeak/esteele.yml`
 * `ansible-playbook -u root -i hosts --limit local-openbsd-amd64 wordspeak/wordspeak-deploy.yml`
