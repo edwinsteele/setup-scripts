@@ -87,12 +87,20 @@
           PKG_PATH: "{{PKG_PATH}}"
 
     - name: Setup staging.wordspeak.org parent directory
-      file: path=/home/esteele/Sites/staging.wordspeak.org state=directory
-             mode=0711 owner=esteele group=esteele
+      file: path=/var/www/htdocs/staging.wordspeak.org state=directory
+             mode=0755 owner=esteele group=esteele
+
+    - name: Setup staging.wordspeak.org symlink
+      file: dest=/home/esteele/Sites/staging.wordspeak.org src=/var/www/htdocs/staging.wordspeak.org
+             state=link
 
     - name: Setup www.wordspeak.org parent directory
-      file: path=/home/esteele/Sites/www.wordspeak.org state=directory
-             mode=0711 owner=esteele group=esteele
+      file: path=/var/www/htdocs/www.wordspeak.org state=directory
+             mode=0755 owner=esteele group=esteele
+
+    - name: Setup www.wordspeak.org symlink
+      file: dest=/home/esteele/Sites/www.wordspeak.org src=/var/www/htdocs/www.wordspeak.org
+             state=link
 
     - name: Create Nikola Cache directory
       file: path=/home/esteele/tmp/nikola_wordspeak_cache state=directory
