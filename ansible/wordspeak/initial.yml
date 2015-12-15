@@ -80,31 +80,31 @@
     - name: Enable and start ntpd
       action: service name=ntpd state=started enabled=yes
 
-    - name: Create swap space as /swapfile
-      command: dd if=/dev/zero of=/swapfile bs=1024 count=500000
+    - name: Create swap space as /home/swapfile
+      command: dd if=/dev/zero of=/home/swapfile bs=1024 count=500000
       when: ansible_swaptotal_mb < 950
 
-    - name: Set permissions on /swapfile
-      file: path=/swapfile mode=0600
+    - name: Set permissions on swapfile
+      file: path=/home/swapfile mode=0600
 
-    - name: Make /swapfile into a swapfile
-      command: mkswap /swapfile
+    - name: Make /home/swapfile into a swapfile
+      command: mkswap /home/swapfile
       when: ansible_swaptotal_mb < 950 and ansible_os_family == "RedHat"
 
-    - name: Enable swap on /swapfile (Linux)
-      command: swapon /swapfile
+    - name: Enable swap on swapfile (Linux)
+      command: swapon /home/swapfile
       when: ansible_swaptotal_mb < 950 and ansible_os_family == "RedHat"
 
-    - name: Enable swap on /swapfile (OpenBSD)
-      command: swapctl -a /swapfile
+    - name: Enable swap on /home/swapfile (OpenBSD)
+      command: swapctl -a /home/swapfile
       when: ansible_swaptotal_mb < 950 and ansible_os_family == "OpenBSD"
 
-    - name: Add /swapfile to fstab (Linux)
-      action: lineinfile dest=/etc/fstab regexp="swapfile" line="/swapfile none swap sw 0 0" state=present
+    - name: Add swapfile to fstab (Linux)
+      action: lineinfile dest=/etc/fstab regexp="swapfile" line="/home/swapfile none swap sw 0 0" state=present
       when: ansible_os_family == "RedHat"
 
-    - name: Add /swapfile to fstab (Linux)
-      action: lineinfile dest=/etc/fstab regexp="swapfile" line="/swapfile /swapfile swap sw 0 0" state=present
+    - name: Add swapfile to fstab (OpenBSD)
+      action: lineinfile dest=/etc/fstab regexp="swapfile" line="/home/swapfile /home/swapfile swap sw 0 0" state=present
       when: ansible_os_family == "OpenBSD"
 
     # EPEL for RHEL6 (needed for tmux)
