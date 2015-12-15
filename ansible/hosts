@@ -16,12 +16,12 @@ sshd_permit_root_login='without-password'
 
 [local-openbsd-amd64:vars]
 ansible_python_interpreter=/usr/local/bin/python2.7
-system_pip_location=/usr/local/bin/pip-2.7
-current_pip_location=/usr/local/bin/pip-2.7
-PKG_PATH='http://mirror.aarnet.edu.au/pub/OpenBSD/5.7/packages/amd64/'
+system_pip_location=/usr/local/bin/pip2.7
+current_pip_location=/usr/local/bin/pip2.7
+PKG_PATH='http://mirror.aarnet.edu.au/pub/OpenBSD/5.8/packages/amd64/'
 
 [local-openbsd-macppc:vars]
 ansible_python_interpreter=/usr/local/bin/python2.7
-system_pip_location=/usr/local/bin/pip-2.7
-current_pip_location=/usr/local/bin/pip-2.7
-PKG_PATH='http://mirror.aarnet.edu.au/pub/OpenBSD/5.7/packages/powerpc/'
+system_pip_location=/usr/local/bin/pip2.7
+current_pip_location=/usr/local/bin/pip2.7
+PKG_PATH='http://mirror.aarnet.edu.au/pub/OpenBSD/5.8/packages/powerpc/'
