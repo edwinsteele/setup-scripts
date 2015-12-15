@@ -1,9 +1,10 @@
 - hosts: all
   user: root
-  sudo: yes
+  sudo: no
   gather_facts: no
 
   tasks:
     # Bootstrap
-    - raw: pkg_add {{PKG_PATH}}python-2.7.9p0.tgz
+    - raw: pkg_add {{PKG_PATH}}python-2.7.10.tgz
+    - raw: pkg_add {{PKG_PATH}}sudo-1.8.14.3.tgz
 
