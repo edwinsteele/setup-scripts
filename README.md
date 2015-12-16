@@ -35,14 +35,25 @@ Assumes that your default ssh public key is installed on the server under the ac
 
 ## OpenBSD-specific preceeding steps
 * do install from CD,
+* setup all network interfaces
+* do not setup a user
+* start ssh and allow root login with 'prohibit-password'
 * selecting correct timezone
-* setup root .ssh/authorized_keys
+* default disk layout
+* all packages (for simplicity)
+* reboot
+* add root `.ssh/authorized_keys` via console
+  * `.ssh` directory is 600
+  * `authorized_keys` is 600
+
 
 ## Provisioning a local VM
 
 Note that it's not possible to test ansible connectivity on OpenBSD hosts until they have a python interpreter, which is first setup in the bootstrap.yml playbook below
 
 Replace `local-openbsd-amd64` with `local-openbsd-macppc` if this is an openbsd macppc machine
+
+In the `ansible` directory at the same level as this `README.md` file run:
 
 * `ansible-playbook -u root -i hosts --limit local-openbsd-amd64 openbsd/bootstrap.yml`
 * `ansible-playbook -u root -i hosts --limit local-openbsd-amd64 wordspeak/initial.yml`
@@ -58,7 +69,7 @@ Replace `local-openbsd-amd64` with `local-openbsd-macppc` if this is an openbsd 
 ## Provisioning common steps
 
 15. Logon to the VM to perform the rest of the steps
-16. Update `/etc/hosts` to have FQDN for host, not just machine name
+16. Update `/etc/hosts` to have FQDN for host, and short and FQDN for any sites that the machine will serve
 18. Test github with `ssh -T git@github.com`.
 19. `cd ~/Code && git clone git@github.com:edwinsteele/wordspeak.org.git` (listed at the end of esteele.yml)
 19. `cd ~/Code/wordspeak.org && git submodule update --init`  (listed at the end of esteele.yml)
@@ -66,8 +77,9 @@ Replace `local-openbsd-amd64` with `local-openbsd-macppc` if this is an openbsd 
 21. `cd ~/Code/dotfiles && ./make.sh`
 23. `. ~/.virtualenvs/wordspeak_n7/bin/activate`
 24. `pip install -r ~/Code/wordspeak.org/requirements.txt`
+25. `cd ~/Code/wordspeak.org && fab build staging_sync`
 
-# Provisioning a Linux VM on a local machine with Vagrant/VirtualBox
+# Provisioning a VM on a local machine with Vagrant/VirtualBox
 Assumes virtualbox, vagrant 1.7
 
 1. `workon ansible` (venv should already exist)
@@ -78,7 +90,11 @@ Assumes virtualbox, vagrant 1.7
 For ad-hoc running of ansible playbooks, after the esteele account has been created, run e.g.: `ansible-playbook -u esteele -i ../../vagrant/mercury-vm/vagrant-ansible_hosts ./language_explorer.yml` (and change the user line to esteele instead of root in the playbook). 
 TODO - see if we can remove the user line entirely and specify all the time on commandline
 
+# VirtualBox assumptions
+
 Assumes that the VM can talk to the VirtualBox Host, and to the outside world. This can be done by configuring the VM with two network adapters, one as NAT and the other as host-only (which requires creation of a host-only network on the host)
+
+Shared clipboard is enabled (bidirectional)
 
 # Extra notes
 ansible -i hosts local-linux -m setup to get variables
