@@ -20,7 +20,7 @@
       copy: src=/Users/esteele/Code/local/startssl/wordspeak.org.chained.trusted.crt
              dest=/etc/ssl/certs/wordspeak.org.chained.trusted.crt owner=root group=wheel mode=0644
     - name: Copy certificate key
-      copy: src=/Users/esteele/Code/local/startssl/my-private-decrypted.key
+      copy: src=/Users/esteele/Code/local/startssl/www_wordspeak_org.key
              dest=/etc/ssl/certs/wordspeak.org.ssl.key owner=root group=wheel mode=0600
 
     - name: Enable and start httpd
