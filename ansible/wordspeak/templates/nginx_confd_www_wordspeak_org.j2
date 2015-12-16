@@ -55,26 +55,26 @@ server {
     ssl_trusted_certificate /etc/ssl/certs/wordspeak.org.chained.trusted.crt;
 
     location / {
-        root   /home/esteele/Sites/www.wordspeak.org;
+        root   /var/www/htdocs/www.wordspeak.org;
         index  index.html;
     }
 
     location ~* \.(jpg|jpeg|gif|png|ico) {
-        root   /home/esteele/Sites/www.wordspeak.org;
+        root   /var/www/htdocs/www.wordspeak.org;
         expires 365d;
     }
 
     location = (index.html|archive.html) {
-        root   /home/esteele/Sites/www.wordspeak.org;
+        root   /var/www/htdocs/www.wordspeak.org;
         expires 1h;
     }
 
     location ~* \.(html|json|js|css|eot|woff|ttf|svg) {
-        root   /home/esteele/Sites/www.wordspeak.org;
+        root   /var/www/htdocs/www.wordspeak.org;
         expires 1d;
     }
 
-    access_log  /var/log/nginx/www.wordspeak.org-access.log;
+    access_log  /var/www/logs/www.wordspeak.org-access.log;
     error_page 404 = /pages/404.html;
 }
 

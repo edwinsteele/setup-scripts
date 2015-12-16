@@ -2,11 +2,11 @@ server {
     server_name staging.wordspeak.org;
 
     location / {
-        root   /home/esteele/Sites/staging.wordspeak.org;
+        root   /var/www/htdocs/staging.wordspeak.org;
         index  index.html;
     }
 
-    access_log  /var/log/nginx/staging.wordspeak.org-access.log;
+    access_log  /var/www/logs/staging.wordspeak.org-access.log;
     error_page 404 /pages/404.html;
 
     # deny access to .htaccess files, if Apache's document root

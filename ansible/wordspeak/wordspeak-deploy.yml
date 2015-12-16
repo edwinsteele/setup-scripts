@@ -25,12 +25,10 @@
       template: src=templates/nginx_confd_staging_wordspeak_org.j2
                  dest=/etc/nginx/conf.d/staging_wordspeak_org.conf
                  owner=root group=wheel mode=0644
-      when: ansible_os_family == "RedHat"
     - name: Setup nginx www.wordspeak.org config
       template: src=templates/nginx_confd_www_wordspeak_org.j2
                  dest=/etc/nginx/conf.d/www_wordspeak_org.conf
                  owner=root group=wheel mode=0644
-      when: ansible_os_family == "RedHat"
 
     - name: Copy ssl chained cert
       copy: src=/Users/esteele/Code/local/startssl/wordspeak.org.chained.crt
@@ -53,22 +51,11 @@
       copy: src=templates/esteele_ssh_config
              dest=/home/esteele/.ssh/config owner=esteele group=esteele mode=0600
 
-    # Need enchant 1.6 due to http://bugzilla.abisource.com/show_bug.cgi?id=12350 which is in 1.5 (RHEL6 default)
-    # Use flexbox repo: http://sourceforge.net/projects/flexbox/files/
-    # TODO Load key with rpm_key and enable gpg in repo conf
-    - name: Install flexbox repo rpm
-      yum: name=http://aarnet.dl.sourceforge.net/project/flexbox/flexbox-release-1-1.noarch.rpm
-            state=present
-      when: ansible_os_family == "RedHat"
-
-    - name: Install enchant for spell checking (Linux)
-      yum: name=enchant state=present
-      when: ansible_os_family == "RedHat"
     - name: Install enchant for spell checking (OpenBSD)
       openbsd_pkg: name=enchant state=present
-      when: ansible_os_family == "OpenBSD"
       environment:
           PKG_PATH: "{{PKG_PATH}}"
+     
     # XXX Unclear whether this is necessary on OpenBSD
     - name: Install enchant-aspell for aspell compatibility
       yum: name=enchant-aspell state=present
@@ -76,9 +63,6 @@
     # XXX Unclear whether this is necessary on OpenBSD (perhaps en is in the base aspell package)
     - name: Install GB English aspell dictionary
       yum: name=aspell-en state=present
-      when: ansible_os_family == "RedHat"
-    - name: Install libxslt-devel (pulls in libxml2-devel and libxslt) (Linux)
-      yum: name=libxslt-devel state=present
       when: ansible_os_family == "RedHat"
     - name: Install libxslt (OpenBSD)
       openbsd_pkg: name=libxslt state=present

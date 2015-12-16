@@ -7,22 +7,10 @@
   gather_facts: yes
 
   tasks:
-    # NGINX repo
-    #TODO - install key with rpm_key
-    - name: Install NGINX repo for CentOS6
-      command: yum -y install http://nginx.org/packages/centos/6/noarch/RPMS/nginx-release-centos-6-0.el6.ngx.noarch.rpm
-                creates=/etc/yum.repos.d/nginx.repo
-      when: ansible_os_family == "RedHat"
-
     - name: Install nginx (OpenBSD)
       openbsd_pkg: name=nginx-- state=present
-      when: ansible_os_family == "OpenBSD"
       environment:
         PKG_PATH: "{{PKG_PATH}}"
-
-    - name: Install nginx (CentOS only)
-      yum: name=nginx state=present
-      when: ansible_os_family == "RedHat"
 
     - name: Create base nginx directories
       file: path=/etc/nginx/conf.d owner=root group=wheel state=directory
@@ -44,8 +32,3 @@
     - name: Generate 2048bit random parameter for nginx DH Elliptic Curves
       command: openssl dhparam -outform pem -out /etc/ssl/certs/misc/nginx-dhparam2048.pem 2048
                 creates=/etc/ssl/certs/misc/nginx-dhparam2048.pem
-
-    # Only necessary on RedHat as OpenBSD starts by default when it's installed
-    - name: Enable and start nginx
-      action: service name=nginx state=started enabled=yes
-      when: ansible_os_family == "RedHat"
