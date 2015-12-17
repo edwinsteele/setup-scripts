@@ -60,17 +60,8 @@
       environment:
           PKG_PATH: "{{PKG_PATH}}"
      
-    # XXX Unclear whether this is necessary on OpenBSD
-    - name: Install enchant-aspell for aspell compatibility
-      yum: name=enchant-aspell state=present
-      when: ansible_os_family == "RedHat"
-    # XXX Unclear whether this is necessary on OpenBSD (perhaps en is in the base aspell package)
-    - name: Install GB English aspell dictionary
-      yum: name=aspell-en state=present
-      when: ansible_os_family == "RedHat"
     - name: Install libxslt (OpenBSD)
       openbsd_pkg: name=libxslt state=present
-      when: ansible_os_family == "OpenBSD"
       environment:
           PKG_PATH: "{{PKG_PATH}}"
 

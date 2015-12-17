@@ -8,19 +8,6 @@
 
   tasks:
 
-    - name: Install python-selinux compatibility packages
-      yum: name=policycoreutils-python state=present
-      when: ansible_os_family == "RedHat"
-
-    - name: Install other python-selinux compatibility packages
-      yum: name=libselinux-python state=present
-      when: ansible_os_family == "RedHat"
-
-    # Use pre-existing wheel as the admin group on OpenBSD. Create it on RedHat
-    - name: create admin group
-      group: name=wheel system=no
-      when: ansible_os_family == "RedHat"
-
     # Access, security and perms
     # Fully quoted because of the ': ' on the line. See the Gotchas in the YAML docs.
     - name: Give the admin group sudo privileges
@@ -30,7 +17,6 @@
       lineinfile: dest=/etc/ssh/sshd_config
                 insertafter="^#PermitRootLogin"
                 line="PermitRootLogin without-password" validate="sshd -t -f %s"
-      when: ansible_os_family == "OpenBSD"
       notify:
         - Restart sshd
 
@@ -38,45 +24,15 @@
       lineinfile: dest=/etc/ssh/sshd_config
                 insertafter="^#PasswordAuthentication"
                 line="PasswordAuthentication no" validate="sshd -t -f %s"
-      when: ansible_os_family == "OpenBSD"
-      notify:
-        - Restart sshd
-
-
-    - name: write the sshd_config file
-      template: src=templates/sshd_config.j2 dest=/etc/ssh/sshd_config
-              owner=root group=root mode=0600
-      when: ansible_os_family == "RedHat"
       notify:
         - Restart sshd
 
     # Firewall
-    - name: create a base firewall config
-      template: src=templates/iptables.j2 dest=/etc/sysconfig/iptables
-                 owner=root group=root mode=0600
-      when: ansible_os_family == "RedHat"
-    - name: Enable inbound TCP port 80 in firewall
-      action: lineinfile dest=/etc/sysconfig/iptables create=yes state=present
-               line='-A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT'
-               regexp='^-A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT$'
-               insertafter='^-A INPUT -i lo -j ACCEPT$'
-      when: ansible_os_family == "RedHat"
-      notify: Restart iptables
-    - name: Enable inbound TCP port 443 in firewall
-      action: lineinfile dest=/etc/sysconfig/iptables create=yes state=present
-               line='-A INPUT -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT'
-               regexp='^-A INPUT -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT$'
-               insertafter='^-A INPUT -i lo -j ACCEPT$'
-      when: ansible_os_family == "RedHat"
-      notify: Restart iptables
+    # XXX - todo on OpenBSD (port 80, 22 and 443 only)
 
-    # XXX Fix this to use /etc/sysconfig/clock instead
     - name: Set timezone as Sydney
       copy: src=/usr/share/zoneinfo/Australia/Sydney dest=/etc/localtime
 
-    - name: Ensure NTP is up and running
-      yum: name=ntp state=present
-      when: ansible_os_family == "RedHat"
     - name: Enable and start ntpd
       action: service name=ntpd state=started enabled=yes
 
@@ -87,72 +43,29 @@
     - name: Set permissions on swapfile
       file: path=/home/swapfile mode=0600
 
-    - name: Make /home/swapfile into a swapfile
-      command: mkswap /home/swapfile
-      when: ansible_swaptotal_mb < 950 and ansible_os_family == "RedHat"
-
-    - name: Enable swap on swapfile (Linux)
-      command: swapon /home/swapfile
-      when: ansible_swaptotal_mb < 950 and ansible_os_family == "RedHat"
-
     - name: Enable swap on /home/swapfile (OpenBSD)
       command: swapctl -a /home/swapfile
-      when: ansible_swaptotal_mb < 950 and ansible_os_family == "OpenBSD"
-
-    - name: Add swapfile to fstab (Linux)
-      action: lineinfile dest=/etc/fstab regexp="swapfile" line="/home/swapfile none swap sw 0 0" state=present
-      when: ansible_os_family == "RedHat"
+      when: ansible_swaptotal_mb < 950
 
     - name: Add swapfile to fstab (OpenBSD)
       action: lineinfile dest=/etc/fstab regexp="swapfile" line="/home/swapfile /home/swapfile swap sw 0 0" state=present
-      when: ansible_os_family == "OpenBSD"
 
-    # EPEL for RHEL6 (needed for tmux)
-    #TODO - install key with rpm_key
-    - name: Install EPEL for RHEL6
-      yum: name=epel-release state=present
-      when: ansible_os_family == "RedHat"
-
-    - yum: name=bash-completion state=present
-      when: ansible_os_family == "RedHat"
-    # tmux is in openbsd base
-    - yum: name=tmux state=present
-      when: ansible_os_family == "RedHat"
-    - yum: name=git state=present
-      when: ansible_os_family == "RedHat"
     - openbsd_pkg: name=git state=present
-      when: ansible_os_family == "OpenBSD"
       environment:
           PKG_PATH: "{{PKG_PATH}}"
-    - yum: name=ack state=present
-      when: ansible_os_family == "RedHat"
     - openbsd_pkg: name=p5-ack state=present
-      when: ansible_os_family == "OpenBSD"
       environment:
           PKG_PATH: "{{PKG_PATH}}"
-    - yum: name=wget state=present
-      when: ansible_os_family == "RedHat"
     - openbsd_pkg: name=wget state=present
-      when: ansible_os_family == "OpenBSD"
       environment:
           PKG_PATH: "{{PKG_PATH}}"
-    # dig/nslookup are in OpenBSD base
-    - yum: name=bind-utils state=present
-      when: ansible_os_family == "RedHat"
-    - yum: name=vim-enhanced state=present
-      when: ansible_os_family == "RedHat"
     - openbsd_pkg: name=vim--no_x11 state=present
-      when: ansible_os_family == "OpenBSD"
       environment:
           PKG_PATH: "{{PKG_PATH}}"
-    # curl is in linux base
     - openbsd_pkg: name=curl state=present
-      when: ansible_os_family == "OpenBSD"
       environment:
           PKG_PATH: "{{PKG_PATH}}"
-    # lsof is in linux base
     - openbsd_pkg: name=lsof state=present
-      when: ansible_os_family == "OpenBSD"
       environment:
           PKG_PATH: "{{PKG_PATH}}"
 
@@ -160,6 +73,3 @@
   handlers:
     - name: Restart sshd
       action: service name=sshd state=restarted
-
-    - name: Restart iptables
-      action: service name=iptables state=restarted

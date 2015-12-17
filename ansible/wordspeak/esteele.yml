@@ -15,7 +15,6 @@
 
     - name: Set login class (OpenBSD)
       user: login_class=staff name=esteele
-      when: ansible_os_family == "OpenBSD"
 
     - name: setup authorised key(s)
       sudo: True
@@ -27,7 +26,6 @@
     # OpenBSD data segment limits are too small to allow building of python lxml
     - name: Increase data segment ulimit (OpenBSD)
       lineinfile: dest=/home/esteele/.profile line="ulimit -Sd 1000000" state=present
-      when: ansible_os_family == "OpenBSD"
 
     - name: Setup git user.email variable for esteele
       sudo: True
