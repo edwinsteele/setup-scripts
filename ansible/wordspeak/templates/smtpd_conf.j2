@@ -1,0 +1,9 @@
+listen on lo0
+
+table aliases db:/etc/mail/aliases.db
+table secrets db:/etc/mail/secrets.db
+
+accept for local alias <aliases> deliver to mbox
+accept for domain wordspeak.org \
+        relay via secure+auth://fastmail@mail.messagingengine.com:465 \
+        auth <secrets>

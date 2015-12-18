@@ -37,7 +37,7 @@
       action: service name=ntpd state=started enabled=yes
 
     - name: Create swap space as /home/swapfile
-      command: dd if=/dev/zero of=/home/swapfile bs=1024 count=500000
+      command: dd if=/dev/zero of=/home/swapfile bs=1024 count=1000000
       when: ansible_swaptotal_mb < 950
 
     - name: Set permissions on swapfile
@@ -49,6 +49,15 @@
 
     - name: Add swapfile to fstab (OpenBSD)
       action: lineinfile dest=/etc/fstab regexp="swapfile" line="/home/swapfile /home/swapfile swap sw 0 0" state=present
+
+    - name: Copy smtpd.conf
+      template: src=templates/smtpd_conf.j2 dest=/etc/mail/smtpd.conf
+
+    - name: Copy mail secrets
+      copy: src=/Users/esteele/Code/local/ansible/etc_mail_secrets
+             dest=/etc/mail/secrets owner=root group=_smtpd mode=0640
+
+    - command: /usr/sbin/makemap /etc/mail/secrets
 
     - openbsd_pkg: name=git state=present
       environment:
