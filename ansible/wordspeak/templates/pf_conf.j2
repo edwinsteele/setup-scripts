@@ -1,0 +1,17 @@
+tcp_services = "{ ssh, auth, www, https }"
+icmp_types="echoreq"
+
+set block-policy return
+
+# don't filter on the loopback interface
+set skip on lo
+
+# scrub incoming packets
+match in all scrub (no-df)
+
+# default deny
+block in log
+pass out quick
+
+pass in inet proto tcp to port $tcp_services
+pass in inet proto icmp all icmp-type $icmp_types

@@ -28,6 +28,12 @@
         - Restart sshd
 
     # Firewall
+    - name: Copy pf.conf
+      template: src=templates/pf_conf.j2 dest=/etc/pf.conf
+                 owner=root group=wheel mode=0600
+      notify:
+        - Reload pf
+
     # XXX - todo on OpenBSD (port 80, 22 and 443 only)
 
     - name: Set timezone as Sydney
@@ -82,3 +88,5 @@
   handlers:
     - name: Restart sshd
       action: service name=sshd state=restarted
+    - name: Reload pf
+      action: service name=pf state=reloaded
