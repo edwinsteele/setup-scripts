@@ -1,18 +1,9 @@
-[local-linux]
-gemini.wordspeak.org
-
 [local-openbsd-amd64]
 107.191.56.92
+#192.168.56.101
 
 [local-openbsd-macppc]
 houston.wordspeak.org:22222
-
-[local-linux:vars]
-system_pip_location=/usr/bin/pip
-current_pip_location=/usr/local/bin/pip-2.7
-sshd_allow_password_authentication='no'
-sshd_permit_root_login='without-password'
-
 
 [local-openbsd-amd64:vars]
 ansible_python_interpreter=/usr/local/bin/python2.7
