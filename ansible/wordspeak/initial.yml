@@ -58,12 +58,14 @@
 
     - name: Copy smtpd.conf
       template: src=templates/smtpd_conf.j2 dest=/etc/mail/smtpd.conf
+      notify:
+        - Reload smtpd
 
     - name: Copy mail secrets
       copy: src=/Users/esteele/Code/local/ansible/etc_mail_secrets
              dest=/etc/mail/secrets owner=root group=_smtpd mode=0640
-
-    - command: /usr/sbin/makemap /etc/mail/secrets
+      notify:
+        - Rebuild secrets map
 
     - openbsd_pkg: name=git state=present
       environment:
@@ -87,6 +89,10 @@
 
   handlers:
     - name: Restart sshd
-      action: service name=sshd state=restarted
+      service: name=sshd state=restarted
     - name: Reload pf
-      action: service name=pf state=reloaded
+      command: pfctl -f /etc/pf.conf
+    - name: Reload smtpd
+      service: name=smtpd state=restarted
+    - name: Rebuild secrets map
+      command: /usr/sbin/makemap /etc/mail/secrets
