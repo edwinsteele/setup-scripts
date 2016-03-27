@@ -1,0 +1,28 @@
+---
+- name: Install nginx
+  openbsd_pkg: name=nginx-- state=present
+  environment:
+    PKG_PATH: "{{PKG_PATH}}"
+
+- name: Create base nginx directories
+  file: path=/etc/nginx/conf.d owner=root group=wheel
+        mode=0755 state=directory
+
+- name: Setup base nginx config
+  copy: src=nginx_conf dest=/etc/nginx/nginx.conf
+        owner=root group=wheel mode=0644
+
+- name: Setup base nginx mime types
+  copy: src=mime_types dest=/etc/nginx/mime.types
+        owner=root group=wheel mode=0644
+
+- name: Setup nginx default site config
+  copy: src=nginx_confd_default dest=/etc/nginx/conf.d/default.conf
+        owner=root group=wheel mode=0644
+
+- name: Create base directory for random parameter
+  file: path=/etc/ssl/certs/misc owner=root group=wheel state=directory
+
+- name: Generate 2048bit random parameter for nginx DH Elliptic Curves
+  command: openssl dhparam -outform pem -out /etc/ssl/certs/misc/nginx-dhparam2048.pem 2048
+           creates=/etc/ssl/certs/misc/nginx-dhparam2048.pem

@@ -1,0 +1,9 @@
+---
+    - name: Install a python that can be used for ansible
+      raw: pkg_add {{PKG_PATH}}python-2.7.10.tgz
+
+    - name: Install sudo that makes things easier
+      raw: pkg_add {{PKG_PATH}}sudo-1.8.14.3.tgz
+
+    - name: Gather facts now that an interpreter is installed
+      setup:

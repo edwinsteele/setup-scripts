@@ -1,18 +1,7 @@
-[local-openbsd-amd64]
-107.191.56.92
-#192.168.56.101
+[firewalls]
+192.168.1.2
 
-[local-openbsd-macppc]
-houston.wordspeak.org:22222
+[webservers]
+192.168.56.101
+gemini.wordspeak.org
 
-[local-openbsd-amd64:vars]
-ansible_python_interpreter=/usr/local/bin/python2.7
-system_pip_location=/usr/local/bin/pip2.7
-current_pip_location=/usr/local/bin/pip2.7
-PKG_PATH='http://mirror.aarnet.edu.au/pub/OpenBSD/5.8/packages/amd64/'
-
-[local-openbsd-macppc:vars]
-ansible_python_interpreter=/usr/local/bin/python2.7
-system_pip_location=/usr/local/bin/pip2.7
-current_pip_location=/usr/local/bin/pip2.7
-PKG_PATH='http://mirror.aarnet.edu.au/pub/OpenBSD/5.8/packages/powerpc/'

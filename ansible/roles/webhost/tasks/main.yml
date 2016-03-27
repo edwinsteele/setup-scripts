@@ -1,0 +1,72 @@
+---
+- name: setup pf.conf for this role
+  copy: src=pf_conf dest=/etc/pf.conf
+        owner=root group=wheel mode=0600
+        validate="pfctl -n -f %s"
+  register: pf_conf_changed
+
+- name: apply any new pf rules immediately
+  command: pfctl -f /etc/pf.conf
+  when: pf_conf_changed["changed"]
+
+- include: base_nginx.yml
+
+- name: Setup ~esteele/Sites
+  sudo: True
+  sudo_user: esteele
+  file: path=/home/esteele/Sites state=directory
+
+- name: Fix perms on ~esteele to allow ~/Sites to be served up
+  sudo: True
+  sudo_user: esteele
+  file: path=/home/esteele state=directory mode=0711
+
+- name: Copy ssl chained cert
+  copy: src=/Users/esteele/Code/local/startssl/wordspeak.org.chained.crt
+        dest=/etc/ssl/certs/wordspeak.org.chained.crt owner=root
+        group=wheel mode=0644
+
+- name: Copy ssl trusted chained cert
+  copy: src=/Users/esteele/Code/local/startssl/wordspeak.org.chained.trusted.crt
+         dest=/etc/ssl/certs/wordspeak.org.chained.trusted.crt owner=root
+         group=wheel mode=0644
+
+- name: Copy certificate key
+  copy: src=/Users/esteele/Code/local/startssl/www_wordspeak_org.key
+         dest=/etc/ssl/certs/wordspeak.org.ssl.key owner=root
+         group=wheel mode=0600
+
+- name: Setup staging.wordspeak.org parent directory
+  file: path=/var/www/htdocs/staging.wordspeak.org state=directory
+        mode=0755 owner=esteele group=esteele
+
+- name: Setup staging.wordspeak.org symlink
+  file: dest=/home/esteele/Sites/staging.wordspeak.org
+        src=/var/www/htdocs/staging.wordspeak.org
+        state=link
+
+- name: Setup www.wordspeak.org parent directory
+  file: path=/var/www/htdocs/www.wordspeak.org state=directory
+        mode=0755 owner=esteele group=esteele
+
+- name: Setup www.wordspeak.org symlink
+  file: dest=/home/esteele/Sites/www.wordspeak.org
+        src=/var/www/htdocs/www.wordspeak.org
+        state=link
+
+# Finally setup wordspeak-specific nginx stuff and reload
+- name: Setup nginx staging.wordspeak.org config
+  copy: src=nginx_confd_staging_wordspeak_org
+        dest=/etc/nginx/conf.d/staging_wordspeak_org.conf
+        owner=root group=wheel mode=0644
+  notify:
+  - Reload nginx
+
+- name: Setup nginx www.wordspeak.org config
+  copy: src=nginx_confd_www_wordspeak_org
+        dest=/etc/nginx/conf.d/www_wordspeak_org.conf
+        owner=root group=wheel mode=0644
+  notify:
+  - Reload nginx
+
+- include: nikola.yml

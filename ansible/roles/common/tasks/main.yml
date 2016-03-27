@@ -1,0 +1,76 @@
+---
+- include: bootstrap.yml
+
+# Fully quoted because of the ': ' on the line. See the Gotchas section
+#  in Ansible's YAML Syntax page.
+- name: Give the admin group sudo privileges
+  lineinfile: 'dest=/etc/sudoers line="%wheel        ALL=(ALL) NOPASSWD: SETENV: ALL" validate="visudo -c -f %s"'
+
+- name: Only allow root login with keys
+  lineinfile: dest=/etc/ssh/sshd_config
+              insertafter="^#PermitRootLogin"
+              line="PermitRootLogin without-password" validate="sshd -t -f %s"
+  notify:
+    - Restart sshd
+
+- name: Don't allow auth with password
+  lineinfile: dest=/etc/ssh/sshd_config
+              insertafter="^#PasswordAuthentication"
+              line="PasswordAuthentication no" validate="sshd -t -f %s"
+  notify:
+  - Restart sshd
+
+- name: Set timezone as Sydney
+  copy: src=/usr/share/zoneinfo/Australia/Sydney dest=/etc/localtime
+
+- name: Enable and start ntpd
+  action: service name=ntpd state=started enabled=yes
+
+- name: Create swap space as /home/swapfile
+  command: dd if=/dev/zero of=/home/swapfile bs=1024 count=1000000
+  when: ansible_swaptotal_mb < 950
+
+- name: Set permissions on swapfile
+  file: path=/home/swapfile mode=0600
+
+- name: Enable swap on /home/swapfile (OpenBSD)
+  command: swapctl -a /home/swapfile
+  when: ansible_swaptotal_mb < 950
+
+- name: Add swapfile to fstab (OpenBSD)
+  action: lineinfile dest=/etc/fstab regexp="swapfile" line="/home/swapfile /home/swapfile swap sw 0 0" state=present
+
+- name: Copy mail secrets
+  copy: src=/Users/esteele/Code/local/ansible/etc_mail_secrets
+        dest=/etc/mail/secrets owner=root group=_smtpd mode=0640
+  notify:
+  - Rebuild secrets map
+
+- name: Copy smtpd.conf
+  copy: src=smtpd_conf dest=/etc/mail/smtpd.conf
+  notify:
+  - Reload smtpd
+
+- name: Install standard packages
+  openbsd_pkg: name={{ item }} state=present
+  environment:
+    PKG_PATH: "{{PKG_PATH}}"
+  with_items:
+    - git
+    - p5-ack
+    - wget
+    - vim--no_x11
+    - curl
+    - lsof
+
+# Setup a bare-bones system python
+- name: Install pip (system python)
+  openbsd_pkg: name=py-pip state=present
+  environment:
+      PKG_PATH: "{{PKG_PATH}}"
+
+- name: Install virtualenv using easy_install
+  command: /usr/local/bin/easy_install-2.7 virtualenv
+           creates=/usr/local/bin/virtualenv
+
+- include: user_accounts.yml

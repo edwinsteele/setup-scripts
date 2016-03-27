@@ -1,0 +1,53 @@
+---
+- name: Copy wordspeak deploy key
+  copy: src=/Users/esteele/Code/local/sshkeys/github_wordspeak_deploy
+        dest=/home/esteele/.ssh/github_wordspeak_deploy owner=esteele group=esteele mode=0600
+
+# XXX should be line in file for deploy key, probably
+- name: Setup personal ssh config
+  copy: src=esteele_ssh_config
+        dest=/home/esteele/.ssh/config owner=esteele group=esteele mode=0600
+
+- name: Create Nikola Cache directory
+  file: path=/home/esteele/tmp/nikola_wordspeak_cache state=directory
+         mode=0755 owner=esteele group=esteele
+
+- name: Create Nikola Output directory
+  file: path=/home/esteele/tmp/nikola_wordspeak_output state=directory
+         mode=0755 owner=esteele group=esteele
+
+- name: Install enchant for spell checking
+  openbsd_pkg: name=enchant state=present
+  environment:
+      PKG_PATH: "{{PKG_PATH}}"
+ 
+- name: Install libxslt (required to build python lxml module)
+  openbsd_pkg: name=libxslt state=present
+  environment:
+      PKG_PATH: "{{PKG_PATH}}"
+
+- name: Add Github's ssh key
+  lineinfile: mode="0644" owner="esteele" group="esteele"
+              state="present" dest="/home/esteele/.ssh/known_hosts"
+              create="yes"
+              line='github.com,192.30.252.129 ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ=='
+
+- name: Checkout wordspeak repo
+  sudo: True
+  sudo_user: esteele
+  git: repo=ssh://git@github.com/edwinsteele/wordspeak.org.git
+       dest=/home/esteele/Code/wordspeak.org
+
+- name: Checkout d3-projects submodule
+  sudo: True
+  sudo_user: esteele
+  command: git submodule update --init chdir=/home/esteele/Code/wordspeak.org
+           creates=/home/esteele/Code/wordspeak.org/files/d3-projects/.git
+
+- name: Setup nikola virtualenv
+  sudo: True
+  sudo_user: esteele
+  pip: requirements=/home/esteele/Code/wordspeak.org/requirements.txt 
+       virtualenv_command=/usr/local/bin/virtualenv
+       virtualenv=/home/esteele/.virtualenvs/wordspeak_n7
+

@@ -1,0 +1,15 @@
+---
+- hosts: webservers
+  user: root
+  sudo: no
+  gather_facts: no
+  roles:
+    - common
+    - webhost
+
+- hosts: firewalls
+  user: root
+  sudo: no
+  gather_facts: no
+  roles:
+    - common

@@ -1,0 +1,43 @@
+---
+- name: create group - esteele
+  action: group name=esteele gid=1003 system=no
+
+- name: create user esteele
+  action: user name=esteele group=esteele groups=wheel
+
+- name: set login class esteele
+  user: login_class=staff name=esteele
+
+# Also takes care of .ssh directory setup
+- name: setup authorised key esteele
+  sudo: True
+  sudo_user: esteele
+  action: authorized_key user=esteele
+          key="{{ lookup('file', '/Users/esteele/.ssh/id_rsa.pub') }}"
+
+# Have this run after there's a task that runs as esteele so the
+#  skeleton .profile is in place
+# OpenBSD data segment limits are too small to allow building of python lxml
+- name: Increase data segment ulimit
+  lineinfile: dest=/home/esteele/.profile line="ulimit -Sd 1000000"
+              state=present
+
+- name: Setup git variables for esteele
+  sudo: True
+  sudo_user: esteele
+  ini_file: dest=/home/esteele/.gitconfig section={{ item.section }}
+             option={{ item.option }} value="{{ item.value }}"
+  with_items:
+    - { section: user, option: email, value: edwin@wordspeak.org }
+    - { section: user, option: name, value: Edwin Steele }
+    - { section: push, option: default, value: current }
+
+- name: Setup private_profile placeholder
+  sudo: True
+  sudo_user: esteele
+  file: path=/home/esteele/.profile_private mode=0600 state=touch
+
+- name: Setup ~esteele/Code
+  sudo: True
+  sudo_user: esteele
+  file: path=/home/esteele/Code state=directory

@@ -19,18 +19,6 @@ Assumes that your default ssh public key is installed on the server under the ac
 2. Replace the host in `hosts` with the IP address of the newly provisioned host, placing it in the group section that corresponds to the `--limit` argument used in the `ansible-playbook` commands for the appropriate type of VM install
 3. `cd ~/Code/local/startssl; ./make_bundles.sh`
 
-
-## Provisioning a Linux VM
-
-4. test ansible connectivity: `ansible -u root -i hosts local-linux -m ping`. This will give a pong response. 
-5. `ansible-playbook -u root -i hosts --limit local-linux wordspeak/initial.yml`
-5. `ansible-playbook -u root -i hosts --limit local-linux wordspeak/base_nginx.yml`
-11. `ansible-playbook -u root -i hosts --limit local-linux wordspeak/python27-setup.yml`
-12. `ansible-playbook -u root -i hosts --limit local-linux wordspeak/esteele.yml`
-13. `ansible-playbook -u root -i hosts --limit local-linux wordspeak/wordspeak-deploy.yml`
-14. `ansible-playbook -u root -i hosts --limit local-linux wordspeak/language_explorer.yml`
-
-
 # Provisioning an OpenBSD VM
 
 ## OpenBSD-specific preceeding steps
@@ -51,33 +39,28 @@ Assumes that your default ssh public key is installed on the server under the ac
 
 Note that it's not possible to test ansible connectivity on OpenBSD hosts until they have a python interpreter, which is first setup in the bootstrap.yml playbook below
 
-Replace `local-openbsd-amd64` with `local-openbsd-macppc` if this is an openbsd macppc machine
+The default architecture is `openbsd-amd64` and if the installation machine is
+another architecutre, create a file under `host_vars` with a PKG_PATH
+definition with the appropriate architecture specified e.g.
+`PKG_PATH: 'http://mirror.internode.on.net/pub/OpenBSD/5.8/packages/powerpc/'`
 
 In the `ansible` directory at the same level as this `README.md` file run:
 
-* `ansible-playbook -u root -i hosts --limit local-openbsd-amd64 openbsd/bootstrap.yml`
-* `ansible-playbook -u root -i hosts --limit local-openbsd-amd64 wordspeak/initial.yml`
-* `ansible-playbook -u root -i hosts --limit local-openbsd-amd64 wordspeak/openbsd_httpd.yml`
-* `ansible-playbook -u root -i hosts --limit local-openbsd-amd64 wordspeak/python27-setup.yml`
-* `ansible-playbook -u root -i hosts --limit local-openbsd-amd64 wordspeak/esteele.yml`
-* `ansible-playbook -u root -i hosts --limit local-openbsd-amd64 wordspeak/wordspeak-deploy.yml`
+`ansible-playbook -u root -i hosts --limit <limit-criteria> site.yml`
 
+Where the limit criteria is something like:
 
-## Todo
-* start script for nginx
+* 192.168.56.101  (an IP address)
+* webservers (a single group name)
+* 'webservers:&192.168.56.101' (the union of a group and an IP address)
 
 ## Provisioning common steps
 
 15. Logon to the VM to perform the rest of the steps
 16. Update `/etc/hosts` to have FQDN for host, and short and FQDN for any sites that the machine will serve
-18. Test github with `ssh -T git@github.com`.
-19. `cd ~/Code && git clone git@github.com:edwinsteele/wordspeak.org.git` (listed at the end of esteele.yml)
-19. `cd ~/Code/wordspeak.org && git submodule update --init`  (listed at the end of esteele.yml)
 20. `cd ~/Code && git clone git@github.com:edwinsteele/dotfiles.git`
 21. `cd ~/Code/dotfiles && ./make.sh`
-23. `. ~/.virtualenvs/wordspeak_n7/bin/activate`
-24. `pip install -r ~/Code/wordspeak.org/requirements.txt`
-25. `cd ~/Code/wordspeak.org && fab build staging_sync`
+25. `cd ~/Code/wordspeak.org && /home/esteele/.virtualenvs/wordspeak_n7/bin/fab build staging_sync`
 
 # Provisioning a VM on a local machine with Vagrant/VirtualBox
 Assumes virtualbox, vagrant 1.7
@@ -92,10 +75,5 @@ TODO - see if we can remove the user line entirely and specify all the time on c
 
 # VirtualBox assumptions
 
-Assumes that the VM can talk to the VirtualBox Host, and to the outside world. This can be done by configuring the VM with two network adapters, one as NAT and the other as host-only (which requires creation of a host-only network on the host)
-
-Shared clipboard is enabled (bidirectional)
-
-# Extra notes
-ansible -i hosts local-linux -m setup to get variables
-
+* Assumes that the VM can talk to the VirtualBox Host, and to the outside world. This can be done by configuring the VM with two network adapters, one as NAT and the other as host-only (which requires creation of a host-only network on the host)
+* Shared clipboard is enabled (bidirectional)
