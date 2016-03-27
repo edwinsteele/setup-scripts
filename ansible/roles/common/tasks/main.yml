@@ -56,11 +56,11 @@
   environment:
     PKG_PATH: "{{PKG_PATH}}"
   with_items:
-    - git
     - p5-ack
     - wget
     - vim--no_x11
     - curl
+    - git
     - lsof
 
 # Setup a bare-bones system python
