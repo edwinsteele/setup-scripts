@@ -10,8 +10,6 @@
 
 # Also takes care of .ssh directory setup
 - name: setup authorised key esteele
-  become: True
-  become_user: esteele
   action: authorized_key user=esteele
           key="{{ lookup('file', '/Users/esteele/.ssh/id_rsa.pub') }}"
 
@@ -25,6 +23,7 @@
 - name: Setup git variables for esteele
   become: True
   become_user: esteele
+  become_method: doas
   ini_file: dest=/home/esteele/.gitconfig section={{ item.section }}
              option={{ item.option }} value="{{ item.value }}"
   with_items:

@@ -2,8 +2,20 @@
     - name: Install a python that can be used for ansible
       raw: pkg_add {{PKG_PATH}}python-2.7.10.tgz
 
-    - name: Install sudo that makes things easier
-      raw: pkg_add {{PKG_PATH}}sudo-1.8.14.3.tgz
-
     - name: Gather facts now that an interpreter is installed
       setup:
+
+    # Setup a minimal doas.conf in this bootstrap phase so we can reliably
+    #  use ansible become directives at any point in the playbooks
+    - name: Activate doas
+      file: path=/etc/doas.conf owner=root group=wheel mode=0600 state=touch
+
+    # Fully quoted because of the ': ' on the line. See the Gotchas section
+    #  in Ansible's YAML Syntax page.
+    - name: Allow wheel users to use doas
+      lineinfile: 'dest=/etc/doas.conf state=present line="permit nopass :wheel"'
+
+    - name: Install sudo (needed because doas doesn't update USER)
+      openbsd_pkg: name=sudo-- state=present
+      environment:
+        PKG_PATH: "{{PKG_PATH}}"
