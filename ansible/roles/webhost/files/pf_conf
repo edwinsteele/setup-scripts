@@ -1,4 +1,4 @@
-tcp_services = "{ ssh, auth, www, https }"
+tcp_services = "{ ssh, www, https }"
 icmp_types="echoreq"
 
 set block-policy return
