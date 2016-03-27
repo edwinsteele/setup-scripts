@@ -20,7 +20,7 @@
   openbsd_pkg: name=enchant state=present
   environment:
       PKG_PATH: "{{PKG_PATH}}"
- 
+
 - name: Install libxslt (required to build python lxml module)
   openbsd_pkg: name=libxslt state=present
   environment:
@@ -47,7 +47,6 @@
 - name: Setup nikola virtualenv
   sudo: True
   sudo_user: esteele
-  pip: requirements=/home/esteele/Code/wordspeak.org/requirements.txt 
+  pip: requirements=/home/esteele/Code/wordspeak.org/requirements.txt
        virtualenv_command=/usr/local/bin/virtualenv
        virtualenv=/home/esteele/.virtualenvs/wordspeak_n7
-
