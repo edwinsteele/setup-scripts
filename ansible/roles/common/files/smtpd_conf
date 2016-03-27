@@ -7,3 +7,6 @@ accept for local alias <aliases> deliver to mbox
 accept for domain wordspeak.org \
         relay via secure+auth://fastmail@mail.messagingengine.com:465 \
         auth <secrets>
+accept for domain grus.space \
+        relay via secure+auth://fastmail@mail.messagingengine.com:465 \
+        auth <secrets>
