@@ -11,15 +11,9 @@
 
 - include: base_nginx.yml
 
-- name: Setup ~esteele/Sites
-  sudo: True
-  sudo_user: esteele
-  file: path=/home/esteele/Sites state=directory
-
-- name: Fix perms on ~esteele to allow ~/Sites to be served up
-  sudo: True
-  sudo_user: esteele
-  file: path=/home/esteele state=directory mode=0711
+- name: Setup ~esteele/Sites, allowing it to be served up
+  file: dest=/home/esteele/Sites state=directory
+        owner=esteele group=esteele mode=0711
 
 - name: Copy ssl chained cert
   copy: src=/Users/esteele/Code/local/startssl/wordspeak.org.chained.crt

@@ -10,8 +10,8 @@
 
 # Also takes care of .ssh directory setup
 - name: setup authorised key esteele
-  sudo: True
-  sudo_user: esteele
+  become: True
+  become_user: esteele
   action: authorized_key user=esteele
           key="{{ lookup('file', '/Users/esteele/.ssh/id_rsa.pub') }}"
 
@@ -23,8 +23,8 @@
               state=present
 
 - name: Setup git variables for esteele
-  sudo: True
-  sudo_user: esteele
+  become: True
+  become_user: esteele
   ini_file: dest=/home/esteele/.gitconfig section={{ item.section }}
              option={{ item.option }} value="{{ item.value }}"
   with_items:
@@ -33,11 +33,9 @@
     - { section: push, option: default, value: current }
 
 - name: Setup private_profile placeholder
-  sudo: True
-  sudo_user: esteele
   file: path=/home/esteele/.profile_private mode=0600 state=touch
+        owner=esteele group=esteele
 
 - name: Setup ~esteele/Code
-  sudo: True
-  sudo_user: esteele
-  file: path=/home/esteele/Code state=directory
+  file: path=/home/esteele/Code state=directory mode=0755
+        owner=esteele group=esteele
