@@ -27,13 +27,15 @@
 
 - name: Set permissions on swapfile
   file: path=/home/swapfile mode=0600
+  when: ansible_swaptotal_mb < 950
 
-- name: Enable swap on /home/swapfile (OpenBSD)
+- name: Enable swap on /home/swapfile
   command: swapctl -a /home/swapfile
   when: ansible_swaptotal_mb < 950
 
-- name: Add swapfile to fstab (OpenBSD)
+- name: Add swapfile to fstab
   action: lineinfile dest=/etc/fstab regexp="swapfile" line="/home/swapfile /home/swapfile swap sw 0 0" state=present
+  when: ansible_swaptotal_mb < 950
 
 - name: Copy mail secrets
   copy: src=/Users/esteele/Code/local/ansible/etc_mail_secrets
