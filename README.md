@@ -1,27 +1,33 @@
 # Files in this area
 
-* python-setup.sh: setup python venvs from scratch
-* vm-setup.sh: build and install python 2.7 or 3.3 from scratch
-* ansible
- * wordspeak
-  * yaml files for setup of a CentOS6 or OpenBSD 5.6 VM for my hosting
-* gemini: not sure... possibly initial config files from original gemini install?
-* vagrant: provisioning of gemini-type VM using vagrant. Only setup locally as I didn't want to spend time learning EC2 provisioning inside vagrant. Eventually switched to using ansible directly, rather than through vagrant
+* ansible: Provisioning of wordspeak webserver and home firewall
+* vagrant: provisioning of gemini-type VM using vagrant. Only setup
+  locally as I didn't want to spend time learning EC2 provisioning
+  inside vagrant. Eventually switched to using ansible directly,
+  rather than through vagrant
 
 # Provisioning a VM on an existing Install
 
-This is the case where a base OS install already exists, either because a cloud provider image has been used, or a virtualbox OS install has already been setup
-Assumes that your default ssh public key is installed on the server under the account that you'll be using for provisioning (root)
+This is the case where a base OS install already exists, either because
+a cloud provider image has been used, or a virtualbox OS install has
+already been setup
 
-## Common preceeding steps
+Assumes that your default ssh public key is installed on the server under
+the account that you'll be using for provisioning (root)
+
+## General pre-work
 1. `workon ansible`  (the virtualenv should already exist from previous work)
 2. `cd ~/Code/setup-scripts/ansible`
-2. Replace the host in `hosts` with the IP address of the newly provisioned host, placing it in the group section that corresponds to the `--limit` argument used in the `ansible-playbook` commands for the appropriate type of VM install
-3. `cd ~/Code/local/startssl; ./make_bundles.sh`
+2. Replace the host in `hosts` with the IP address of the newly provisioned
+   host, placing it in the group section that corresponds to the `--limit`
+   argument used in the `ansible-playbook` commands for the appropriate type of VM install
+3. `cd ~/Code/local/startssl; ./make_bundles.sh` (if deploying a webserver)
 
-# Provisioning an OpenBSD VM
+## Setup OpenBSD
 
-## OpenBSD-specific preceeding steps
+OpenBSD requires hand-installation on cloud providers, and vagrant images
+so we install ourselves.
+
 * do install from CD,
 * setup all network interfaces
 * do not setup a user
@@ -37,10 +43,12 @@ Assumes that your default ssh public key is installed on the server under the ac
 
 ## Provisioning a local VM
 
-Note that it's not possible to test ansible connectivity on OpenBSD hosts until they have a python interpreter, which is first setup in the bootstrap.yml playbook below
+Note that it's not possible to test ansible connectivity on OpenBSD hosts
+until they have a python interpreter, which is the first step in the common
+playbook.
 
 The default architecture is `openbsd-amd64` and if the installation machine is
-another architecutre, create a file under `host_vars` with a PKG_PATH
+another architecture, create a file under `host_vars` with a PKG_PATH
 definition with the appropriate architecture specified e.g.
 `PKG_PATH: 'http://mirror.internode.on.net/pub/OpenBSD/5.8/packages/powerpc/'`
 
@@ -63,6 +71,9 @@ Where the limit criteria is something like:
 25. `cd ~/Code/wordspeak.org && /home/esteele/.virtualenvs/wordspeak_n7/bin/fab build staging_sync`
 
 # Provisioning a VM on a local machine with Vagrant/VirtualBox
+
+**Broken - only for linux**
+
 Assumes virtualbox, vagrant 1.7
 
 1. `workon ansible` (venv should already exist)
