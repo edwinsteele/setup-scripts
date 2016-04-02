@@ -1,0 +1,9 @@
+---
+
+- name: Create dhcpd.conf
+  template: src=dhcpd_conf.j2 dest=/etc/dhcpd.conf owner=root group=wheel mode=0644
+  notify: Restart dhcpd
+
+- name: Enable and start dhcpd
+  action: service name=dhcpd state=restarted enabled=yes
+          arguments={{ dhcpd_interfaces }}

@@ -11,3 +11,6 @@
   gather_facts: no
   roles:
     - common
+    - firewall
+  vars_files:
+    - /Users/esteele/Code/local/ansible/etc_dhcpd_vars.yml
