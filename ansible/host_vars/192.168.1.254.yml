@@ -6,4 +6,4 @@ dhcpd_interfaces: "gem0"
 # Always assumes /24, which is ok for the moment
 dhcpd_serving_subnet: "192.168.1"
 # Will need an array and change logic when we listen on more than one interface
-unbound_listening_ips: "192.168.1.2"
+unbound_listening_ips: "192.168.1.254"
