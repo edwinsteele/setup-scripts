@@ -1,2 +1,4 @@
 ---
-dhcpd_interfaces: "em0"
+dhcpd_interfaces: "em1"
+dhcpd_serving_subnet: "192.168.56"
+unbound_listening_ips: "192.168.56.101"

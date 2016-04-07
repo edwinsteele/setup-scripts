@@ -1,3 +1,12 @@
 ---
 - name: Restart dhcpd
   service: name=dhcpd state=restarted
+
+- name: Restart unbound
+  service: name=unbound state=restarted
+
+# We start using unbound after it has been restarted as we don't
+#  want to break DNS on the host
+- name: Update resolv.conf to use unbound
+  lineinfile: dest=/etc/resolv.conf regexp="^nameserver "
+              line="nameserver 127.0.0.1"

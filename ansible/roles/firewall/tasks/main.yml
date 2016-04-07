@@ -1,9 +1,22 @@
 ---
 
 - name: Create dhcpd.conf
-  template: src=dhcpd_conf.j2 dest=/etc/dhcpd.conf owner=root group=wheel mode=0644
+  template: src=dhcpd_conf.j2 dest=/etc/dhcpd.conf
+            owner=root group=wheel mode=0644
   notify: Restart dhcpd
 
 - name: Enable and start dhcpd
-  action: service name=dhcpd state=restarted enabled=yes
+  service: name=dhcpd state=started enabled=yes
           arguments={{ dhcpd_interfaces }}
+
+- name: Create unbound.conf
+  template: src=unbound_conf.j2 dest=/etc/unbound.conf
+            owner=root group=wheel mode=0644
+  notify: Restart unbound
+
+- name: Enable and start unbound
+  service: name=unbound state=started enabled=yes
+  notify: Update resolv.conf to use unbound
+
+
+# /etc/resolv.conf
