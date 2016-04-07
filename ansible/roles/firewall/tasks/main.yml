@@ -1,4 +1,13 @@
 ---
+- name: setup pf.conf for this role
+  template: src=pf_conf.j2 dest=/etc/pf.conf
+            owner=root group=wheel mode=0600
+            validate="pfctl -n -f %s"
+  register: pf_conf_changed
+
+- name: apply any new pf rules immediately
+  command: pfctl -f /etc/pf.conf
+  when: pf_conf_changed["changed"]
 
 - name: Create dhcpd.conf
   template: src=dhcpd_conf.j2 dest=/etc/dhcpd.conf
@@ -17,6 +26,3 @@
 - name: Enable and start unbound
   service: name=unbound state=started enabled=yes
   notify: Update resolv.conf to use unbound
-
-
-# /etc/resolv.conf
