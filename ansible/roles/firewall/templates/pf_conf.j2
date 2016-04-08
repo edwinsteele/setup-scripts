@@ -1,7 +1,15 @@
 set skip on lo
 
-block return    # block stateless traffic
-pass            # establish keep-state
+int_if = "{{ internal_interface }}"
+local_tcp_services = "{ ssh }"
+local_udp_services = "{ domain bootps }"
+icmp_types = "{ echoreq }"
 
-# By default, do not permit remote connections to X11
-block return in on ! lo0 proto tcp to port 6000:6010
+match in all scrub (no-df)
+
+block in log
+pass out quick
+
+pass in on $int_if proto tcp to port $local_tcp_services
+pass in on $int_if proto udp to port $local_udp_services
+pass in on $int_if inet proto icmp icmp-type $icmp_types

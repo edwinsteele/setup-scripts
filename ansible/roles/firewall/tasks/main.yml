@@ -12,15 +12,17 @@
 - name: Create dhcpd.conf
   template: src=dhcpd_conf.j2 dest=/etc/dhcpd.conf
             owner=root group=wheel mode=0644
+            validate="dhcpd -n -c %s"
   notify: Restart dhcpd
 
 - name: Enable and start dhcpd
   service: name=dhcpd state=started enabled=yes
-          arguments={{ dhcpd_interfaces }}
+          arguments={{ internal_interface }}
 
 - name: Create unbound.conf
-  template: src=unbound_conf.j2 dest=/etc/unbound.conf
+  template: src=unbound_conf.j2 dest=/var/unbound/etc/unbound.conf
             owner=root group=wheel mode=0644
+            validate="/usr/sbin/unbound-checkconf %s"
   notify: Restart unbound
 
 - name: Enable and start unbound
