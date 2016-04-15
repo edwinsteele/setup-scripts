@@ -32,8 +32,8 @@
     - { section: push, option: default, value: current }
 
 - name: Setup private_profile placeholder
-  file: path=/home/esteele/.profile_private mode=0600 state=touch
-        owner=esteele group=esteele
+  lineinfile: dest=/home/esteele/.profile_private mode=0600 create=yes
+        owner=esteele group=esteele line="" state=present
 
 - name: Setup ~esteele/Code
   file: path=/home/esteele/Code state=directory mode=0755
