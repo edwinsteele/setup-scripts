@@ -17,12 +17,13 @@
 
 - name: Enable and start dhcpd
   service: name=dhcpd state=started enabled=yes
-          arguments={{ internal_interface }}
+          arguments="{{ internal_interface }} bwi0"
 
+# Can't validate with unbound-checkconf unfortunately because the
+# temporary file isn't under chroot
 - name: Create unbound.conf
   template: src=unbound_conf.j2 dest=/var/unbound/etc/unbound.conf
             owner=root group=wheel mode=0644
-            validate="/usr/sbin/unbound-checkconf %s"
   notify: Restart unbound
 
 - name: Enable and start unbound
