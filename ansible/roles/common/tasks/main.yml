@@ -50,8 +50,6 @@
 
 - name: Install standard packages
   openbsd_pkg: name={{ item }} state=present
-  environment:
-    PKG_PATH: "{{PKG_PATH}}"
   with_items:
     - p5-ack
     - wget
@@ -63,8 +61,6 @@
 # Setup a bare-bones system python
 - name: Install pip (system python)
   openbsd_pkg: name=py-pip state=present
-  environment:
-      PKG_PATH: "{{PKG_PATH}}"
 
 - name: Install virtualenv using easy_install
   command: /usr/local/bin/easy_install-2.7 virtualenv

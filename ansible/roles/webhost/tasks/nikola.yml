@@ -19,8 +19,6 @@
 # libxslt is required to build the python lxml module
 - name: Install packages required for Nikola use
   openbsd_pkg: name={{ item }} state=present
-  environment:
-      PKG_PATH: "{{PKG_PATH}}"
   with_items:
     - enchant
     - libxslt

@@ -10,9 +10,11 @@
     # Fully quoted because of the ': ' on the line. See the Gotchas section
     #  in Ansible's YAML Syntax page.
     - name: Activate doas and allow wheel users to use doas
-      lineinfile: 'line="permit nopass :wheel" dest=/etc/doas.conf owner=root group=wheel mode=0600'
+      lineinfile: 'line="permit nopass :wheel" dest=/etc/doas.conf owner=root group=wheel mode=0600 create=yes'
+
+    - name: Set default PKG_PATH
+      lineinfile: dest=/etc/pkg.conf owner=root group=wheel mode=0644 create=yes
+                  line="installpath = {{PKG_PATH}}"
 
     - name: Install sudo (needed because doas doesn't update USER)
       openbsd_pkg: name=sudo-- state=present
-      environment:
-        PKG_PATH: "{{PKG_PATH}}"
