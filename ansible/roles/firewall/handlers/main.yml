@@ -10,3 +10,6 @@
 - name: Update resolv.conf to use unbound
   lineinfile: dest=/etc/resolv.conf regexp="^nameserver "
               line="nameserver 127.0.0.1"
+
+- name: Enable ipv4 forwarding now via sysctl
+  command: sysctl net.inet.ip.forwarding=1

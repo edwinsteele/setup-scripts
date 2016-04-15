@@ -29,3 +29,8 @@
 - name: Enable and start unbound
   service: name=unbound state=started enabled=yes
   notify: Update resolv.conf to use unbound
+
+- name: Enable ipv4 ip forwarding
+  lineinfile: dest=/etc/sysctl.conf state=present create=yes
+              line="net.inet.ip.forwarding=1"
+  notify: Enable ipv4 forwarding now via sysctl
