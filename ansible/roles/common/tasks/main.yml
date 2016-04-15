@@ -38,7 +38,7 @@
   when: ansible_swaptotal_mb < 950
 
 - name: Copy mail secrets
-  copy: src=/Users/esteele/Code/local/ansible/etc_mail_secrets
+  copy: src=/Users/esteele/Code/local/ansible/roles/common/files/etc_mail_secrets
         dest=/etc/mail/secrets owner=root group=_smtpd mode=0640
   notify:
   - Rebuild secrets map
