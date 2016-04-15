@@ -7,13 +7,10 @@
 
     # Setup a minimal doas.conf in this bootstrap phase so we can reliably
     #  use ansible become directives at any point in the playbooks
-    - name: Activate doas
-      file: path=/etc/doas.conf owner=root group=wheel mode=0600 state=touch
-
     # Fully quoted because of the ': ' on the line. See the Gotchas section
     #  in Ansible's YAML Syntax page.
-    - name: Allow wheel users to use doas
-      lineinfile: 'dest=/etc/doas.conf state=present line="permit nopass :wheel"'
+    - name: Activate doas and allow wheel users to use doas
+      lineinfile: 'line="permit nopass :wheel" dest=/etc/doas.conf owner=root group=wheel mode=0600'
 
     - name: Install sudo (needed because doas doesn't update USER)
       openbsd_pkg: name=sudo-- state=present
