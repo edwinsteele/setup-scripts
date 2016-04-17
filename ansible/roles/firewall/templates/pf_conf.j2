@@ -1,15 +1,33 @@
-set skip on lo
 
+# Interfaces
 int_if = "{{ internal_interface }}"
-local_tcp_services = "{ ssh }"
-local_udp_services = "{ domain bootps }"
+ext_if = "{{ external_interface }}"
+
+# Ports open to internet on this machine
+ext_tcp_ports = "{ ssh }"
+
+# Ports open to internal network on this machine
+int_tcp_ports = "{ ssh domain }"
+int_udp_ports = "{ domain bootps }"
+
 icmp_types = "{ echoreq }"
 
-match in all scrub (no-df)
+# Options
+set skip on lo
+match in all scrub (no-df random-id max-mss 1440)
 
-block in log
-pass out quick
+block log
 
-pass in on $int_if proto tcp to port $local_tcp_services
-pass in on $int_if proto udp to port $local_udp_services
-pass in on $int_if inet proto icmp icmp-type $icmp_types
+# Allow Outgoing traffic on ext_if
+pass out on $ext_if
+
+# Allow incoming traffic on int_if
+pass in on $int_if
+
+# Outgoing traffic on int_if
+pass out on $int_if
+
+# Allow ICMP and traffic to open ports from internet
+pass in on $ext_if inet proto icmp to ($ext_if) icmp-type 8 code 0 keep state
+pass in on $ext_if proto tcp to ($ext_if) port $ext_tcp_ports
+#pass in on $ext_if proto udp to ($ext_if) port $ext_udp_ports
