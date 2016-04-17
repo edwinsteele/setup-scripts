@@ -1,8 +1,8 @@
 option  domain-name "home";
-option  domain-name-servers 192.168.1.1;
 
 subnet {{ dhcpd_serving_subnet }}.0 netmask 255.255.255.0 {
-	option routers 192.168.1.1;
+	option routers {{ dhcpd_serving_subnet }}.254;
+	option  domain-name-servers {{ dhcpd_serving_subnet }}.254;
 
 	range {{ dhcpd_serving_subnet }}.160 {{ dhcpd_serving_subnet }}.191;
 	default-lease-time 86400;

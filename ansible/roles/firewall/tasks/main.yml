@@ -17,7 +17,7 @@
 
 - name: Enable and start dhcpd
   service: name=dhcpd state=started enabled=yes
-          arguments="{{ internal_interface }} bwi0"
+          arguments="{{ internal_interface }}"
 
 # Can't validate with unbound-checkconf unfortunately because the
 # temporary file isn't under chroot
