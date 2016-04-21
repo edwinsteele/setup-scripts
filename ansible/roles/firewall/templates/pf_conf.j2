@@ -3,31 +3,46 @@
 int_if = "{{ internal_interface }}"
 ext_if = "{{ external_interface }}"
 
-# Ports open to internet on this machine
-ext_tcp_ports = "{ ssh }"
+lan_net = "192.168.20.0/24"
 
-# Ports open to internal network on this machine
-int_tcp_ports = "{ ssh domain }"
-int_udp_ports = "{ domain bootps }"
+# table containing all IP addresses assigned to the firewall
+table <firewall> const { self }
 
-icmp_types = "{ echoreq }"
+# don't filter on the loopback interface
+set skip on lo0
 
-# Options
-set skip on lo
-match in all scrub (no-df random-id max-mss 1440)
+# scrub incoming packets
+match in all scrub (no-df)
 
+# setup a default deny policy
 block log
 
-# Allow Outgoing traffic on ext_if
-pass out on $ext_if
+# activate spoofing protection for all interfaces
+#block in quick from urpf-failed
 
-# Allow incoming traffic on int_if
-pass in on $int_if
+# only allow ssh connections from the local network if it's from the
+# trusted computer, 192.168.0.15. use "block return" so that a TCP RST is
+# sent to close blocked connections right away. use "quick" so that this
+# rule is not overridden by the "pass" rules below.
+#block return in quick on $int_if proto tcp from ! 192.168.0.15 \
+#   to $int_if port ssh
 
-# Outgoing traffic on int_if
-pass out on $int_if
+# pass all traffic to and from the local network.
+# these rules will create state entries due to the default
+# "keep state" option which will automatically be applied.
+pass in  on $int_if from $lan_net
+pass out on $int_if to $lan_net
 
-# Allow ICMP and traffic to open ports from internet
-pass in on $ext_if inet proto icmp to ($ext_if) icmp-type 8 code 0 keep state
-pass in on $ext_if proto tcp to ($ext_if) port $ext_tcp_ports
-#pass in on $ext_if proto udp to ($ext_if) port $ext_udp_ports
+# pass tcp, udp, and icmp out on the external (Internet) interface.
+# tcp connections will be modulated, udp/icmp will be tracked
+# statefully.
+pass out on $ext_if proto { tcp udp icmp } all modulate state
+
+# allow ssh connections in on the external interface as long as they're
+# NOT destined for the firewall (i.e., they're destined for a machine on
+# the local network). log the initial packet so that we can later tell
+# who is trying to connect.
+# Uncomment last part to use the tcp syn proxy to proxy the connection.
+#pass in log on $ext_if proto tcp to ! <firewall> \
+#   port ssh # synproxy state
+pass in on $ext_if proto tcp to ($ext_if) port ssh
