@@ -34,3 +34,11 @@
   lineinfile: dest=/etc/sysctl.conf state=present create=yes
               line="net.inet.ip.forwarding=1"
   notify: Enable ipv4 forwarding now via sysctl
+
+- name: Manage timed internet access
+  cron: name="{{ item.desc }} internet access for particular devices"
+        minute="{{ item.min }}" hour="{{ item.hour }}"
+        job="pfctl -t <timed-internet-access> -T {{ item.verb }} {{ timed_internet_access_addresses }}"
+  with_items:
+  - { desc: "Disable", verb: "add", hour: "5", min: "30" }
+  - { desc: "Enable", verb: "delete", hour: "19", min: "30" }
