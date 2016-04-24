@@ -8,6 +8,9 @@ lan_net = "192.168.20.0/24"
 # table containing all IP addresses assigned to the firewall
 table <firewall> const { self }
 
+# table for permitting timed internet access
+table <no-internet-access> persist
+
 # don't filter on the loopback interface
 set skip on lo0
 
@@ -46,3 +49,6 @@ pass out on $ext_if proto { tcp udp icmp } all modulate state
 #pass in log on $ext_if proto tcp to ! <firewall> \
 #   port ssh # synproxy state
 pass in on $ext_if proto tcp to ($ext_if) port ssh
+
+# Prohibit internet access for device in the no-internet-access table
+block out on $ext_if from <no-internet-access>
