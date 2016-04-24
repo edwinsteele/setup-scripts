@@ -1,4 +1,4 @@
-option  domain-name "home";
+option  domain-name "{{ internal_domain }}";
 
 subnet {{ dhcpd_serving_subnet }}.0 netmask 255.255.255.0 {
 	option routers {{ dhcpd_serving_subnet }}.254;

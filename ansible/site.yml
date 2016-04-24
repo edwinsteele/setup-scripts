@@ -14,3 +14,4 @@
     - firewall
   vars_files:
     - /Users/esteele/Code/local/ansible/roles/firewall/vars/etc_dhcpd_vars.yml
+    - /Users/esteele/Code/local/ansible/roles/firewall/vars/local_address_vars.yml
