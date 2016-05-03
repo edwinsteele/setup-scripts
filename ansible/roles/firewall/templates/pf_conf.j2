@@ -15,13 +15,13 @@ table <no-internet-access> persist
 set skip on lo0
 
 # scrub incoming packets
-match in all scrub (no-df)
+match in all scrub (no-df random-id)
 
 # setup a default deny policy
 block log
 
 # activate spoofing protection for all interfaces
-#block in quick from urpf-failed
+block in quick from urpf-failed
 
 # only allow ssh connections from the local network if it's from the
 # trusted computer, 192.168.0.15. use "block return" so that a TCP RST is
@@ -33,8 +33,8 @@ block log
 # pass all traffic to and from the local network.
 # these rules will create state entries due to the default
 # "keep state" option which will automatically be applied.
-pass in  on $int_if from $lan_net
-pass out on $int_if to $lan_net
+pass in  on $int_if from $lan_net modulate state
+pass out on $int_if to $lan_net modulate state
 
 # pass tcp, udp, and icmp out on the external (Internet) interface.
 # tcp connections will be modulated, udp/icmp will be tracked
