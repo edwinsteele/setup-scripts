@@ -1,6 +1,6 @@
 ---
     - name: Install a python that can be used for ansible
-      raw: pkg_add {{PKG_PATH}}python-2.7.10.tgz
+      raw: pkg_add {{PKG_PATH}}{{python_package}}
 
     - name: Gather facts now that an interpreter is installed
       setup:
