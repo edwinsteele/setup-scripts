@@ -2,5 +2,5 @@
 ansible_python_interpreter: /usr/local/bin/python2.7
 system_pip_location: /usr/local/bin/pip2.7
 current_pip_location: /usr/local/bin/pip2.7
-PKG_PATH: 'http://mirror.internode.on.net/pub/OpenBSD/5.8/packages/amd64/'
-python_package: "python-2.7.10.tgz"
+PKG_PATH: 'http://mirror.internode.on.net/pub/OpenBSD/5.9/packages/amd64/'
+python_package: "python-2.7.11.tgz"
