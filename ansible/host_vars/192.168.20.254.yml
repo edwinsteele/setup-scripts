@@ -1,6 +1,6 @@
 ---
 PKG_PATH: 'http://mirror.internode.on.net/pub/OpenBSD/5.9/packages/powerpc/'
-external_interface: "bwi0"
+external_interface: "axen0"
 internal_interface: "gem0"
 # Ugly, but allows testing against virtualbox
 # Always assumes /24, which is ok for the moment
