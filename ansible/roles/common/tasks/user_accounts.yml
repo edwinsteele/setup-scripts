@@ -18,7 +18,10 @@
 # OpenBSD data segment limits are too small to allow building of python lxml
 - name: Increase data segment ulimit
   lineinfile: dest=/home/esteele/.profile line="ulimit -Sd 1000000"
-              state=present
+              state=present owner=esteele group=esteele
+
+- name: Provide sensible defaults for cvs (personal .cvsrc)
+  file: src=cvsrc dest=/home/esteele/.cvsrc owner=esteele group=esteele
 
 - name: Setup git variables for esteele
   become: True
