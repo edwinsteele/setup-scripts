@@ -3,7 +3,7 @@
   action: group name=esteele gid=1003 system=no
 
 - name: create user esteele
-  action: user name=esteele group=esteele groups=wheel
+  action: user name=esteele group=esteele groups=wheel,wsrc
 
 - name: set login class esteele
   user: login_class=staff name=esteele
