@@ -11,8 +11,13 @@ table <firewall> const { self }
 # table for permitting timed internet access
 table <no-internet-access> persist
 
+# SSH brute force blackhole
+table <ssh-brute-force> persist
+
 # don't filter on the loopback interface
 set skip on lo0
+
+block quick from <ssh-brute-force>
 
 # scrub incoming packets
 match in all scrub (no-df random-id)
@@ -41,14 +46,9 @@ pass out on $int_if to $lan_net modulate state
 # statefully.
 pass out on $ext_if proto { tcp udp icmp } all modulate state
 
-# allow ssh connections in on the external interface as long as they're
-# NOT destined for the firewall (i.e., they're destined for a machine on
-# the local network). log the initial packet so that we can later tell
-# who is trying to connect.
-# Uncomment last part to use the tcp syn proxy to proxy the connection.
-#pass in log on $ext_if proto tcp to ! <firewall> \
-#   port ssh # synproxy state
-pass in on $ext_if proto tcp to ($ext_if) port ssh
+pass in on $ext_if proto tcp to ($ext_if) port ssh modulate state \
+  (max-src-conn 10, max-src-conn-rate 5/5, \
+   overload <ssh-brute-force> flush global)
 
 # Prohibit internet access for device in the no-internet-access table
 block out on $ext_if from <no-internet-access>
