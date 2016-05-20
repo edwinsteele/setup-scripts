@@ -22,6 +22,19 @@ block quick from <ssh-brute-force>
 # scrub incoming packets
 match in all scrub (no-df random-id)
 
+# outbound traffic prioritisation
+# - prioritise low delay ToS packets
+match out on $ext_if set prio (3, 4)
+#
+# prioritise interactive ssh (bulk ssh gets normal treatment)
+match out on $ext_if proto tcp to port ssh set prio (3, 5)
+
+# prioritise icmp
+match out on $ext_if proto icmp set prio (6, 7)
+
+# prioritise dns
+match out on $ext_if proto { tcp, udp } to port domain set prio (6, 7)
+
 # setup a default deny policy
 block log
 
