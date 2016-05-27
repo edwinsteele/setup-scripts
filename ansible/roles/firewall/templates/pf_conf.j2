@@ -19,6 +19,9 @@ set skip on lo0
 
 block quick from <ssh-brute-force>
 
+# Prohibit internet access for device in the no-internet-access table
+block out quick on $ext_if from <no-internet-access>
+
 # scrub incoming packets
 match in all scrub (no-df random-id)
 
@@ -63,5 +66,8 @@ pass in on $ext_if proto tcp to ($ext_if) port ssh modulate state \
   (max-src-conn 10, max-src-conn-rate 5/5, \
    overload <ssh-brute-force> flush global)
 
-# Prohibit internet access for device in the no-internet-access table
-block out on $ext_if from <no-internet-access>
+# NAT outbound packets
+match out on $ext_if from $int_if:network to any nat-to ($ext_if)
+
+
+
