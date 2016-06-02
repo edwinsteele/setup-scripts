@@ -48,6 +48,9 @@
   notify:
   - Reload smtpd
 
+- name: Setup default gateway
+  template: src=mygate.j2 dest=/etc/mygate
+
 - name: Install standard packages
   openbsd_pkg: name={{ item }} state=present
   with_items:

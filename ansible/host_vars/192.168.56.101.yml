@@ -2,3 +2,4 @@
 internal_interface: "em1"
 dhcpd_serving_subnet: "192.168.56"
 unbound_listening_ips: "192.168.56.101"
+default_gateway: "192.168.56.1"
