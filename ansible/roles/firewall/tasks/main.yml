@@ -17,10 +17,6 @@
     - hostname.axen0
     - hostname.pppoe0
 
-- name: Manage default gateway (/etc/mygate)
-  template: src=mygate dest=/etc/mygate
-            owner=root group=wheel mode=0644
-
 - name: Create dhcpd.conf
   template: src=dhcpd_conf.j2 dest=/etc/dhcpd.conf
             owner=root group=wheel mode=0644
