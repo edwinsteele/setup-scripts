@@ -1,6 +1,14 @@
 ---
+    # Check if we have python - avoid doing an unconditional pkg_add because
+    #  that will fail if DNS is not working. This allows us to proceed under
+    #  those circumstances if we have already installed all the packages
+    - name: Check if a python that can be used for ansible is installed
+      raw: pkg_info -a
+      register: pkg_info_contents
+
     - name: Install a python that can be used for ansible
       raw: pkg_add {{PKG_PATH}}{{python_package}}
+      when: pkg_info_contents.stdout.find("python") == -1
 
     - name: Gather facts now that an interpreter is installed
       setup:
