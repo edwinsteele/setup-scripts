@@ -48,7 +48,7 @@
   notify:
   - Reload smtpd
 
-- name: Setup default gateway
+- name: Setup default gateway (/etc/mygate)
   template: src=mygate.j2 dest=/etc/mygate
 
 - name: Install standard packages

@@ -25,6 +25,9 @@ block out quick on $ext_if from <no-internet-access>
 # scrub incoming packets
 match in all scrub (no-df random-id)
 
+# MSS clamping for pppoe
+match on pppoe0 scrub (max-mss 1440)
+
 # outbound traffic prioritisation
 # - prioritise low delay ToS packets
 match out on $ext_if set prio (3, 4)
@@ -56,6 +59,9 @@ block in quick from urpf-failed
 # "keep state" option which will automatically be applied.
 pass in  on $int_if from $lan_net modulate state
 pass out on $int_if to $lan_net modulate state
+
+# Allow traffic to ADSL router
+pass out on axen0 proto { tcp udp icmp } to 192.168.1.1 keep state
 
 # pass tcp, udp, and icmp out on the external (Internet) interface.
 # tcp connections will be modulated, udp/icmp will be tracked
