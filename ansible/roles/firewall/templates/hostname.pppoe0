@@ -1,0 +1,6 @@
+# Add up to the end of the line with authkey once ready to activate
+inet 0.0.0.0 255.255.255.255 NONE \
+  pppoedev axen0 authproto pap \
+  authname '{{ pppoe_username }}' authkey '{{ pppoe_password }}'
+dest 0.0.0.1
+!/sbin/route add default -ifp pppoe0 0.0.0.1
