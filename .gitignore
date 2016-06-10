@@ -2,3 +2,4 @@
 *.vagrant
 *.swp
 .DS_Store
+packer/packer_cache
