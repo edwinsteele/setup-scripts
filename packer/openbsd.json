@@ -6,20 +6,16 @@
 	"builders": [{
 		"type": "virtualbox-iso",
 		"boot_command": [
-			"S<enter>",
-			"cat <<EOF >> install.conf<enter>",
-			"System hostname = openbsd59<enter>",
-			"Password for root account = vagrant<enter>",
-			"Do you want the X Window System to be started = no<enter>",
-			"Allow root ssh login = yes<enter>",
-			"What timezone are you in = Australia/Sydney<enter>",
-			"Directory does not contain SHA256.sig. Continue without verification = yes<enter>",
-			"EOF<enter>",
-			"install -af install.conf && reboot<enter>"
+			"S<enter><wait>",
+			"dhclient em0<enter><wait>",
+			"ftp -o /install.conf http://{{.HTTPIP}}:{{.HTTPPort}}/install.conf<enter><wait>",
+			"ftp -o /post-install.sh http://{{.HTTPIP}}:{{.HTTPPort}}/post-install.sh<enter><wait>",
+			"install -af install.conf && chroot /mnt < /post-install.sh && reboot<enter>"
 		],
 		"boot_wait": "20s",
 		"guest_additions_mode": "disable",
 		"guest_os_type": "OpenBSD_64",
+		"http_directory": "http",
 		"iso_url": "{{user `mirror`}}/pub/OpenBSD/5.9/amd64/install59.iso",
 		"iso_checksum": "685262fc665425c61a2952b2820389a2d331ac5558217080e6d564d2ce88eecb",
 		"iso_checksum_type": "sha256",
