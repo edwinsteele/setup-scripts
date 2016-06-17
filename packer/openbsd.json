@@ -22,12 +22,6 @@
 		"output_directory": "/Users/esteele/ExcludeFromBackups/packer-openbsd-5.9-amd64",
 		"shutdown_command": "/sbin/shutdown -h -p now",
 		"ssh_username": "root",
-		"ssh_password": "vagrant"
-	}],
-	"provisioners": [{
-		"type": "shell",
-		"scripts": [
-			"scripts/minimise.sh"
-		]
+		"ssh_private_key_file": "/Users/esteele/.ssh/id_rsa-packer-initial"
 	}]
 }
