@@ -55,7 +55,6 @@
   openbsd_pkg: name={{ item }} state=present
   with_items:
     - p5-ack
-    - wget
     - vim--no_x11
     - curl
     - git
