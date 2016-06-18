@@ -1,7 +1,13 @@
 {
+	"_comment": "Override ssh_private_key_file and ssh_public_key_str in variables file",
 	"variables": {
-		"compression_level": "3",
-		"mirror": "http://openbsd-mirror.mercury.local"
+		"mirror": "http://openbsd-mirror.mercury.local",
+		"cpus": "2",
+		"memory": "1024",
+		"vram": "16",
+		"output_directory": "/Users/esteele/ExcludeFromBackups/packer-openbsd-5.9-amd64",
+		"ssh_private_key_file": "",
+		"ssh_public_key_str": ""
 	},
 	"builders": [{
 		"type": "virtualbox-iso",
@@ -10,7 +16,7 @@
 			"dhclient em0<enter><wait>",
 			"ftp -o /install.conf http://{{.HTTPIP}}:{{.HTTPPort}}/install.conf<enter><wait>",
 			"ftp -o /post-install.sh http://{{.HTTPIP}}:{{.HTTPPort}}/post-install.sh<enter><wait>",
-			"install -af install.conf && chroot /mnt < /post-install.sh && reboot<enter>"
+			"install -af install.conf && chroot /mnt < /post-install.sh && echo '{{user `ssh_public_key_str`}}' >> /mnt/root/.ssh/authorized_keys && reboot<enter>"
 		],
 		"boot_wait": "20s",
 		"guest_additions_mode": "disable",
@@ -19,9 +25,19 @@
 		"iso_url": "{{user `mirror`}}/pub/OpenBSD/5.9/amd64/install59.iso",
 		"iso_checksum": "685262fc665425c61a2952b2820389a2d331ac5558217080e6d564d2ce88eecb",
 		"iso_checksum_type": "sha256",
-		"output_directory": "/Users/esteele/ExcludeFromBackups/packer-openbsd-5.9-amd64",
+		"output_directory": "{{user `output_directory`}}",
 		"shutdown_command": "/sbin/shutdown -h -p now",
 		"ssh_username": "root",
-		"ssh_private_key_file": "/Users/esteele/.ssh/id_rsa-packer-initial"
-	}]
+		"ssh_private_key_file": "{{user `ssh_private_key_file`}}",
+		"vboxmanage": [
+			["modifyvm", "{{.Name}}", "--memory", "{{user `memory`}}"],
+			["modifyvm", "{{.Name}}", "--cpus", "{{user `cpus`}}"],
+			["modifyvm", "{{.Name}}", "--vram", "{{user `vram`}}"]
+		],
+		"vboxmanage_post": [
+			["modifyvm", "{{.Name}}", "--nic1", "bridged"],
+			["modifyvm", "{{.Name}}", "--vrde", "off"]
+		]
+	}],
+	"_comment": "We do not set --bridgeadapter1 because it will be different on each host"
 }
