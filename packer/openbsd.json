@@ -1,5 +1,5 @@
 {
-	"_comment": "Override ssh_private_key_file and ssh_public_key_str in variables file",
+	"_comment": "Override ssh_private_key_file, root_bcrypt_hash and ssh_public_key_str in variables file",
 	"variables": {
 		"mirror": "http://openbsd-mirror.mercury.local",
 		"cpus": "2",
@@ -7,7 +7,8 @@
 		"vram": "16",
 		"output_directory": "/Users/esteele/ExcludeFromBackups/packer-openbsd-5.9-amd64",
 		"ssh_private_key_file": "",
-		"ssh_public_key_str": ""
+		"ssh_public_key_str": "",
+		"root_bcrypt_hash": ""
 	},
 	"builders": [{
 		"type": "virtualbox-iso",
@@ -39,5 +40,13 @@
 			["modifyvm", "{{.Name}}", "--vrde", "off"]
 		]
 	}],
-	"_comment": "We do not set --bridgeadapter1 because it will be different on each host"
+	"_comment": "We do not set --bridgeadapter1 because it will be different on each host",
+	"provisioners": [{
+		"type": "shell",
+		"inline": [
+			"sleep 5",
+			"sed -i 's/^root:[^:]*:/root:{{user `root_bcrypt_hash`}}:/' /etc/master.passwd",
+			"pwd_mkdb /etc/master.passwd"
+	]
+	}]
 }
