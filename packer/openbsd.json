@@ -17,7 +17,7 @@
 			"dhclient em0<enter><wait>",
 			"ftp -o /install.conf http://{{.HTTPIP}}:{{.HTTPPort}}/install.conf<enter><wait>",
 			"ftp -o /post-install.sh http://{{.HTTPIP}}:{{.HTTPPort}}/post-install.sh<enter><wait>",
-			"install -af install.conf && chroot /mnt < /post-install.sh && echo '{{user `ssh_public_key_str`}}' >> /mnt/root/.ssh/authorized_keys && reboot<enter>"
+			"install -af install.conf && mv /post-install.sh /mnt/post-install.sh && chmod 755 /mnt/post-install.sh && chroot /mnt /post-install.sh '{{user `ssh_public_key_str`}}' && rm /mnt/post-install.sh && reboot<enter>"
 		],
 		"boot_wait": "20s",
 		"guest_additions_mode": "disable",
