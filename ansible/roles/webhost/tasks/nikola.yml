@@ -37,10 +37,6 @@
     git: repo=ssh://git@github.com/edwinsteele/wordspeak.org.git
          dest=/home/esteele/Code/wordspeak.org
   
-  - name: Checkout d3-projects submodule
-    command: git submodule update --init chdir=/home/esteele/Code/wordspeak.org
-             creates=/home/esteele/Code/wordspeak.org/files/d3-projects/.git
-  
   - name: Setup nikola virtualenv
     pip: requirements=/home/esteele/Code/wordspeak.org/requirements.txt
          virtualenv_command=/usr/local/bin/virtualenv
