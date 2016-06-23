@@ -29,8 +29,9 @@
               create="yes"
               line='github.com,192.30.252.129 ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ=='
 
-# We need to use sudo here because doas doesn't update USER to
-#  be the run-as user, which is unexpected for this module
+# doas preserves USER and HOME, which is different to sudo, however by
+#  specifying them as environment variables we can proceed.
+# USER is required for git, and HOME is required for pip
 - block:
   - name: Checkout wordspeak repo
     git: repo=ssh://git@github.com/edwinsteele/wordspeak.org.git
@@ -46,5 +47,9 @@
          virtualenv=/home/esteele/.virtualenvs/wordspeak_n7
 
   become: True
-  become_method: sudo
+  become_method: doas
   become_user: esteele
+  environment:
+    USER: esteele
+    HOME: /home/esteele
+

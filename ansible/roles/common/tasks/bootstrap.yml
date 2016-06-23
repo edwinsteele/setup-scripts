@@ -24,5 +24,5 @@
       lineinfile: dest=/etc/pkg.conf owner=root group=wheel mode=0644 create=yes
                   line="installpath = {{PKG_PATH}}"
 
-    - name: Install sudo (needed because doas doesn't update USER)
-      openbsd_pkg: name=sudo-- state=present
+    - name: Remove sudo (no longer needed - use env to get doas to work)
+      openbsd_pkg: name=sudo-- state=absent
