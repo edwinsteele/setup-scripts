@@ -47,16 +47,7 @@ block log
 # activate spoofing protection for all interfaces
 block in quick from urpf-failed
 
-# only allow ssh connections from the local network if it's from the
-# trusted computer, 192.168.0.15. use "block return" so that a TCP RST is
-# sent to close blocked connections right away. use "quick" so that this
-# rule is not overridden by the "pass" rules below.
-#block return in quick on $int_if proto tcp from ! 192.168.0.15 \
-#   to $int_if port ssh
-
 # pass all traffic to and from the local network.
-# these rules will create state entries due to the default
-# "keep state" option which will automatically be applied.
 pass in  on $int_if from $lan_net modulate state
 pass out on $int_if to $lan_net modulate state
 
