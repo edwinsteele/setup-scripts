@@ -3,6 +3,7 @@
 int_if = "{{ internal_interface }}"
 ext_if = "{{ external_interface }}"
 
+icmp_types = "{ echoreq, unreach }"
 lan_net = "192.168.20.0/24"
 
 # table containing all IP addresses assigned to the firewall
@@ -52,7 +53,7 @@ pass in  on $int_if from $lan_net modulate state
 pass out on $int_if to $lan_net modulate state
 
 # Allow traffic to ADSL router
-pass out on axen0 proto { tcp udp icmp } to 192.168.1.1 keep state
+pass out on axe0 proto { tcp udp icmp } to 192.168.1.1 keep state
 
 # pass tcp, udp, and icmp out on the external (Internet) interface.
 # tcp connections will be modulated, udp/icmp will be tracked
@@ -62,9 +63,7 @@ pass out on $ext_if proto { tcp udp icmp } all modulate state
 pass in on $ext_if proto tcp to ($ext_if) port ssh modulate state \
   (max-src-conn 10, max-src-conn-rate 5/5, \
    overload <ssh-brute-force> flush global)
+pass in on $ext_if inet proto icmp icmp-type $icmp_types
 
 # NAT outbound packets
 match out on $ext_if from $int_if:network to any nat-to ($ext_if)
-
-
-
