@@ -4,13 +4,17 @@ int_if = "{{ internal_interface }}"
 ext_if = "{{ external_interface }}"
 
 icmp_types = "{ echoreq, unreach }"
+# Apple and App Store related Akamai addresses
+#  per http://mikedixson.com/2014/01/allowing-apple-app-store-access-through-a-firewall/
+table <ok-dest-for-limited-access> const { 17/8, 23.63.98.0/23 }
+
 lan_net = "192.168.20.0/24"
 
 # table containing all IP addresses assigned to the firewall
 table <firewall> const { self }
 
 # table for permitting timed internet access
-table <no-internet-access> persist
+table <limited-internet-access> persist
 
 # SSH brute force blackhole
 table <ssh-brute-force> persist
@@ -19,9 +23,6 @@ table <ssh-brute-force> persist
 set skip on lo0
 
 block quick from <ssh-brute-force>
-
-# Prohibit internet access for device in the no-internet-access table
-block out quick on $ext_if from <no-internet-access>
 
 # scrub incoming packets
 match in all scrub (no-df random-id)
@@ -64,6 +65,10 @@ pass in on $ext_if proto tcp to ($ext_if) port ssh modulate state \
   (max-src-conn 10, max-src-conn-rate 5/5, \
    overload <ssh-brute-force> flush global)
 pass in on $ext_if inet proto icmp icmp-type $icmp_types
+
+# Constrain internet access for device in the limited-internet-access table
+block out on $ext_if from <limited-internet-access>
+pass out on $ext_if from <limited-internet-access> to <ok-dest-for-limited-access>
 
 # NAT outbound packets
 match out on $ext_if from $int_if:network to any nat-to ($ext_if)
