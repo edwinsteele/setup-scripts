@@ -52,10 +52,10 @@
         job="pfctl -q -t ssh-brute-force -T expire 86400"
         special_time="hourly"
 
-- name: Manage timed internet access
+- name: Manage limited internet access
   cron: name="{{ item.desc }} internet access for particular devices"
         minute="{{ item.min }}" hour="{{ item.hour }}"
-        job="pfctl -q -t no-internet-access -T {{ item.verb }} {{ timed_internet_access_addresses }}"
+        job="pfctl -q -t limit-internet-access -T {{ item.verb }} {{ limited_internet_access_addresses }}"
   with_items:
   - { desc: "Disable", verb: "add", hour: "5", min: "30" }
   - { desc: "Enable", verb: "delete", hour: "19", min: "30" }
