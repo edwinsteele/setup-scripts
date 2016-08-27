@@ -1,13 +1,9 @@
 ---
+# XXX should also have lineinfile for deploy key in ssh config, probably
 - name: Copy wordspeak deploy key
   copy: src=/Users/esteele/Code/local/sshkeys/github_wordspeak_deploy
         dest=/home/esteele/.ssh/github_wordspeak_deploy
         owner=esteele group=esteele mode=0600
-
-# XXX should be line in file for deploy key, probably
-- name: Setup personal ssh config
-  copy: src=esteele_ssh_config
-        dest=/home/esteele/.ssh/config owner=esteele group=esteele mode=0600
 
 - name: Create Nikola Cache and Output directories
   file: path={{ item }} state=directory mode=0755 owner=esteele group=esteele
@@ -22,12 +18,6 @@
   with_items:
     - enchant
     - libxslt
-
-- name: Add Github's ssh key
-  lineinfile: mode="0644" owner="esteele" group="esteele"
-              state="present" dest="/home/esteele/.ssh/known_hosts"
-              create="yes"
-              line='github.com,192.30.252.129 ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ=='
 
 # doas preserves USER and HOME, which is different to sudo, however by
 #  specifying them as environment variables we can proceed.

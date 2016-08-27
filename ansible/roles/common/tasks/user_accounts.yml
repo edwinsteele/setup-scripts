@@ -8,6 +8,10 @@
 - name: set login class esteele
   user: login_class=staff name=esteele
 
+- name: Setup personal ssh config
+  copy: src=esteele_ssh_config
+        dest=/home/esteele/.ssh/config owner=esteele group=esteele mode=0600
+
 # Also takes care of .ssh directory setup
 - name: setup authorised key esteele
   action: authorized_key user=esteele
@@ -33,6 +37,12 @@
     - { section: user, option: email, value: edwin@wordspeak.org }
     - { section: user, option: name, value: Edwin Steele }
     - { section: push, option: default, value: current }
+
+- name: Add Github's ssh key
+  lineinfile: mode="0644" owner="esteele" group="esteele"
+              state="present" dest="/home/esteele/.ssh/known_hosts"
+              create="yes"
+              line='github.com,192.30.252.129 ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ=='
 
 - name: Setup private_profile placeholder
   lineinfile: dest=/home/esteele/.profile_private mode=0600 create=yes
