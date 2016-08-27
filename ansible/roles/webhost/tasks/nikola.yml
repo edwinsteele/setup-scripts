@@ -5,6 +5,10 @@
         dest=/home/esteele/.ssh/github_wordspeak_deploy
         owner=esteele group=esteele mode=0600
 
+- name: Setup personal ssh config for deploy key
+  copy: src=esteele_ssh_config
+        dest=/home/esteele/.ssh/config owner=esteele group=esteele mode=0600
+
 - name: Create Nikola Cache and Output directories
   file: path={{ item }} state=directory mode=0755 owner=esteele group=esteele
   with_items:

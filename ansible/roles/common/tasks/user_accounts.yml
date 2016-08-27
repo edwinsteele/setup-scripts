@@ -8,10 +8,6 @@
 - name: set login class esteele
   user: login_class=staff name=esteele
 
-- name: Setup personal ssh config
-  copy: src=esteele_ssh_config
-        dest=/home/esteele/.ssh/config owner=esteele group=esteele mode=0600
-
 # Also takes care of .ssh directory setup
 - name: setup authorised key esteele
   action: authorized_key user=esteele
