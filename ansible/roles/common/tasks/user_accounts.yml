@@ -47,3 +47,23 @@
 - name: Setup ~esteele/Code
   file: path=/home/esteele/Code state=directory mode=0755
         owner=esteele group=esteele
+
+# doas preserves USER, which is different to sudo, however by
+#  specifying them as environment variables we can proceed.
+# USER is required for git
+#
+# Check dotfiles out now, but only link them up in the role where
+#  they're actually used
+#
+# Ignore errors so that we can have local uncommitted mods and still run
+#  the playbook
+- name: Checkout dotfiles repo
+  git: repo=https://github.com/edwinsteele/dotfiles.git
+       dest=/home/esteele/Code/dotfiles
+  ignore_errors: yes
+  become: True
+  become_method: doas
+  become_user: esteele
+  environment:
+    USER: esteele
+
