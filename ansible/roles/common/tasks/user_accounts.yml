@@ -53,7 +53,7 @@
 # USER is required for git
 #
 # Check dotfiles out now, but only link them up in the role where
-#  they're actually used
+#  they're actually used. Always use HEAD (hence skip_ansible_lint)
 #
 # Ignore errors so that we can have local uncommitted mods and still run
 #  the playbook
@@ -66,4 +66,6 @@
   become_user: esteele
   environment:
     USER: esteele
+  tags:
+    - skip_ansible_lint
 

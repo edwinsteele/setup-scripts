@@ -26,11 +26,14 @@
 # doas preserves USER and HOME, which is different to sudo, however by
 #  specifying them as environment variables we can proceed.
 # USER is required for git, and HOME is required for pip
+# We always want HEAD of the wordspeak repo, hence the skip_ansible_lint
 - block:
   - name: Checkout wordspeak repo
     git: repo=ssh://git@github.com/edwinsteele/wordspeak.org.git
          dest=/home/esteele/Code/wordspeak.org
-  
+    tags:
+      - skip_ansible_lint
+
   - name: Setup nikola virtualenv
     pip: requirements=/home/esteele/Code/wordspeak.org/requirements.txt
          virtualenv_command=/usr/local/bin/virtualenv
