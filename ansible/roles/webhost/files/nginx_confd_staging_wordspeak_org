@@ -6,6 +6,10 @@ server {
         index  index.html;
     }
 
+    location /.well-known/acme-challenge {
+        alias /var/www/letsencrypt;
+    }
+
     access_log  /var/www/logs/staging.wordspeak.org-access.log;
     error_page 404 /pages/404.html;
 
