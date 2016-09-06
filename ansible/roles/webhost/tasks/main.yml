@@ -28,6 +28,12 @@
     - { dir: "/etc/ssl/letsencrypt/private", mode: "0700" }
     - { dir: "/etc/letsencrypt", mode: "0700" }
 
+# XXX - StartSSL certs are old.
+#       Replace with something that generates certificates from LetsEncrypt
+#       but from their staging setup so we don't get rate limited, and using
+#       ansible's creates= so that it doesn't run each time the playbook is
+#       run. Also need to add a crontab entry to renew the certificate.
+#       See acme-client(1) for an example
 - name: Copy ssl chained cert
   copy: src=/Users/esteele/Code/local/startssl/wordspeak.org.chained.crt
         dest=/etc/ssl/certs/wordspeak.org.chained.crt owner=root
