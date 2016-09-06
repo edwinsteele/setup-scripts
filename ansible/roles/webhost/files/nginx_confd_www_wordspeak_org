@@ -8,8 +8,8 @@ server {
     listen 443 ssl spdy;
     server_name wordspeak.org www.wordspeak.org;
 
-    ssl_certificate /etc/ssl/certs/wordspeak.org.chained.crt;
-    ssl_certificate_key /etc/ssl/certs/wordspeak.org.ssl.key;
+    ssl_certificate /etc/ssl/letsencrypt/fullchain.pem;
+    ssl_certificate_key /etc/ssl/letsencrypt/private/privkey.pem;
 
     # Use Mozilla recommended cipher support (intermediate)
     # (https://wiki.mozilla.org/Security/Server_Side_TLS)
@@ -52,7 +52,7 @@ server {
     ssl_stapling_verify on;
     resolver 8.8.8.8 8.8.4.4 valid=86400;
     resolver_timeout 10;
-    ssl_trusted_certificate /etc/ssl/certs/wordspeak.org.chained.trusted.crt;
+    ssl_trusted_certificate /etc/ssl/letsencrypt/chain.pem;
 
     location / {
         root   /var/www/htdocs/www.wordspeak.org;
