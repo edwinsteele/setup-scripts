@@ -17,7 +17,7 @@
 #  skeleton .profile is in place
 # OpenBSD data segment limits are too small to allow building of python lxml
 - name: Increase data segment ulimit
-  lineinfile: dest=/home/esteele/.profile line="ulimit -Sd 1000000"
+  lineinfile: dest=/home/esteele/.profile line="ulimit -Sd 1500000"
               state=present owner=esteele group=esteele
 
 - name: Provide sensible defaults for cvs (personal .cvsrc)
