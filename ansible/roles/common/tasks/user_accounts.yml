@@ -32,6 +32,7 @@
   with_items:
     - { section: user, option: email, value: edwin@wordspeak.org }
     - { section: user, option: name, value: Edwin Steele }
+    - { section: core, option: editor, value: /usr/local/bin/vim }
     - { section: push, option: default, value: current }
 
 - name: Add Github's ssh key
