@@ -14,10 +14,6 @@
   copy: src=mime_types dest=/etc/nginx/mime.types
         owner=root group=wheel mode=0644
 
-- name: Setup nginx default site config
-  copy: src=nginx_confd_default dest=/etc/nginx/conf.d/default.conf
-        owner=root group=wheel mode=0644
-
 - name: Create base directory for random parameter
   file: path=/etc/ssl/certs/misc owner=root group=wheel state=directory
 
