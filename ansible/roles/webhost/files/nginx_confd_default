@@ -1,8 +1,0 @@
-#
-# The default server
-#
-server {
-    listen       80 default_server;
-    server_name  $hostname;
-    return 301 https://www.wordspeak.org$request_uri;
-}
