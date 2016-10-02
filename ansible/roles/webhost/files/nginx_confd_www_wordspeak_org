@@ -8,7 +8,7 @@ server {
     listen 443 ssl http2;
     server_name www.wordspeak.org wordspeak.org origin.wordspeak.org "";
 
-    add_header Content-Security-Policy "default-src 'self'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; frame-src *.vimeo.com; child-src *.vimeo.com; connect-src 'self'; img-src 'self' https://*.cloudinary.com https://*.tile.openstreetmap.org; media-src *.vimeo.com; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; report-uri https://wordspeak.report-uri.io/r/default/csp/enforce" always;
+    add_header Content-Security-Policy "default-src 'self'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; frame-src *.vimeo.com; child-src *.vimeo.com; connect-src 'self'; img-src 'self' https://*.cloudinary.com https://*.tile.openstreetmap.org; media-src *.vimeo.com; script-src 'self'; style-src 'self' 'unsafe-inline'; report-uri https://wordspeak.report-uri.io/r/default/csp/enforce" always;
     add_header X-Frame-Options "DENY" always;
     add_header x-xss-Protection "1; mode=block" always;
     add_header X-Content-Type-Options nosniff always;
