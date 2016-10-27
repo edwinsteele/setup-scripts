@@ -39,6 +39,18 @@
          virtualenv_command=/usr/local/bin/virtualenv
          virtualenv=/home/esteele/.virtualenvs/wordspeak_n7
 
+  # Must install requests manually, and pinned to v2.9.2
+  # See: https://github.com/wummel/linkchecker/issues/661
+  - name: Setup linkchecker virtualenv (requests)
+    pip: name=requests version=2.9.2
+         virtualenv_command=/usr/local/bin/virtualenv
+         virtualenv=/home/esteele/.virtualenvs/linkchecker
+
+  - name: Setup linkchecker virtualenv (linkchecker)
+    pip: name=linkchecker version=9.3
+         virtualenv_command=/usr/local/bin/virtualenv
+         virtualenv=/home/esteele/.virtualenvs/linkchecker
+
   become: True
   become_method: doas
   become_user: esteele
