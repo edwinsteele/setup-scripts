@@ -5,7 +5,7 @@
 		"cpus": "2",
 		"memory": "1024",
 		"vram": "16",
-		"output_directory": "/Users/esteele/ExcludeFromBackups/packer-openbsd-5.9-amd64",
+		"output_directory": "build",
 		"ssh_private_key_file": "",
 		"ssh_public_key_str": "",
 		"root_bcrypt_hash": ""
@@ -36,17 +36,27 @@
 			["modifyvm", "{{.Name}}", "--vram", "{{user `vram`}}"]
 		],
 		"vboxmanage_post": [
-			["modifyvm", "{{.Name}}", "--nic1", "bridged"],
 			["modifyvm", "{{.Name}}", "--vrde", "off"]
 		]
 	}],
-	"_comment": "We do not set --bridgeadapter1 because it will be different on each host",
+	"_comment": "We need to populate doas.conf so that Vagrant can setup the network",
 	"provisioners": [{
 		"type": "shell",
 		"inline": [
 			"sleep 5",
 			"sed -i 's/^root:[^:]*:/root:{{user `root_bcrypt_hash`}}:/' /etc/master.passwd",
-			"pwd_mkdb /etc/master.passwd"
+			"pwd_mkdb /etc/master.passwd",
+			"sleep 5",
+			"echo 'permit nopass keepenv root as root' > /etc/doas.conf",
+			"chmod 600 /etc/doas.conf"
 	]
-	}]
+	}],
+	"post-processors": [
+		[{
+			"type": "vagrant",
+			"compression_level": 1,
+			"keep_input_artifact": true,
+			"output": "{{ user `output_directory` }}/packer_openbsd59-amd64.box"
+		}]
+	]
 }

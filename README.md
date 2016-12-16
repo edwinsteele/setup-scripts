@@ -2,8 +2,9 @@
 
 * ansible: Provisioning of wordspeak webserver and home firewall
 * packer: Creation of OpenBSD virtualbox images
+* vagrant: Vagrantfiles for each type of machine
 
-# OS Setup a VM from scratch (VirtualBox)
+# OS Setup a VM from scratch (VirtualBox, with packer and vagrant)
 
 Creation of virtualbox images is done via packer.
 
@@ -11,15 +12,10 @@ Creation of virtualbox images is done via packer.
 2. cd ~/Code/setup-scripts/packer
 3. `packer build -var-file=<path-to-varfile> openbsd.json`
 4. The ovf and vmdk files will be found in the `output_directory` specified in the openbsd.json file. Take note of the path to the ovf file that's been created, as it is necessary below.
-5. Check the available VMs in VirtualBox with `VBoxManage list vms` to see whether there's an old version of this VM that should be deleted or migrated
-6. Do a dry run of the import to confirm that it will be done correctly: `VBoxManage import <path-to-ovf-file> --dry-run`
-7. Do the import for real (as above, without `--dry-run`)
-8. Confirm the new vm is visible with `VBoxManage list vms` and make note of the VM name or the UUID for a subsequent step.
-9. After import, it's necessary to specify which interface is being bridged into the VM. To find out which interfaces are available use: `VBoxManage list bridgedifs`. Make note of the Name field - you will need the whole field (it will generally be something like *en0: Wi-Fi (AirPort)*)
-10. Specify which interface is being bridged: `VBoxManage modifyvm <vmname-or-uuid> --bridgeadapter1 <interfacename>` noting that you may need to single-quote the interface name if it has special characters or spaces.
-11. Start the VM: `VBoxManage startvm <vmname-or-uuid>` (use `--type headless`) if you want to avoid a GUI on the host.
-12. If you haven't done a DHCP mapping, find the new IP address on the DHCP server (look for recent *DHCPACK* log line in `/var/log/daemon` if it's OpenBSD)
-13. Login using the private key associated with the `ssh_private_key_file` that was used in the packer setup phase
+5. `cd` into a directory under vagrant, that defines the type of machine that you want, and look at the `config.vm.box`. Vagrant won't pull in the machine that you've just built if it's already been important. If `vagrant box list` shows a box with the same name as the `config.box.vm` directive in the `Vagrantfile` then run `vagrant box delete <name-of-box>`
+6. run `vagrant up`
+7. If you haven't done a DHCP mapping, find the new IP address on the DHCP server (look for recent *DHCPACK* log line in `/var/log/daemon` if it's OpenBSD)
+13. Login as root, using the private key associated with the `ssh_private_key_file` that was used in the packer setup phase
 
 # OS Setup a cloud host from scratch
 
@@ -80,4 +76,5 @@ Where the limit criteria is something like:
 16. Update `/etc/hosts` to have FQDN for host, and short and FQDN for any sites that the machine will serve
 20. `cd ~/Code && git clone git@github.com:edwinsteele/dotfiles.git`
 21. `cd ~/Code/dotfiles && ./make.sh`
+22. ``doas acme-client -vNn wordspeak.org www.wordspeak.org staging.wordspeak.org origin.wordspeak.org gemini.wordspeak.org``
 25. `cd ~/Code/wordspeak.org && /home/esteele/.virtualenvs/wordspeak_n7/bin/fab build staging_sync` (for webserver)
