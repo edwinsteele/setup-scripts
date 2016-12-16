@@ -22,6 +22,8 @@
   with_items:
     - enchant
     - libxslt
+    - python-3.4.4
+    - py3-virtualenv
 
 # doas preserves USER and HOME, which is different to sudo, however by
 #  specifying them as environment variables we can proceed.
