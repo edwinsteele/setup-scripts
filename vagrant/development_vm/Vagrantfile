@@ -14,15 +14,12 @@ Vagrant.configure("2") do |config|
     # OpenBSD doesn't support the VirtualBox filesystem
     config.vm.synced_folder ".", "/vagrant", disabled: true
 
+    # Wired ethernet on my hosts, then fall back to Wi-Fi (laptop only)
+    #  which will be the correct device if travelling.
     config.vm.network "public_network", bridge: [
         "en4: AX88179 USB 3.0 to Gigabit Ethernet 3",
+	"en7: Thunderbolt Ethernet",
         "en0: Wi-Fi (AirPort)"
     ]
-    # Assign this VM to a host-only network IP, allowing you to access it
-    # via the IP. Host-only networks can talk to the host machine as well as
-    # any other machines on the same network, but cannot be accessed (through this
-    # network interface) by any external networks.
-    #config.vm.network :private_network, ip: "192.168.56.151"
-
 end
 
