@@ -1,0 +1,9 @@
+---
+- name: Rebuild secrets map
+  command: /usr/sbin/makemap /etc/mail/secrets
+
+# This needs to be below the secrets rebuild
+#  or smtpd won't start
+# https://docs.ansible.com/ansible/glossary.html#notify
+- name: Reload smtpd
+  service: name=smtpd state=restarted

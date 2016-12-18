@@ -3,21 +3,18 @@
   user: root
   gather_facts: no
   roles:
-    - common
-    - mail_reader
+    - development
 
 - hosts: webservers
   user: root
   gather_facts: no
   roles:
-    - common
     - webhost
 
 - hosts: firewalls
   user: root
   gather_facts: no
   roles:
-    - common
     - firewall
   vars_files:
     - /Users/esteele/Code/local/ansible/roles/firewall/vars/private_vars.yml

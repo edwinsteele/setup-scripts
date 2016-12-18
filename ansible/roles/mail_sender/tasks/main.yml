@@ -1,0 +1,15 @@
+---
+- name: Copy mail secrets
+  copy: src=/Users/esteele/Code/local/ansible/roles/common/files/etc_mail_secrets
+        dest=/etc/mail/secrets owner=root group=_smtpd mode=0640
+  notify:
+  - Rebuild secrets map
+
+- name: Create aliases map (referenced in smtpd.conf)
+  command: /usr/sbin/makemap /etc/mail/aliases
+           creates=/etc/mail/aliases.db
+
+- name: Copy smtpd.conf
+  copy: src=smtpd_conf dest=/etc/mail/smtpd.conf
+  notify:
+  - Reload smtpd

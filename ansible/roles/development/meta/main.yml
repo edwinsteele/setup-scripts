@@ -1,0 +1,4 @@
+dependencies:
+  - common
+  - mail_sender
+  - mail_reader

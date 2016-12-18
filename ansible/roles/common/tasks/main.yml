@@ -37,21 +37,6 @@
   action: lineinfile dest=/etc/fstab regexp="swapfile" line="/home/swapfile /home/swapfile swap sw 0 0" state=present
   when: ansible_swaptotal_mb < 950
 
-- name: Copy mail secrets
-  copy: src=/Users/esteele/Code/local/ansible/roles/common/files/etc_mail_secrets
-        dest=/etc/mail/secrets owner=root group=_smtpd mode=0640
-  notify:
-  - Rebuild secrets map
-
-- name: Create aliases map (referenced in smtpd.conf)
-  command: /usr/sbin/makemap /etc/mail/aliases
-           creates=/etc/mail/aliases.db
-
-- name: Copy smtpd.conf
-  copy: src=smtpd_conf dest=/etc/mail/smtpd.conf
-  notify:
-  - Reload smtpd
-
 - name: Setup default gateway (/etc/mygate)
   template: src=mygate.j2 dest=/etc/mygate
 
