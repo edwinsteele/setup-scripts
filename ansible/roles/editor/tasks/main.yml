@@ -1,0 +1,6 @@
+---
+- name: Install standard packages
+  openbsd_pkg: name={{ item }} state=present
+  with_items:
+    - vim--no_x11
+

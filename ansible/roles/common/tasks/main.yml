@@ -44,9 +44,7 @@
   openbsd_pkg: name={{ item }} state=present
   with_items:
     - p5-ack
-    - vim--no_x11
     - curl
-    - git
     - lsof
 
 # Setup a bare-bones system python

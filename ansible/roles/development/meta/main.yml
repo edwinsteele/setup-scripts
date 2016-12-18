@@ -1,4 +1,6 @@
 dependencies:
   - common
+  - git
+  - editor
   - mail_sender
   - mail_reader

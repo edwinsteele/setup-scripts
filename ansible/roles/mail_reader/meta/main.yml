@@ -1,5 +1,5 @@
+---
 dependencies:
   - common
-  - editor
-  - git
+  - dotfiles
   - mail_sender
