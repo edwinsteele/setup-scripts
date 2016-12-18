@@ -1,0 +1,51 @@
+---
+
+# TODO: Setup mail relay in this role (or a dependent role)
+
+- name: Install packages for mail reading
+  openbsd_pkg: name={{ item }} state=present
+  with_items:
+   - mutt-1.5.24p5v0-compressed-sidebar
+   - offlineimap
+
+- name: Symlink dotfiles
+  file:
+    state: link
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - {src: "/home/esteele/Code/dotfiles/mutt", dest: "/home/esteele/.mutt" }
+
+- name: Copy offlineimaprc
+  copy:
+    src: /Users/esteele/Code/local/private_dotfiles/offlineimaprc
+    dest: /home/esteele/.offlineimaprc
+    owner: esteele
+    group: esteele
+    mode: 0600
+
+# Set colors correctly for mutt
+- lineinfile:
+    dest: /home/esteele/.profile
+    line: "export MUTT_COLORS=.mutt-colors`tput Co`"
+    state: present
+    owner: esteele
+    group: esteele
+
+- name: Create directories specified in muttrc
+  file:
+    state: directory
+    path: /home/esteele/{{ item }}
+    owner: esteele
+    group: esteele
+    mode: 0700
+  with_items:
+    - .mail
+    - .mutt_storage
+    - .mutt_storage/Search
+    - .mutt_storage/alias
+    - .mutt_storage/cache
+    - .mutt_storage/cache/bodies
+    - .mutt_storage/cache/headers
+    - .mutt_storage/certificates
+    - .mutt_storage/temp

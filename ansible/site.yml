@@ -1,4 +1,11 @@
 ---
+- hosts: development 
+  user: root
+  gather_facts: no
+  roles:
+    - common
+    - mail_reader
+
 - hosts: webservers
   user: root
   gather_facts: no
