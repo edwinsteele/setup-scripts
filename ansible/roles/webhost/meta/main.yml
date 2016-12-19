@@ -1,5 +1,6 @@
 dependencies:
   - common
+  - esteele_acct
   - editor
   - git
   - mail_sender
