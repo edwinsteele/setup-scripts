@@ -18,7 +18,7 @@
 
 - name: Copy offlineimaprc
   copy:
-    src: /Users/esteele/Code/local/private_dotfiles/offlineimaprc
+    src: /home/esteele/Code/dotfiles/offlineimaprc
     dest: /home/esteele/.offlineimaprc
     owner: esteele
     group: esteele
