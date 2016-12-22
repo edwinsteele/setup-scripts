@@ -14,15 +14,10 @@
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
   with_items:
-    - {src: "/home/esteele/Code/dotfiles/mutt", dest: "/home/esteele/.mutt" }
-
-- name: Copy offlineimaprc
-  copy:
-    src: /home/esteele/Code/dotfiles/offlineimaprc
-    dest: /home/esteele/.offlineimaprc
-    owner: esteele
-    group: esteele
-    mode: 0600
+    - {src: "/home/esteele/Code/dotfiles/mutt",
+       dest: "/home/esteele/.mutt" }
+    - {src: "/home/esteele/Code/dotfiles/offlineimaprc",
+       dest: "/home/esteele/.offlineimaprc" }
 
 # Set colors correctly for mutt
 - lineinfile:
