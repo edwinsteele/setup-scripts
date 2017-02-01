@@ -10,6 +10,7 @@
   gather_facts: no
   roles:
     - webhost
+    - geerlingguy.nginx
 
 - hosts: firewalls
   user: root

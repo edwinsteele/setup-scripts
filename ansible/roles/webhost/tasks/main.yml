@@ -26,28 +26,31 @@
     - { dir: "/var/www/letsencrypt", mode: "0755" }
     - { dir: "/etc/ssl/letsencrypt", mode: "0755" }
     - { dir: "/etc/ssl/letsencrypt/private", mode: "0700" }
-    - { dir: "/etc/letsencrypt", mode: "0700" }
 
-# XXX - StartSSL certs are old.
-#       Replace with something that generates certificates from LetsEncrypt
-#       but from their staging setup so we don't get rate limited, and using
-#       ansible's creates= so that it doesn't run each time the playbook is
-#       run. Also need to add a crontab entry to renew the certificate.
+#       Also need to add a crontab entry to renew the certificate.
 #       See acme-client(1) for an example
-- name: Copy ssl chained cert
-  copy: src=/Users/esteele/Code/local/startssl/wordspeak.org.chained.crt
-        dest=/etc/ssl/certs/wordspeak.org.chained.crt owner=root
-        group=wheel mode=0644
 
-- name: Copy ssl trusted chained cert
-  copy: src=/Users/esteele/Code/local/startssl/wordspeak.org.chained.trusted.crt
-         dest=/etc/ssl/certs/wordspeak.org.chained.trusted.crt owner=root
-         group=wheel mode=0644
+- name: Copy LE certs to allow nginx to start
+  copy:
+    src: "{{ item.src }}"
+    dest: "/etc/ssl/letsencrypt/{{ item.dest }}"
+    force: no
+    owner: root
+    group: wheel
+    mode: 444
+  with_items:
+    - { src: /Users/esteele/Code/local/letsencrypt/cert.pem, dest: cert.pem }
+    - { src: /Users/esteele/Code/local/letsencrypt/chain.pem, dest: chain.pem }
+    - { src: /Users/esteele/Code/local/letsencrypt/fullchain.pem, dest: fullchain.pem }
 
-- name: Copy certificate key
-  copy: src=/Users/esteele/Code/local/startssl/www_wordspeak_org.key
-         dest=/etc/ssl/certs/wordspeak.org.ssl.key owner=root
-         group=wheel mode=0600
+- name: Copy LE certs to allow nginx to start
+  copy:
+    src: /Users/esteele/Code/local/letsencrypt/privkey.pem
+    dest: /etc/ssl/letsencrypt/private/privkey.pem
+    force: no
+    owner: root
+    group: wheel
+    mode: 400
 
 - name: Setup webserver parent and acme-client challenge directories
   file: path=/var/www/htdocs/{{ item }} state=directory
@@ -74,27 +77,5 @@
   file: dest=/home/esteele/Sites/www.wordspeak.org
         src=/var/www/htdocs/www.wordspeak.org
         state=link
-
-# Finally setup wordspeak-specific nginx stuff and reload
-- name: Setup nginx staging.wordspeak.org config
-  copy: src=nginx_confd_staging_wordspeak_org
-        dest=/etc/nginx/conf.d/staging_wordspeak_org.conf
-        owner=root group=wheel mode=0644
-  notify:
-  - Reload nginx
-
-- name: Setup nginx language-explorer.wordspeak.org config
-  copy: src=nginx_confd_language-explorer_wordspeak_org
-        dest=/etc/nginx/conf.d/language-explorer_wordspeak_org.conf
-        owner=root group=wheel mode=0644
-  notify:
-  - Reload nginx
-
-- name: Setup nginx www.wordspeak.org config
-  copy: src=nginx_confd_www_wordspeak_org
-        dest=/etc/nginx/conf.d/www_wordspeak_org.conf
-        owner=root group=wheel mode=0644
-  notify:
-  - Reload nginx
 
 - include: nikola.yml

@@ -1,19 +1,4 @@
 ---
-- name: Install nginx
-  openbsd_pkg: name=nginx-- state=present
-
-- name: Create base nginx directories
-  file: path=/etc/nginx/conf.d owner=root group=wheel
-        mode=0755 state=directory
-
-- name: Setup base nginx config
-  copy: src=nginx_conf dest=/etc/nginx/nginx.conf
-        owner=root group=wheel mode=0644
-
-- name: Setup base nginx mime types
-  copy: src=mime_types dest=/etc/nginx/mime.types
-        owner=root group=wheel mode=0644
-
 - name: Create base directory for random parameter
   file: path=/etc/ssl/certs/misc owner=root group=wheel state=directory
 
@@ -24,7 +9,3 @@
 # Stop httpd first, so we don't have port clashes
 - name: Set httpd to not auto-start and stop if running
   service: name=httpd enabled=no state=stopped
-
-- name: Set nginx to auto-start and start if it's not running
-  service: name=nginx enabled=yes state=started
-
