@@ -4,7 +4,7 @@ nginx_vhosts:
     server_name: www.wordspeak.org wordspeak.org origin.wordspeak.org staging.wordspeak.org language-explorer ""
     index: index.html
     extra_parameters: |
-      return 301 http://$host$request_uri;
+      return 301 https://$host$request_uri;
   - listen: "443 ssl http2"
     server_name: www.wordspeak.org wordspeak.org origin.wordspeak.org ""
     index: index.html
