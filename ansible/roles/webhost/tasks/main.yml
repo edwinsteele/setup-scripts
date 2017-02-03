@@ -25,7 +25,14 @@
   with_items:
     - { dir: "/var/www/letsencrypt", mode: "0755" }
     - { dir: "/etc/ssl/letsencrypt", mode: "0755" }
+    - { dir: "/etc/ssl/letsencrypt/connectbox.org", mode: "0755" }
+    - { dir: "/etc/ssl/letsencrypt/wordspeak.org", mode: "0755" }
     - { dir: "/etc/ssl/letsencrypt/private", mode: "0700" }
+    - { dir: "/etc/ssl/letsencrypt/private/connectbox.org", mode: "0700" }
+    - { dir: "/etc/ssl/letsencrypt/private/wordspeak.org", mode: "0700" }
+    - { dir: "/etc/letsencrypt", mode: "0700" }
+    - { dir: "/etc/letsencrypt/connectbox.org", mode: "0700" }
+    - { dir: "/etc/letsencrypt/wordspeak.org", mode: "0700" }
 
 #       Also need to add a crontab entry to renew the certificate.
 #       See acme-client(1) for an example
@@ -39,43 +46,65 @@
     group: wheel
     mode: 444
   with_items:
-    - { src: /Users/esteele/Code/local/letsencrypt/cert.pem, dest: cert.pem }
-    - { src: /Users/esteele/Code/local/letsencrypt/chain.pem, dest: chain.pem }
-    - { src: /Users/esteele/Code/local/letsencrypt/fullchain.pem, dest: fullchain.pem }
+    - { src: /Users/esteele/Code/local/letsencrypt/wordspeak.org/cert.pem, dest: wordspeak.org/cert.pem }
+    - { src: /Users/esteele/Code/local/letsencrypt/wordspeak.org/chain.pem, dest: wordspeak.org/chain.pem }
+    - { src: /Users/esteele/Code/local/letsencrypt/wordspeak.org/fullchain.pem, dest: wordspeak.org/fullchain.pem }
+    - { src: /Users/esteele/Code/local/letsencrypt/connectbox.org/cert.pem, dest: connectbox.org/cert.pem }
+    - { src: /Users/esteele/Code/local/letsencrypt/connectbox.org/chain.pem, dest: connectbox.org/chain.pem }
+    - { src: /Users/esteele/Code/local/letsencrypt/connectbox.org/fullchain.pem, dest: connectbox.org/fullchain.pem }
 
-- name: Copy LE certs to allow nginx to start
+- name: Copy LE domain privkeys to allow nginx to start
   copy:
-    src: /Users/esteele/Code/local/letsencrypt/privkey.pem
-    dest: /etc/ssl/letsencrypt/private/privkey.pem
+    src: "{{ item.src }}"
+    dest: "/etc/ssl/letsencrypt/private/{{ item.dest }}"
     force: no
     owner: root
     group: wheel
     mode: 400
+  with_items:
+    - { src: /Users/esteele/Code/local/letsencrypt/wordspeak.org/private/domain-privkey.pem, dest: wordspeak.org/privkey.pem }
+    - { src: /Users/esteele/Code/local/letsencrypt/connectbox.org/private/domain-privkey.pem, dest: connectbox.org/privkey.pem }
 
+- name: Copy LE account privkey to allow certificate renewals
+  copy:
+    src: "{{ item.src }}"
+    dest: "/etc/letsencrypt/{{ item.dest }}"
+    force: no
+    owner: root
+    group: wheel
+    mode: 400
+  with_items:
+    - { src: /Users/esteele/Code/local/letsencrypt/wordspeak.org/private/account-privkey.pem, dest: wordspeak.org/privkey.pem }
+    - { src: /Users/esteele/Code/local/letsencrypt/connectbox.org/private/account-privkey.pem, dest: connectbox.org/privkey.pem }
+
+
+# Are these challenge directories even needed given the location blocks in vhosts.conf?
 - name: Setup webserver parent and acme-client challenge directories
-  file: path=/var/www/htdocs/{{ item }} state=directory
-        mode=0755 owner=esteele group=esteele
+  file:
+    path: "/var/www/htdocs/{{ item }}"
+    state: directory
+    owner: esteele
+    group: esteele
+    mode: 0755
   with_items:
     - staging.wordspeak.org
     - www.wordspeak.org
     - language-explorer.wordspeak.org
+    - demo.connectbox.org
     - staging.wordspeak.org/.well-known/acme-client
     - www.wordspeak.org/.well-known/acme-client
     - language-explorer.wordspeak.org/.well-known/acme-client
+    - demo.connectbox.org/.well-known/acme-client
 
-- name: Setup staging.wordspeak.org symlink
-  file: dest=/home/esteele/Sites/staging.wordspeak.org
-        src=/var/www/htdocs/staging.wordspeak.org
-        state=link
-
-- name: Setup language-explorer.wordspeak.org symlink
-  file: dest=/home/esteele/Sites/language-explorer.wordspeak.org
-        src=/var/www/htdocs/language-explorer.wordspeak.org
-        state=link
-
-- name: Setup www.wordspeak.org symlink
-  file: dest=/home/esteele/Sites/www.wordspeak.org
-        src=/var/www/htdocs/www.wordspeak.org
-        state=link
+- name: Setup symlinks from web roots
+  file:
+    dest: "/home/esteele/Sites/{{ item }}"
+    src: "/var/www/htdocs/{{ item }}"
+    state: link
+  with_items:
+    - staging.wordspeak.org
+    - www.wordspeak.org
+    - language-explorer.wordspeak.org
+    - demo.connectbox.org
 
 - include: nikola.yml
