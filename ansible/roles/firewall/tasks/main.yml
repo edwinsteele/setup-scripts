@@ -1,18 +1,4 @@
 ---
-- name: Setup file containing low priority pf address table
-  copy: src=pf_lp_outbound.conf dest=/etc/pf_lp_outbound.conf
-        owner=root group=wheel mode=0644
-
-- name: setup pf.conf for this role
-  template: src=pf_conf.j2 dest=/etc/pf.conf
-            owner=root group=wheel mode=0600
-            validate="pfctl -n -f %s"
-  register: pf_conf_changed
-
-- name: apply any new pf rules immediately
-  command: pfctl -f /etc/pf.conf
-  when: pf_conf_changed["changed"]
-
 - name: Manage interface files
   template: src={{ item }} dest=/etc/{{ item }}
             owner=root group=wheel mode=0640

@@ -1,0 +1,2 @@
+---
+pf_conf_template: firewall-pf_conf.j2

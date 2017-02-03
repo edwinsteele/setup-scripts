@@ -1,3 +1,4 @@
 dependencies:
+  - pf
   - common
   - mail_sender

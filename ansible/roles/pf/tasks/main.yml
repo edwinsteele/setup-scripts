@@ -1,4 +1,14 @@
 ---
+# Only needed by firewall group.
+# XXX - Check if this would be created automatically by pf
+- name: Setup file containing low priority pf address table
+  copy:
+    src: pf_lp_outbound.conf
+    dest: /etc/pf_lp_outbound.conf
+    owner: root
+    group: wheel
+    mode: 0644
+
 - name: setup pf.conf for this role
   template:
     src: "{{ pf_conf_template }}"
