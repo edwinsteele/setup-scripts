@@ -1,14 +1,4 @@
 ---
-- name: setup pf.conf for this role
-  copy: src=pf_conf dest=/etc/pf.conf
-        owner=root group=wheel mode=0600
-        validate="pfctl -n -f %s"
-  register: pf_conf_changed
-
-- name: apply any new pf rules immediately
-  command: pfctl -f /etc/pf.conf
-  when: pf_conf_changed["changed"]
-
 - include: base_nginx.yml
 
 - name: Setup ~esteele/Sites, allowing it to be served up
