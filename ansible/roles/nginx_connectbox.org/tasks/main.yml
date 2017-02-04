@@ -74,5 +74,5 @@
   include_role:
     name: geerlingguy.nginx
   vars:
-    nginx_vhosts_file: "{{ connectbox_org_vhost_file }}"
+    nginx_vhosts_filename: "{{ connectbox_org_vhosts_filename }}"
     nginx_vhosts: "{{ connectbox_org_nginx_vhosts }}"

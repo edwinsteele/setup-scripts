@@ -80,5 +80,5 @@
   include_role:
     name: geerlingguy.nginx
   vars:
-    nginx_vhosts_file: "{{ wordspeak_org_vhost_file }}"
+    nginx_vhosts_filename: "{{ wordspeak_org_vhosts_filename }}"
     nginx_vhosts: "{{ wordspeak_org_nginx_vhosts }}"

@@ -1,5 +1,5 @@
 ---
-connectbox_org_vhost_file: connectbox-org.conf
+connectbox_org_vhosts_filename: connectbox-org.conf
 connectbox_org_nginx_vhosts:
   - listen: "80"
     server_name: connectbox.org demo.connectbox.org

@@ -1,4 +1,5 @@
 ---
+wordspeak_org_vhosts_filename: wordspeak-org.conf
 wordspeak_org_nginx_vhosts:
   - listen: "80"
     server_name: www.wordspeak.org wordspeak.org origin.wordspeak.org staging.wordspeak.org language-explorer.wordspeak.org ""
