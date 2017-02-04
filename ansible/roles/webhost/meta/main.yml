@@ -5,3 +5,6 @@ dependencies:
   - editor
   - git
   - mail_sender
+  - nginx_base
+  - nginx_wordspeak.org
+  - nginx_connectbox.org

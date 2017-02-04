@@ -1,0 +1,21 @@
+---
+connectbox_org_vhost_file: connectbox-org.conf
+connectbox_org_nginx_vhosts:
+  - listen: "80"
+    server_name: connectbox.org demo.connectbox.org
+    index: index.html
+    extra_parameters: |
+      return 301 https://$host$request_uri;
+  - listen: 443 ssl http2
+    server_name: connectbox.org demo.connectbox.org
+    index: index.html
+    access_log: "/var/www/logs/demo.connectbox.org-access.log"
+    root: /var/www/htdocs/demo.connectbox.org
+    extra_parameters: |
+      ssl_certificate /etc/ssl/letsencrypt/connectbox.org/fullchain.pem;
+      ssl_trusted_certificate /etc/ssl/letsencrypt/connectbox.org/chain.pem;
+      ssl_certificate_key /etc/ssl/letsencrypt/private/connectbox.org/privkey.pem;
+
+      location /.well-known/acme-challenge {
+          alias /var/www/letsencrypt;
+      }

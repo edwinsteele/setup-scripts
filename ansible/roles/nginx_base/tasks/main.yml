@@ -1,0 +1,28 @@
+---
+# Stop httpd first, so we don't have port clashes
+- name: Set openbsd httpd to not auto-start and stop if running
+  service: name=httpd enabled=no state=stopped
+
+- name: Create base directory for random parameter
+  file: path=/etc/ssl/certs/misc owner=root group=wheel state=directory
+
+- name: Generate 2048bit random parameter for nginx DH Elliptic Curves
+  command: openssl dhparam -outform pem -out /etc/ssl/certs/misc/nginx-dhparam2048.pem 2048
+           creates=/etc/ssl/certs/misc/nginx-dhparam2048.pem
+
+- name: Setup ~esteele/Sites, allowing it to be served up
+  file: dest=/home/esteele/Sites state=directory
+        owner=esteele group=esteele mode=0711
+
+- name: Create Base Let's Encrypt directories
+  file:
+    path: "{{ item.dir }}"
+    state: directory
+    owner: root
+    group: wheel
+    mode: "{{ item.mode }}"
+  with_items:
+    - { dir: "/var/www/letsencrypt", mode: "0755" }
+    - { dir: "/etc/ssl/letsencrypt", mode: "0755" }
+    - { dir: "/etc/ssl/letsencrypt/private", mode: "0700" }
+    - { dir: "/etc/letsencrypt", mode: "0700" }
