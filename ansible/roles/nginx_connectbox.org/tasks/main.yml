@@ -62,13 +62,15 @@
     - demo.connectbox.org
     - demo.connectbox.org/.well-known/acme-client
 
-- name: Setup symlinks from web roots
-  file:
-    dest: "/home/esteele/Sites/{{ item }}"
-    src: "/var/www/htdocs/{{ item }}"
-    state: link
-  with_items:
-    - demo.connectbox.org
+- name: Clone connectbox repo
+  git:
+    repo: https://github.com/ConnectBox/connectbox-pi.git
+    dest: "{{ connectbox_pi_repo_location }}"
+
+- name: Checkout sample content
+  git:
+    repo: https://github.com/ConnectBox/connectbox-sample-content.git
+    dest: "{{ connectbox_sample_content_repo_location }}"
 
 - name: Configure nginx for connectbox.org
   include_role:
