@@ -75,6 +75,12 @@
       repo: https://github.com/ConnectBox/connectbox-sample-content.git
       dest: "{{ connectbox_sample_content_repo_location }}"
 
+  - name: Symlink readme for demo site
+    file:
+      src: "../README - demo site.txt"
+      dest: "{{ connectbox_sample_content_repo_location }}/content/README - demo site.txt"
+      state: link
+
   become: True
   become_method: doas
   become_user: esteele
