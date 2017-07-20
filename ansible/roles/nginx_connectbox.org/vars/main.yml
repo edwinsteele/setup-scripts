@@ -29,6 +29,10 @@ connectbox_org_nginx_vhosts:
 
       location /content {
         alias {{ connectbox_sample_content_repo_location }}/content;
+        # We need to override the default index.html because that file will be
+        #  present for static sites, and if it exists, it stops the icon-only
+        #  interface from rendering
+        index .should_not_match_anything.html;
         autoindex on;
         autoindex_format json;
         charset utf-8;
