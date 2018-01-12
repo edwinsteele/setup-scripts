@@ -37,7 +37,7 @@ wordspeak_org_nginx_vhosts:
     access_log: "/var/www/logs/staging.wordspeak.org-access.log"
     root: /var/www/htdocs/staging.wordspeak.org
     extra_parameters: |
-      add_header Content-Security-Policy "default-src 'self'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; frame-src *.vimeo.com; child-src *.vimeo.com; connect-src 'self'; img-src 'self' https://*.cloudinary.com https://*.tile.openstreetmap.org; media-src *.vimeo.com; object-src 'none'; script-src 'self'; style-src 'self'; report-uri https://wordspeak.report-uri.io/r/default/csp/enforce" always;
+      add_header Content-Security-Policy "default-src 'self'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; frame-src 'none'; child-src 'none'; connect-src 'self'; img-src 'self' https://*.cloudinary.com https://*.tile.openstreetmap.org; media-src 'none'; object-src 'none'; script-src 'self'; style-src 'self'; report-uri https://wordspeak.report-uri.io/r/default/csp/enforce" always;
       ssl_certificate /etc/ssl/letsencrypt/wordspeak.org/fullchain.pem;
       ssl_trusted_certificate /etc/ssl/letsencrypt/wordspeak.org/chain.pem;
       ssl_certificate_key /etc/ssl/letsencrypt/private/wordspeak.org/privkey.pem;
@@ -52,7 +52,7 @@ wordspeak_org_nginx_vhosts:
     access_log: "/var/www/logs/images.wordspeak.org-access.log"
     root: /var/www/htdocs/images.wordspeak.org
     extra_parameters: |
-      add_header Content-Security-Policy "default-src 'self'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; frame-src *.vimeo.com; child-src *.vimeo.com; connect-src 'self'; img-src 'self' https://*.cloudinary.com https://*.tile.openstreetmap.org; media-src *.vimeo.com; object-src 'none'; script-src 'self'; style-src 'self'; report-uri https://wordspeak.report-uri.io/r/default/csp/enforce" always;
+      add_header Content-Security-Policy "default-src 'self'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; frame-src *.vimeo.com; child-src *.vimeo.com; connect-src 'self'; img-src 'self' https://*.cloudinary.com https://*.tile.openstreetmap.org; media-src *.vimeo.com; object-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; report-uri https://wordspeak.report-uri.io/r/default/csp/enforce" always;
       ssl_certificate /etc/ssl/letsencrypt/wordspeak.org/fullchain.pem;
       ssl_trusted_certificate /etc/ssl/letsencrypt/wordspeak.org/chain.pem;
       ssl_certificate_key /etc/ssl/letsencrypt/private/wordspeak.org/privkey.pem;
