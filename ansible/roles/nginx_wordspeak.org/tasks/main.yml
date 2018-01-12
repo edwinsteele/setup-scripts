@@ -62,9 +62,11 @@
     - staging.wordspeak.org
     - www.wordspeak.org
     - language-explorer.wordspeak.org
+    - images.wordspeak.org
     - staging.wordspeak.org/.well-known/acme-client
     - www.wordspeak.org/.well-known/acme-client
     - language-explorer.wordspeak.org/.well-known/acme-client
+    - images.wordspeak.org/.well-known/acme-client
 
 - name: Setup symlinks from web roots
   file:
@@ -75,6 +77,7 @@
     - staging.wordspeak.org
     - www.wordspeak.org
     - language-explorer.wordspeak.org
+    - images.wordspeak.org
 
 - name: Configure nginx for wordspeak.org
   include_role:
