@@ -17,11 +17,13 @@
 
 # Enchant is used for spell checking
 # libxslt is required to build the python lxml module
+# jpeg is required to build pillow
 - name: Install packages required for Nikola use
   openbsd_pkg: name={{ item }} state=present
   with_items:
     - enchant
     - libxslt
+    - jpeg
     - python-3.4.4
     - py3-virtualenv
 
