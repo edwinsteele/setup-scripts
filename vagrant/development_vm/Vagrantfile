@@ -3,9 +3,8 @@
 
 Vagrant.configure("2") do |config|
 
-    # Every Vagrant virtual environment requires a box to build off of.
-    config.vm.box = "packer-openbsd59"
-    config.vm.box_url = "../../packer/build/packer_openbsd59-amd64.box"
+    config.vm.box = "packer-openbsd62"
+    config.vm.box_url = "../../packer/build/openbsd62-amd64-vmware.box"
     config.ssh.username = "root"
     config.ssh.private_key_path = "/Users/esteele/.ssh/id_rsa-packer-initial"
     config.ssh.shell = "/bin/ksh -l"
@@ -19,8 +18,7 @@ Vagrant.configure("2") do |config|
     # Wired ethernet on my hosts, then fall back to Wi-Fi (laptop only)
     #  which will be the correct device if travelling.
     config.vm.network "public_network", bridge: [
-        "en4: AX88179 USB 3.0 to Gigabit Ethernet 3",
-	"en7: Thunderbolt Ethernet",
+	"en7: Ethernet",
         "en0: Wi-Fi (AirPort)"
     ]
 
