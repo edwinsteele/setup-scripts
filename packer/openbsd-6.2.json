@@ -1,0 +1,53 @@
+{
+	"_comment": "Override ssh_private_key_file, root_bcrypt_hash and ssh_public_key_str in variables file",
+	"variables": {
+		"mirror": "http://openbsd-mirror.mercury.local",
+		"cpus": "2",
+		"memory": "1024",
+		"vram": "16",
+		"output_directory": "build",
+		"ssh_private_key_file": "",
+		"ssh_public_key_str": "",
+		"root_bcrypt_hash": ""
+	},
+	"builders": [{
+		"type": "vmware-iso",
+		"boot_command": [
+			"S<enter><wait>",
+			"dhclient em0<enter><wait>",
+			"ftp -o /install.conf http://{{.HTTPIP}}:{{.HTTPPort}}/install.conf<enter><wait>",
+			"ftp -o /post-install.sh http://{{.HTTPIP}}:{{.HTTPPort}}/post-install.sh<enter><wait>",
+			"install -af install.conf && mv /post-install.sh /mnt/post-install.sh && chmod 755 /mnt/post-install.sh && chroot /mnt /post-install.sh '{{user `ssh_public_key_str`}}' && rm /mnt/post-install.sh && reboot<enter>"
+		],
+		"boot_wait": "25s",
+		"guest_os_type": "other-64",
+		"http_directory": "http",
+		"iso_url": "{{user `mirror`}}/pub/OpenBSD/6.2/amd64/install62.iso",
+		"iso_checksum": "b7994d29c7db3087db65158901d700fb7d10500b9b7496c1d86b285cabce0a2b",
+		"iso_checksum_type": "sha256",
+		"output_directory": "{{user `output_directory`}}",
+		"shutdown_command": "/sbin/shutdown -h -p now",
+		"ssh_username": "root",
+		"ssh_private_key_file": "{{user `ssh_private_key_file`}}"
+	}],
+	"_comment": "We need to populate doas.conf so that Vagrant can setup the network",
+	"provisioners": [{
+		"type": "shell",
+		"inline": [
+			"sleep 5",
+			"sed -i 's/^root:[^:]*:/root:{{user `root_bcrypt_hash`}}:/' /etc/master.passwd",
+			"pwd_mkdb /etc/master.passwd",
+			"sleep 5",
+			"echo 'permit nopass keepenv root as root' > /etc/doas.conf",
+			"chmod 600 /etc/doas.conf"
+	]
+	}],
+	"post-processors": [
+		[{
+			"type": "vagrant",
+			"compression_level": 1,
+			"keep_input_artifact": true,
+			"output": "{{ user `output_directory` }}/openbsd62-amd64-{{.Provider}}.box"
+		}]
+	]
+}
