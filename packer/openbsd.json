@@ -38,6 +38,26 @@
 		"vboxmanage_post": [
 			["modifyvm", "{{.Name}}", "--vrde", "off"]
 		]
+	},
+	{
+		"type": "vmware-iso",
+		"boot_command": [
+			"S<enter><wait>",
+			"dhclient em0<enter><wait>",
+			"ftp -o /install.conf http://{{.HTTPIP}}:{{.HTTPPort}}/install.conf<enter><wait>",
+			"ftp -o /post-install.sh http://{{.HTTPIP}}:{{.HTTPPort}}/post-install.sh<enter><wait>",
+			"install -af install.conf && mv /post-install.sh /mnt/post-install.sh && chmod 755 /mnt/post-install.sh && chroot /mnt /post-install.sh '{{user `ssh_public_key_str`}}' && rm /mnt/post-install.sh && reboot<enter>"
+		],
+		"boot_wait": "25s",
+		"guest_os_type": "other-64",
+		"http_directory": "http",
+		"iso_url": "{{user `mirror`}}/pub/OpenBSD/5.9/amd64/install59.iso",
+		"iso_checksum": "685262fc665425c61a2952b2820389a2d331ac5558217080e6d564d2ce88eecb",
+		"iso_checksum_type": "sha256",
+		"output_directory": "{{user `output_directory`}}",
+		"shutdown_command": "/sbin/shutdown -h -p now",
+		"ssh_username": "root",
+		"ssh_private_key_file": "{{user `ssh_private_key_file`}}"
 	}],
 	"_comment": "We need to populate doas.conf so that Vagrant can setup the network",
 	"provisioners": [{
