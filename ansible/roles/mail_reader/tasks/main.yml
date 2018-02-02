@@ -5,7 +5,7 @@
 - name: Install packages for mail reading
   openbsd_pkg: name={{ item }} state=present
   with_items:
-   - mutt-1.5.24p5v0-compressed-sidebar
+   - "{{ mutt_package }}"
    - offlineimap
 
 - name: Symlink dotfiles
