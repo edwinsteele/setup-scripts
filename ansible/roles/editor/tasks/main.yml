@@ -3,7 +3,7 @@
 - name: Install standard packages
   openbsd_pkg: name={{ item }} state=present
   with_items:
-    - vim-7.4.900-no_x11-perl-python-ruby
+    - "{{ vim_package }}"
     - cmake
     - boost
 
@@ -34,12 +34,12 @@
     tags:
       - skip_ansible_lint
 
-  - name: Install vim plugins
-    command: vim +PluginInstall +qall
-    args:
-      creates: /home/esteele/.vim/bundle/Vundle.vim/.git/FETCH_HEAD
+  #- name: Install vim plugins
+  #  command: vim +PluginInstall +qall
+  #  args:
+  #    creates: /home/esteele/.vim/bundle/Vundle.vim/.git/FETCH_HEAD
 
-  # Need followup step for the YCM build
+  # Need followup step to perform YCM build
 
   become: True
   become_method: doas
