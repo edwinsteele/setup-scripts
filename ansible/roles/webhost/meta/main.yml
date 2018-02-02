@@ -8,4 +8,3 @@ dependencies:
   - nginx_base
   - nginx_wordspeak.org
   - nginx_connectbox.org
-  - nikola
