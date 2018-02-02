@@ -1,29 +1,26 @@
 ---
-    # Check if we have python - avoid doing an unconditional pkg_add because
-    #  that will fail if DNS is not working. This allows us to proceed under
-    #  those circumstances if we have already installed all the packages
-    - name: Check if a python that can be used for ansible is installed
-      raw: pkg_info -a
-      register: pkg_info_contents
-      changed_when: False
+# Check if we have python - avoid doing an unconditional pkg_add because
+#  that will fail if DNS is not working. This allows us to proceed under
+#  those circumstances if we have already installed all the packages
+- name: Check if a python that can be used for ansible is installed
+  raw: pkg_info -a
+  register: pkg_info_contents
+  changed_when: False
 
-    - name: Install a python that can be used for ansible
-      raw: pkg_add {{PKG_PATH}}{{python_package}}
-      when: pkg_info_contents.stdout.find("python") == -1
+- name: Install a python that can be used for ansible
+  raw: pkg_add {{PKG_PATH}}{{python_package}}
+  when: pkg_info_contents.stdout.find("python") == -1
 
-    - name: Gather facts now that an interpreter is installed
-      setup:
+- name: Gather facts now that an interpreter is installed
+  setup:
 
-    # Setup a minimal doas.conf in this bootstrap phase so we can reliably
-    #  use ansible become directives at any point in the playbooks
-    # Fully quoted because of the ': ' on the line. See the Gotchas section
-    #  in Ansible's YAML Syntax page.
-    - name: Activate doas and allow wheel users to use doas
-      lineinfile: 'line="permit nopass :wheel" dest=/etc/doas.conf owner=root group=wheel mode=0600 create=yes'
+# Setup a minimal doas.conf in this bootstrap phase so we can reliably
+#  use ansible become directives at any point in the playbooks
+# Fully quoted because of the ': ' on the line. See the Gotchas section
+#  in Ansible's YAML Syntax page.
+- name: Activate doas and allow wheel users to use doas
+  lineinfile: 'line="permit nopass :wheel" dest=/etc/doas.conf owner=root group=wheel mode=0600 create=yes'
 
-    - name: Set default PKG_PATH
-      lineinfile: dest=/etc/pkg.conf owner=root group=wheel mode=0644 create=yes
-                  line="installpath = {{PKG_PATH}}"
-
-    - name: Remove sudo (no longer needed - use env to get doas to work)
-      openbsd_pkg: name=sudo-- state=absent
+- name: Set default PKG_PATH
+  lineinfile: dest=/etc/pkg.conf owner=root group=wheel mode=0644 create=yes
+              line="installpath = {{PKG_PATH}}"
