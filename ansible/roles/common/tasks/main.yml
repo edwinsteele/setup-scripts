@@ -45,7 +45,6 @@
   with_items:
     - p5-ack
     - curl
-    - lsof
 
 # Setup a bare-bones system python
 - name: Install pip (system python)
