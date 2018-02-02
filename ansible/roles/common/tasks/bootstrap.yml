@@ -22,5 +22,21 @@
   lineinfile: 'line="permit nopass :wheel" dest=/etc/doas.conf owner=root group=wheel mode=0600 create=yes'
 
 - name: Set default PKG_PATH
-  lineinfile: dest=/etc/pkg.conf owner=root group=wheel mode=0644 create=yes
-              line="installpath = {{PKG_PATH}}"
+  lineinfile:
+    dest: /etc/pkg.conf
+    owner: root
+    group: wheel
+    mode: 0644
+    create: yes
+    line: "installpath = {{PKG_PATH}}"
+  when: ansible_distribution_version == "5.9"
+
+- name: Set installurl
+  lineinfile:
+    dest: /etc/installurl
+    owner: root
+    group: wheel
+    mode: 0644
+    create: yes
+    line: "{{ install_url }}"
+  when: ansible_distribution_version == "6.2"
