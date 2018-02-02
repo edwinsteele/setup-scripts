@@ -25,14 +25,8 @@ Vagrant.configure("2") do |config|
     config.vm.provision "ansible" do |ansible|
 	ansible.playbook = "../../ansible/site.yml"
 	ansible.groups = {
-            "development" => ["devvm"]
-	}
-        ansible.host_vars = {
-            "devvm" => {
-               "openbsd_version": 6.2,
-               "python_package": "python-3.6.4.tgz",
-               "ansible_python_interpreter": "/usr/local/bin/python3.6"
-            }
+            "development" => ["devvm"],
+            "openbsd_6.2" => ["devvm"]
         }
     end
 end

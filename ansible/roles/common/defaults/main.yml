@@ -1,10 +1,5 @@
 ---
-ansible_python_interpreter: /usr/local/bin/python2.7
-system_pip_location: /usr/local/bin/pip2.7
-current_pip_location: /usr/local/bin/pip2.7
 install_url: http://mirror.internode.on.net/pub/OpenBSD
 openbsd_arch: amd64
-openbsd_version: 5.9
 PKG_PATH: '{{ install_url }}/{{ openbsd_version }}/packages/{{ openbsd_arch }}/'
-python_package: python-2.7.11.tgz
 default_gateway: 192.168.20.254
