@@ -22,6 +22,7 @@
   roles:
     - bootstrap
     - network
+    - pf
     - firewall
   vars_files:
     - /Users/esteele/Code/local/ansible/roles/firewall/vars/private_vars.yml
