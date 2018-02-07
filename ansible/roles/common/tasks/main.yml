@@ -1,6 +1,4 @@
 ---
-- include: bootstrap.yml
-
 - name: Only allow root login with keys
   lineinfile: dest=/etc/ssh/sshd_config
               insertafter="^#PermitRootLogin"

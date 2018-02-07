@@ -3,12 +3,14 @@
   user: root
   gather_facts: no
   roles:
+    - bootstrap
     - development
 
 - hosts: webservers
   user: root
   gather_facts: no
   roles:
+    - bootstrap
     - webhost
     - geerlingguy.nginx
 
@@ -16,6 +18,7 @@
   user: root
   gather_facts: no
   roles:
+    - bootstrap
     - firewall
   vars_files:
     - /Users/esteele/Code/local/ansible/roles/firewall/vars/private_vars.yml
