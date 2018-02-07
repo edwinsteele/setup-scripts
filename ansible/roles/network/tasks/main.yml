@@ -1,0 +1,19 @@
+---
+- name: Manage interface files
+  template:
+    src: "{{ item }}"
+    dest: "/etc/{{ item }}"
+    owner: root
+    group: wheel
+    mode: 0640
+  with_items: "{{ interface_definitions }}"
+  register: interface_management
+
+- name: Start network
+  shell: /etc/netstart
+  when: interface_management["changed"]
+
+- name: Setup default gateway (/etc/mygate)
+  template:
+    src: mygate.j2
+    dest: /etc/mygate

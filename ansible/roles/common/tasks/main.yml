@@ -35,9 +35,6 @@
   action: lineinfile dest=/etc/fstab regexp="swapfile" line="/home/swapfile /home/swapfile swap sw 0 0" state=present
   when: ansible_swaptotal_mb < 950
 
-- name: Setup default gateway (/etc/mygate)
-  template: src=mygate.j2 dest=/etc/mygate
-
 - name: Install standard packages
   openbsd_pkg: name={{ item }} state=present
   with_items:
