@@ -29,6 +29,9 @@ Vagrant.configure("2") do |config|
             "development" => ["devvm"],
             "openbsd_6.2" => ["devvm"]
         }
+        ansible.extra_vars = {
+            "install_url": "http://openbsd-mirror.mercury.local:8080/pub/OpenBSD"
+        }
     end
 end
 
