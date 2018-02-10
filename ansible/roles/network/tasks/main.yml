@@ -10,7 +10,7 @@
   register: interface_management
 
 - name: Start network
-  shell: /etc/netstart
+  command: sh /etc/netstart
   when: interface_management["changed"]
 
 - name: Setup default gateway (/etc/mygate)
