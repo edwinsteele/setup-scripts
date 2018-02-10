@@ -1,6 +1,7 @@
-[openbsd_5.9]
+[openbsd_6.2]
 192.168.20.254
-192.168.56.101
+
+[openbsd_5.9]
 gemini.wordspeak.org
 
 [firewalls]
