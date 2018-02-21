@@ -1,5 +1,6 @@
 [openbsd_6.2]
 192.168.20.254
+gemini62.wordspeak.org
 
 [openbsd_5.9]
 gemini.wordspeak.org
@@ -10,4 +11,5 @@ gemini.wordspeak.org
 
 [webservers]
 gemini.wordspeak.org
+gemini62.wordspeak.org
 
