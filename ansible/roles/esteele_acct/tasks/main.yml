@@ -1,28 +1,53 @@
 ---
 - name: create group - esteele
-  action: group name=esteele gid=1003 system=no
+  group:
+    name: esteele
+    gid: 1003
+    system: no
 
 - name: create user esteele
-  action: user name=esteele group=esteele groups=wheel,wsrc
-
-- name: set login class esteele
-  user: login_class=staff name=esteele
+  user:
+    name: esteele
+    group: esteele
+    groups: wheel,wsrc
+    login_class: staff
 
 # Also takes care of .ssh directory setup
 - name: setup authorised key esteele
-  action: authorized_key user=esteele
-          key="{{ lookup('file', '/Users/esteele/.ssh/id_rsa.pub') }}"
+  authorized_key:
+    user: esteele
+    key: "{{ lookup('file', '/Users/esteele/.ssh/id_rsa.pub') }}"
 
 # Have this run after there's a task that runs as esteele so the
 #  skeleton .profile is in place
 # OpenBSD data segment limits are too small to allow building of python lxml
 - name: Increase data segment ulimit
-  lineinfile: dest=/home/esteele/.profile line="ulimit -Sd 1500000"
-              state=present owner=esteele group=esteele
+  lineinfile:
+    dest: /home/esteele/.profile
+    line: "ulimit -Sd 1500000"
+    state: present
+    owner: esteele
+    group: esteele
 
 - name: Provide sensible defaults for cvs (personal .cvsrc)
-  file: src=cvsrc dest=/home/esteele/.cvsrc owner=esteele group=esteele
+  file:
+    src: cvsrc
+    dest: /home/esteele/.cvsrc
+    owner: esteele
+    group: esteele
+
+- name: Forward esteele's mail
+  copy:
+    content: "edwin@wordspeak.org"
+    dest: /home/esteele/.forward
+    mode: 0644
+    owner: esteele
+    group: esteele
 
 - name: Setup ~esteele/Code
-  file: path=/home/esteele/Code state=directory mode=0755
-        owner=esteele group=esteele
+  file:
+    path: /home/esteele/Code
+    state: directory
+    mode: 0755
+    owner: esteele
+    group: esteele
