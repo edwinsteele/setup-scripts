@@ -1,9 +1,23 @@
 ---
 - name: Copy mail secrets
-  copy: src=/Users/esteele/Code/local/ansible/roles/common/files/etc_mail_secrets
-        dest=/etc/mail/secrets owner=root group=_smtpd mode=0640
+  copy:
+    src: /Users/esteele/Code/local/ansible/roles/common/files/etc_mail_secrets
+    dest: /etc/mail/secrets
+    owner: root
+    group: _smtpd
+    mode: 0640
+
+- name: Forward root's mail
+  copy:
+    content: "edwin@wordspeak.org"
+    dest: /root/.forward
+    mode: 0644
+    owner: root
+    group: wheel
 
 - name: Copy smtpd.conf
-  copy: src=smtpd_conf dest=/etc/mail/smtpd.conf
+  copy:
+    src: smtpd_conf
+    dest: /etc/mail/smtpd.conf
   notify:
   - Reload smtpd
