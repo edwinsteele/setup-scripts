@@ -1,2 +1,4 @@
 ---
 interface_definitions: []
+# Should this even be set?
+default_gateway: ""

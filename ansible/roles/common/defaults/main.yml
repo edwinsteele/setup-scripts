@@ -2,4 +2,3 @@
 install_url: http://mirror.internode.on.net/pub/OpenBSD
 openbsd_arch: amd64
 PKG_PATH: '{{ install_url }}/{{ openbsd_version }}/packages/{{ openbsd_arch }}/'
-default_gateway: 192.168.20.254
