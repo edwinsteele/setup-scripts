@@ -1,0 +1,23 @@
+---
+- name: Provide sensible defaults for cvs (personal .cvsrc)
+  file:
+    src: cvsrc
+    dest: /home/esteele/.cvsrc
+    owner: esteele
+    group: esteele
+
+- name: Forward esteele's mail
+  copy:
+    content: "edwin@wordspeak.org"
+    dest: /home/esteele/.forward
+    mode: 0644
+    owner: esteele
+    group: esteele
+
+- name: Setup ~esteele/Code
+  file:
+    path: /home/esteele/Code
+    state: directory
+    mode: 0755
+    owner: esteele
+    group: esteele

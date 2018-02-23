@@ -1,9 +1,6 @@
 dependencies:
   - common
   - pf
-  - esteele_acct
-  - editor
-  - git
   - mail_sender
   - nginx_base
   - nginx_wordspeak.org

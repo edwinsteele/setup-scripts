@@ -6,6 +6,9 @@
     - "{{ vim_package }}"
     - cmake
     - boost
+  become: True
+  become_method: doas
+  become_user: root
 
 - name: Symlink dotfiles
   file:
@@ -18,21 +21,14 @@
     - {src: "/home/esteele/Code/dotfiles/vim",
        dest: "/home/esteele/.vim" }
 
-# doas preserves USER, which is different to sudo, however by
-#  specifying them as environment variables we can proceed.
-# USER is required for git
-#
 # Always use HEAD (hence skip_ansible_lint)
-- block:
-  - name: Checkout vundle repo
-    git:
-      repo: https://github.com/VundleVim/Vundle.vim.git
-      dest: /home/esteele/.vim/bundle/Vundle.vim
-      depth: 1
-    environment:
-      USER: esteele
-    tags:
-      - skip_ansible_lint
+- name: Checkout vundle repo
+  git:
+    repo: https://github.com/VundleVim/Vundle.vim.git
+    dest: /home/esteele/.vim/bundle/Vundle.vim
+    depth: 1
+  tags:
+    - skip_ansible_lint
 
   #- name: Install vim plugins
   #  command: vim +PluginInstall +qall
@@ -41,6 +37,3 @@
 
   # Need followup step to perform YCM build
 
-  become: True
-  become_method: doas
-  become_user: esteele

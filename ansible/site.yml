@@ -1,18 +1,11 @@
 ---
-- hosts: development 
-  user: root
-  gather_facts: no
-  roles:
-    - bootstrap
-    - network
-    - development
-
 - hosts: webservers
   user: root
   gather_facts: no
   roles:
     - bootstrap
     - network
+    - esteele_acct
     - webhost
     - geerlingguy.nginx
 
@@ -28,3 +21,12 @@
   vars_files:
     - /Users/esteele/Code/local/ansible/roles/firewall/vars/private_vars.yml
     - /Users/esteele/Code/local/ansible/roles/firewall/vars/local_address_vars.yml
+
+- hosts: all
+  user: esteele
+  gather_facts: no
+  roles:
+    - esteele_contents
+    - git
+    - dotfiles
+    - editor

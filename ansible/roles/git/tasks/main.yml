@@ -5,6 +5,9 @@
     state: present
   with_items:
     - git
+  become: True
+  become_method: doas
+  become_user: root
 
 - name: Setup git variables for esteele
   ini_file:
