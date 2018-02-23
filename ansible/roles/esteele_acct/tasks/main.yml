@@ -5,12 +5,15 @@
     gid: 1003
     system: no
 
+# Users with no passwd set have 13 asterisks in their password
+#  field in master.passwd. If this isn't set, security(8) complains.
 - name: create user esteele
   user:
     name: esteele
     group: esteele
     groups: wheel,wsrc
     login_class: staff
+    password: '*************'
 
 # Also takes care of .ssh directory setup
 - name: setup authorised key esteele
