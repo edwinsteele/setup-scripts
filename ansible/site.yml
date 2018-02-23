@@ -1,9 +1,14 @@
 ---
-- hosts: webservers
+- hosts: all
   user: root
   gather_facts: no
   roles:
     - bootstrap
+  
+- hosts: webservers
+  user: root
+  gather_facts: no
+  roles:
     - network
     - esteele_acct
     - webhost
@@ -13,7 +18,6 @@
   user: root
   gather_facts: no
   roles:
-    - bootstrap
     - network
     - pf
     - firewall
@@ -22,7 +26,7 @@
     - /Users/esteele/Code/local/ansible/roles/firewall/vars/private_vars.yml
     - /Users/esteele/Code/local/ansible/roles/firewall/vars/local_address_vars.yml
 
-- hosts: all
+- hosts: all:!ami-builder
   user: esteele
   gather_facts: no
   roles:
