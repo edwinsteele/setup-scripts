@@ -1,5 +1,0 @@
-cvs -q -d anoncvs@anoncvs.au.openbsd.org:/cvs
-diff -uNp
-update -Pd
-checkout -P
-rdiff -u
