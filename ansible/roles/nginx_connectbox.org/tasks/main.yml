@@ -64,35 +64,35 @@
 
 # Set USER in environment because of doas + git (see nikola/tasks/main.yml
 #  for a full explanation)
-- block:
-  - name: Clone connectbox repo
-    git:
-      repo: https://github.com/ConnectBox/connectbox-pi.git
-      dest: "{{ connectbox_pi_repo_location }}"
+#- block:
+#  - name: Clone connectbox repo
+#    git:
+#      repo: https://github.com/ConnectBox/connectbox-pi.git
+#      dest: "{{ connectbox_pi_repo_location }}"
 
-  - name: Checkout sample content
-    git:
-      repo: https://github.com/ConnectBox/connectbox-sample-content.git
-      dest: "{{ connectbox_sample_content_repo_location }}"
+#  - name: Checkout sample content
+#    git:
+#      repo: https://github.com/ConnectBox/connectbox-sample-content.git
+#      dest: "{{ connectbox_sample_content_repo_location }}"
 
-  - name: Symlink readme for demo site
-    file:
-      src: "../README - demo site.txt"
-      dest: "{{ connectbox_sample_content_repo_location }}/content/README - demo site.txt"
-      state: link
+#  - name: Symlink readme for demo site
+#    file:
+#      src: "../README - demo site.txt"
+#      dest: "{{ connectbox_sample_content_repo_location }}/content/README - demo site.txt"
+#      state: link
 
-  become: True
-  become_method: doas
-  become_user: esteele
-  environment:
-    USER: esteele
+#  become: True
+#  become_method: doas
+#  become_user: esteele
+#  environment:
+#    USER: esteele
 
-- name: Schedule periodic update of connectbox repos
-  cron:
-    name: Update web connectbox repos
-    special_time: hourly
-    user: esteele
-    job: "git -C {{ connectbox_pi_repo_location }} pull; git -C {{ connectbox_sample_content_repo_location }} pull"
+#- name: Schedule periodic update of connectbox repos
+#  cron:
+#    name: Update web connectbox repos
+#    special_time: hourly
+#    user: esteele
+#    job: "git -C {{ connectbox_pi_repo_location }} pull; git -C {{ connectbox_sample_content_repo_location }} pull"
 
 - name: Configure nginx for connectbox.org
   include_role:
