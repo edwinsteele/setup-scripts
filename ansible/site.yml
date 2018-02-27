@@ -1,12 +1,10 @@
 ---
 - hosts: all
-  user: root
   gather_facts: no
   roles:
     - bootstrap
   
 - hosts: webservers
-  user: root
   gather_facts: no
   roles:
     - network
@@ -15,7 +13,6 @@
     - geerlingguy.nginx
 
 - hosts: firewalls
-  user: root
   gather_facts: no
   roles:
     - network
