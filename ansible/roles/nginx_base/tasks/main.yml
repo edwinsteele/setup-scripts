@@ -26,3 +26,25 @@
     - { dir: "/etc/ssl/letsencrypt", mode: "0755" }
     - { dir: "/etc/ssl/letsencrypt/private", mode: "0700" }
     - { dir: "/etc/letsencrypt", mode: "0700" }
+
+- name: Ensure nginx is installed.
+  openbsd_pkg:
+    name: nginx
+    state: present
+
+# XXX add validate
+- name: Copy nginx configuration in place.
+  copy:
+    src: nginx.conf
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: wheel
+    mode: 0644
+  notify:
+    - reload nginx
+
+- name: Ensure nginx is started and enabled to start at boot.
+  service:
+    name: nginx
+    state: started
+    enabled: yes

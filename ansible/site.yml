@@ -10,7 +10,6 @@
     - network
     - esteele_acct
     - webhost
-    - geerlingguy.nginx
 
 - hosts: firewalls
   gather_facts: no

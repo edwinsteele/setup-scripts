@@ -79,9 +79,11 @@
     - language-explorer.wordspeak.org
     - images.wordspeak.org
 
-- name: Configure nginx for wordspeak.org
-  include_role:
-    name: geerlingguy.nginx
-  vars:
-    nginx_vhosts_filename: "{{ wordspeak_org_vhosts_filename }}"
-    nginx_vhosts: "{{ wordspeak_org_nginx_vhosts }}"
+- name: copy wordspeak.org nginx config
+  template:
+    src: wordspeak-org.conf.j2
+    dest: /etc/nginx/sites-enabled/wordspeak-org.conf
+    owner: root
+    group: wheel
+    mode: 0644
+  notify: reload nginx
