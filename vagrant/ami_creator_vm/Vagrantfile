@@ -1,0 +1,54 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+$ami_script = <<SCRIPT
+# Repurpose /home as /tmp
+umount -f /home
+umount -f /tmp && mount -o "rw,nodev,nosuid" /dev/sd0k /tmp
+pkg_add curl ec2-api-tools awscli vmdktool;
+curl -sS -O https://raw.githubusercontent.com/ajacoutot/aws-openbsd/master/create-ami.sh;
+ksh create-ami.sh -d "OpenBSD 6.2" -r 6.2 > /create-ami.log
+SCRIPT
+
+Vagrant.configure("2") do |config|
+
+    config.vm.box = "packer-openbsd62"
+    config.vm.box_url = "../../packer/build/openbsd62-amd64-vmware.box"
+    config.ssh.username = "root"
+    config.ssh.private_key_path = "/Users/esteele/.ssh/id_rsa-packer-initial"
+    config.ssh.shell = "/bin/ksh -l"
+    config.ssh.sudo_command = "doas %c"
+    config.vm.hostname = "ami-builder.grus.space"
+    config.vm.define "ami-builder"
+
+    # OpenBSD doesn't support the VirtualBox filesystem
+    config.vm.synced_folder ".", "/vagrant", disabled: true
+
+    # Wired ethernet on my hosts, then fall back to Wi-Fi (laptop only)
+    #  which will be the correct device if travelling.
+    config.vm.network "public_network", bridge: [
+	"en7: Ethernet",
+        "en0: Wi-Fi (AirPort)"
+    ]
+
+    config.vm.provision "ansible" do |ansible|
+        ansible.compatibility_mode = "2.0"
+	ansible.playbook = "../../ansible/site.yml"
+	ansible.groups = {
+            "openbsd_6.2" => ["ami-builder"]
+        }
+        ansible.extra_vars = {
+            "install_url": "http://openbsd-mirror.mercury.local:8080/pub/OpenBSD"
+        }
+    end
+    config.vm.provision "shell" do |shell|
+       shell.inline = $ami_script
+       shell.env = {
+           "MIRROR": "http://openbsd-mirror.mercury.local:8080/pub/OpenBSD",
+           "AWS_ACCESS_KEY_ID": ENV['OPENBSD_AMI_BUILDER_AWS_ACCESS_KEY_ID'],
+           "AWS_SECRET_ACCESS_KEY": ENV['OPENBSD_AMI_BUILDER_AWS_SECRET_ACCESS_KEY'],
+           "AWS_REGION": ENV["OPENBSD_AMI_BUILDER_AWS_REGION"] 
+       }
+    end
+end
+
