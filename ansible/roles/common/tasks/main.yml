@@ -1,7 +1,7 @@
 ---
 - name: Only allow root login with keys
   lineinfile: dest=/etc/ssh/sshd_config
-              insertafter="^#PermitRootLogin"
+              regexp="^#?PermitRootLogin.*"
               line="PermitRootLogin without-password" validate="sshd -t -f %s"
   notify:
     - Restart sshd
@@ -12,6 +12,12 @@
               line="PasswordAuthentication no" validate="sshd -t -f %s"
   notify:
   - Restart sshd
+
+# Also takes care of .ssh directory setup
+- name: setup authorised key for root
+  authorized_key:
+    user: root
+    key: "{{ lookup('file', '/Users/esteele/.ssh/id_rsa.pub') }}"
 
 - name: Set timezone as Sydney
   copy: src=/usr/share/zoneinfo/Australia/Sydney dest=/etc/localtime
