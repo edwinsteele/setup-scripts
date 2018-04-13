@@ -27,6 +27,14 @@
     - { dir: "/etc/ssl/letsencrypt/private", mode: "0700" }
     - { dir: "/etc/letsencrypt", mode: "0700" }
 
+- name: Copy base /etc/acme-client.conf
+  copy:
+    src: etc_acme-client.conf
+    dest: /etc/acme-client.conf
+    owner: root
+    group: wheel
+    mode: 0600
+
 - name: Ensure nginx is installed.
   openbsd_pkg:
     name: nginx
