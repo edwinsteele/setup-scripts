@@ -7,38 +7,38 @@
     group: wheel
     mode: "{{ item.mode }}"
   with_items:
-    - { dir: "/etc/ssl/letsencrypt/wordspeak.org", mode: "0755" }
-    - { dir: "/etc/ssl/letsencrypt/private/wordspeak.org", mode: "0700" }
+    - { dir: "/etc/ssl/wordspeak.org", mode: "0755" }
+    - { dir: "/etc/ssl/private/wordspeak.org", mode: "0700" }
     - { dir: "/etc/letsencrypt/wordspeak.org", mode: "0700" }
 
 #       Also need to add a crontab entry to renew the certificate.
 #       See acme-client(1) for an example
 
-- name: Copy LE certs to allow nginx to start
+- name: Copy (likely outdated) wordspeak certs to allow nginx to start
   copy:
     src: "{{ item.src }}"
-    dest: "/etc/ssl/letsencrypt/{{ item.dest }}"
+    dest: "/etc/ssl/{{ item.dest }}"
     force: no
     owner: root
     group: wheel
     mode: 444
   with_items:
-    - { src: /Users/esteele/Code/local/letsencrypt/wordspeak.org/cert.pem, dest: wordspeak.org/cert.pem }
-    - { src: /Users/esteele/Code/local/letsencrypt/wordspeak.org/chain.pem, dest: wordspeak.org/chain.pem }
-    - { src: /Users/esteele/Code/local/letsencrypt/wordspeak.org/fullchain.pem, dest: wordspeak.org/fullchain.pem }
+    - { src: /Users/esteele/Code/local/ansible/roles/nginx_wordspeak.org/files/etc_ssl_wordspeak.org_cert.pem, dest: wordspeak.org/cert.pem }
+    - { src: /Users/esteele/Code/local/ansible/roles/nginx_wordspeak.org/files/etc_ssl_wordspeak.org_fullchain.pem, dest: wordspeak.org/fullchain.pem }
+    - { src: /Users/esteele/Code/local/ansible/roles/nginx_wordspeak.org/files/etc_ssl_wordspeak.org_chain.pem, dest: wordspeak.org/chain.pem }
 
-- name: Copy LE domain privkeys to allow nginx to start
+- name: Copy (likely outdated) wordspeak domain privkeys to allow nginx to start
   copy:
     src: "{{ item.src }}"
-    dest: "/etc/ssl/letsencrypt/private/{{ item.dest }}"
+    dest: "/etc/ssl/private/{{ item.dest }}"
     force: no
     owner: root
     group: wheel
     mode: 400
   with_items:
-    - { src: /Users/esteele/Code/local/letsencrypt/wordspeak.org/private/domain-privkey.pem, dest: wordspeak.org/privkey.pem }
+    - { src: /Users/esteele/Code/local/ansible/roles/nginx_wordspeak.org/files/etc_ssl_private_wordspeak.org_privkey.pem, dest: wordspeak.org/privkey.pem }
 
-- name: Copy LE account privkey to allow certificate renewals
+- name: Copy LE account privkeys to allow certificate renewals
   copy:
     src: "{{ item.src }}"
     dest: "/etc/letsencrypt/{{ item.dest }}"
@@ -47,10 +47,9 @@
     group: wheel
     mode: 400
   with_items:
-    - { src: /Users/esteele/Code/local/letsencrypt/wordspeak.org/private/account-privkey.pem, dest: wordspeak.org/privkey.pem }
+    - { src: /Users/esteele/Code/local/ansible/roles/nginx_wordspeak.org/files/etc_letsencrypt_wordspeak.org_acme-staging-privkey.pem, dest: wordspeak.org/acme-staging-privkey.pem }
+    - { src: /Users/esteele/Code/local/ansible/roles/nginx_wordspeak.org/files/etc_letsencrypt_wordspeak.org_acme-v01-privkey.pem, dest: wordspeak.org/acme-v01-privkey.pem }
 
-
-# Are these challenge directories even needed given the location blocks in vhosts.conf?
 - name: Setup webserver parent and acme-client challenge directories
   file:
     path: "/var/www/htdocs/{{ item }}"
@@ -63,10 +62,6 @@
     - www.wordspeak.org
     - language-explorer.wordspeak.org
     - images.wordspeak.org
-    - staging.wordspeak.org/.well-known/acme-client
-    - www.wordspeak.org/.well-known/acme-client
-    - language-explorer.wordspeak.org/.well-known/acme-client
-    - images.wordspeak.org/.well-known/acme-client
 
 - name: Setup symlinks from web roots
   file:

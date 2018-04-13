@@ -6,6 +6,7 @@
   raw: pkg_info -a
   register: pkg_info_contents
   changed_when: False
+  check_mode: no
 
 - name: Install a python that can be used for ansible
   raw: pkg_add {{PKG_PATH}}{{python_package}}
