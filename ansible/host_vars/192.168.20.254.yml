@@ -3,8 +3,9 @@ interface_definitions:
   - "hostname.gem0"
   - "hostname.axe0"
   - "hostname.pppoe0"
-external_interface: "pppoe0"
-internal_interface: "gem0"
+external_virtual_interface: "pppoe0"
+external_physical_interface: "axe0"
+internal_physical_interface: "gem0"
 # Ugly, but allows testing against virtualbox
 # Always assumes /24, which is ok for the moment
 dhcpd_serving_subnet: "192.168.20"
