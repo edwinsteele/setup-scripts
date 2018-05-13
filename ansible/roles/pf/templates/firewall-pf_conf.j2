@@ -4,11 +4,6 @@ int_if = "{{ internal_physical_interface }}"
 ext_if = "{{ external_virtual_interface }}"
 
 icmp_types = "{ echoreq, unreach }"
-# Apple and App Store related Akamai addresses
-#  per http://mikedixson.com/2014/01/allowing-apple-app-store-access-through-a-firewall/
-table <ok-dest-for-limited-access> const { 17/8, 23.63.98.0/23 }
-table <low-priority-outbound-traffic> persist file "/etc/pf_lp_outbound.conf"
-
 lan_net = "192.168.20.0/24"
 
 # table containing all IP addresses assigned to the firewall
@@ -43,9 +38,6 @@ match out on $ext_if proto icmp set prio (6, 7)
 
 # prioritise dns
 match out on $ext_if proto { tcp, udp } to port domain set prio (6, 7)
-
-# deprioritise http and https traffic to low prio destinations
-match out on $ext_if proto tcp to <low-priority-outbound-traffic> port { http, https } set prio (1, 1)
 
 # setup a default deny policy
 block log
