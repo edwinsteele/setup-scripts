@@ -1,11 +1,11 @@
 ---
 interface_definitions:
-  - "hostname.gem0"
-  - "hostname.axe0"
+  - "hostname.em0"
+  - "hostname.em1"
   - "hostname.pppoe0"
 external_virtual_interface: "pppoe0"
-external_physical_interface: "axe0"
-internal_physical_interface: "gem0"
+external_physical_interface: "em0"
+internal_physical_interface: "em1"
 # Ugly, but allows testing against virtualbox
 # Always assumes /24, which is ok for the moment
 dhcpd_serving_subnet: "192.168.20"
@@ -13,5 +13,4 @@ dhcpd_serving_subnet: "192.168.20"
 unbound_listening_ips: "192.168.20.254"
 default_gateway: ""
 openbsd_version: 6.2
-openbsd_arch: powerpc
 install_url: https://fastly.cdn.openbsd.org/pub/OpenBSD
