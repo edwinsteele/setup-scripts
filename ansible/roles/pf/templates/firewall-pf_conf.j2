@@ -4,7 +4,6 @@ int_if = "{{ internal_physical_interface }}"
 ext_if = "{{ external_virtual_interface }}"
 
 icmp_types = "{ echoreq, unreach }"
-lan_net = "192.168.20.0/24"
 
 # table containing all IP addresses assigned to the firewall
 table <firewall> const { self }
@@ -46,8 +45,8 @@ block log
 block in quick from urpf-failed
 
 # pass all traffic to and from the local network.
-pass in  on $int_if from $lan_net modulate state
-pass out on $int_if to $lan_net modulate state
+pass in  on $int_if from $int_if:network modulate state
+pass out on $int_if to $int_if:network modulate state
 
 # Allow traffic to ADSL router
 pass out on {{ external_physical_interface }} proto { tcp udp icmp } to 192.168.1.1 keep state
