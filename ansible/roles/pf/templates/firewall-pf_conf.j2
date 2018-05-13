@@ -63,7 +63,6 @@ pass in on $ext_if inet proto icmp icmp-type $icmp_types
 
 # Constrain internet access for device in the limited-internet-access table
 block out on $ext_if from <limited-internet-access>
-pass out on $ext_if from <limited-internet-access> to <ok-dest-for-limited-access>
 
 # NAT outbound packets
 match out on $ext_if from $int_if:network to any nat-to ($ext_if)
