@@ -14,24 +14,27 @@ table <limited-internet-access> persist
 # don't filter on the loopback interface
 set skip on lo0
 
+# Queues. ADSL has 1020Kb/sec up. Let's cap at 900Kb/sec
+queue ext on $ext_if bandwidth 900K
+queue ext_dns parent ext bandwidth 10K min 10K
+# Low-delay ToS (ACKs and interactive SSH)
+queue ext_pri parent ext bandwidth 90K min 45K
+queue ext_def parent ext bandwidth 800K max 800K flows 1024 default
+
 # scrub incoming packets
 match in all scrub (no-df random-id)
 
 # MSS clamping for pppoe
-match on pppoe0 scrub (max-mss 1440)
+# MSS = standard 1500 MTU - PPPoE header - IP header - TCP header (20 bytes)
+# i.e. 1500 – 8 – 20 – 20 = 1452.
+# From https://samuel.kadolph.com/2015/02/mtu-and-tcp-mss-when-using-pppoe-2/
+match on pppoe0 scrub (max-mss 1452)
 
-# outbound traffic prioritisation
-# - prioritise low delay ToS packets
-match out on $ext_if set prio (3, 4)
-#
-# prioritise interactive ssh (bulk ssh gets normal treatment)
-match out on $ext_if proto tcp to port ssh set prio (3, 5)
-
-# prioritise icmp
-match out on $ext_if proto icmp set prio (6, 7)
-
+# Queue Assignment. Last match defines queue
+# Low-delay ToS goes to a different queue
+match out on $ext_if proto { tcp, udp } set queue(ext_def, ext_pri)
 # prioritise dns
-match out on $ext_if proto { tcp, udp } to port domain set prio (6, 7)
+match out on $ext_if proto { tcp, udp } to port domain set queue ext_dns
 
 # setup a default deny policy
 block log
