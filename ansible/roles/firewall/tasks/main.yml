@@ -25,11 +25,6 @@
               line="net.inet.ip.forwarding=1"
   notify: Enable ipv4 forwarding now via sysctl
 
-- name: Scheduled expiry of ssh brute force pf table
-  cron: name="Expire ssh brute force pf table"
-        job="pfctl -q -t ssh-brute-force -T expire 86400"
-        special_time="hourly"
-
 - name: Manage limited internet access
   cron: name="{{ item.desc }} internet access for particular devices"
         minute="{{ item.min }}" hour="{{ item.hour }}"

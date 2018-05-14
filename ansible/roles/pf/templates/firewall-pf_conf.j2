@@ -11,13 +11,8 @@ table <firewall> const { self }
 # table for permitting timed internet access
 table <limited-internet-access> persist
 
-# SSH brute force blackhole
-table <ssh-brute-force> persist
-
 # don't filter on the loopback interface
 set skip on lo0
-
-block quick from <ssh-brute-force>
 
 # scrub incoming packets
 match in all scrub (no-df random-id)
@@ -56,9 +51,7 @@ pass out on {{ external_physical_interface }} proto { tcp udp icmp } to 192.168.
 # statefully.
 pass out on $ext_if proto { tcp udp icmp } all modulate state
 
-pass in on $ext_if proto tcp to ($ext_if) port ssh modulate state \
-  (max-src-conn 10, max-src-conn-rate 5/5, \
-   overload <ssh-brute-force> flush global)
+pass in on $ext_if proto tcp to ($ext_if) port ssh modulate state
 pass in on $ext_if inet proto icmp icmp-type $icmp_types
 
 # Constrain internet access for device in the limited-internet-access table
