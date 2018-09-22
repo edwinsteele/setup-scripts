@@ -9,6 +9,11 @@
   service: name=dhcpd state=started enabled=yes
           arguments="{{ internal_physical_interface }}"
 
+- name: Get root.key for dnssec
+  command: unbound-anchor
+  args:
+    creates: /var/unbound/db/root.key
+
 # Can't validate with unbound-checkconf unfortunately because the
 # temporary file isn't under chroot
 - name: Create unbound.conf

@@ -9,4 +9,7 @@ server:
 	access-control: 192.168.1.0/24 allow
 	access-control: 192.168.20.0/24 allow
 
+# Enable dnssec
+auto-trust-anchor-file: "/db/root.key"
+
 {{ unbound_local_data_content }}
