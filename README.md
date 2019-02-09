@@ -8,6 +8,8 @@
 
 Creation of virtualbox images is done via packer.
 
+This setup relies on packer being able to accept incoming connections, so review firewall on the host if it's not working. It also requires the `variables["mirror"]` setting in the packer json file correspond to the HTTP server in the `http/install.conf`.
+
 1. Setup or review the file *(the varfile)* containing the private packer variables (`ssh_private_key_file`, `ssh_public_key_str`, `root_bcrypt_hash`)
 2. cd ~/Code/setup-scripts/packer
 3. `packer build -var-file=<path-to-varfile> openbsd.json`
