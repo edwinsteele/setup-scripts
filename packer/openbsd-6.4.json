@@ -13,11 +13,7 @@
 	"builders": [{
 		"type": "vmware-iso",
 		"boot_command": [
-			"S<enter><wait>",
-			"dhclient em0<enter><wait>",
-			"ftp -o /install.conf http://{{.HTTPIP}}:{{.HTTPPort}}/install.conf<enter><wait>",
-			"ftp -o /post-install.sh http://{{.HTTPIP}}:{{.HTTPPort}}/post-install.sh<enter><wait>",
-			"install -af install.conf && mv /post-install.sh /mnt/post-install.sh && chmod 755 /mnt/post-install.sh && chroot /mnt /post-install.sh '{{user `ssh_public_key_str`}}' && rm /mnt/post-install.sh && reboot<enter>"
+			"A<enter><wait>"
 		],
 		"boot_wait": "25s",
 		"guest_os_type": "other-64",
@@ -30,14 +26,11 @@
 		"ssh_username": "root",
 		"ssh_private_key_file": "{{user `ssh_private_key_file`}}"
 	}],
-	"_comment": "We need to populate doas.conf so that Vagrant can setup the network",
+	"_comment": "We need to populate doas.conf so that Vagrant can setup the network. We need to wait for 45 seconds so that the rc.firsttime can finish",
 	"provisioners": [{
 		"type": "shell",
 		"inline": [
-			"sleep 5",
-			"sed -i 's/^root:[^:]*:/root:{{user `root_bcrypt_hash`}}:/' /etc/master.passwd",
-			"pwd_mkdb /etc/master.passwd",
-			"sleep 5",
+			"sleep 45",
 			"echo 'permit nopass keepenv root as root' > /etc/doas.conf",
 			"chmod 600 /etc/doas.conf"
 	]
