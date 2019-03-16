@@ -87,6 +87,14 @@
     dest: /etc/acme-client.conf
     line: 'include "/etc/acme-client.wordspeak-org.conf"'
 
+- name: Create nginx enabled-sites directory
+  file:
+    path: "/etc/nginx/sites-enabled"
+    state: directory
+    owner: root
+    group: wheel
+    mode: 0755
+
 - name: copy wordspeak.org nginx config
   template:
     src: wordspeak-org.conf.j2

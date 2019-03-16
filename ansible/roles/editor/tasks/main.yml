@@ -1,11 +1,9 @@
 ---
 # cmake and boost are required for YCM
 - name: Install standard packages
-  openbsd_pkg: name={{ item }} state=present
-  with_items:
-    - "{{ vim_package }}"
-    - cmake
-    - boost
+  openbsd_pkg:
+    name: [ "{{ vim_package }}", "cmake", "boost" ]
+    state: present
   become: True
   become_method: doas
   become_user: root

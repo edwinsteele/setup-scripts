@@ -17,7 +17,7 @@
 
 - name: Copy smtpd.conf
   copy:
-    src: smtpd_conf
+    src: "smtpd_conf_{{ ansible_distribution_version }}"
     dest: /etc/mail/smtpd.conf
   notify:
   - Reload smtpd
