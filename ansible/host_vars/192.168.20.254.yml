@@ -2,8 +2,6 @@
 interface_definitions:
   - "hostname.em0"
   - "hostname.em1"
-  - "hostname.pppoe0"
-external_virtual_interface: "pppoe0"
 external_physical_interface: "em0"
 internal_physical_interface: "em1"
 # Ugly, but allows testing against virtualbox
@@ -11,6 +9,6 @@ internal_physical_interface: "em1"
 dhcpd_serving_subnet: "192.168.20"
 # Will need an array and change logic when we listen on more than one interface
 unbound_listening_ips: "192.168.20.254"
-default_gateway: ""
+default_gateway: "192.168.1.1"
 openbsd_version: 6.2
 install_url: https://fastly.cdn.openbsd.org/pub/OpenBSD

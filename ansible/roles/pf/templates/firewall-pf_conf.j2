@@ -1,7 +1,7 @@
 
 # Interfaces
 int_if = "{{ internal_physical_interface }}"
-ext_if = "{{ external_virtual_interface }}"
+ext_if = "{{ external_physical_interface }}"
 
 icmp_types = "{ echoreq, unreach }"
 
@@ -23,12 +23,6 @@ queue ext_def parent ext bandwidth 800K max 800K flows 1024 default
 
 # scrub incoming packets
 match in all scrub (no-df random-id)
-
-# MSS clamping for pppoe
-# MSS = standard 1500 MTU - PPPoE header - IP header - TCP header (20 bytes)
-# i.e. 1500 – 8 – 20 – 20 = 1452.
-# From https://samuel.kadolph.com/2015/02/mtu-and-tcp-mss-when-using-pppoe-2/
-match on pppoe0 scrub (max-mss 1452)
 
 # Queue Assignment. Last match defines queue
 # Low-delay ToS goes to a different queue
