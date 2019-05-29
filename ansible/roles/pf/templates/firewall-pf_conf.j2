@@ -18,12 +18,12 @@ table <limited-internet-access> persist
 # don't filter on the loopback interface
 set skip on lo0
 
-# Queues. ADSL has 1020Kb/sec up. Let's cap at 900Kb/sec
-queue ext on $ext_if bandwidth 900K
-queue ext_dns parent ext bandwidth 10K min 10K
+# Queues. NBN plan has 20Mb/sec up. Let's cap at 19500Kb/sec
+queue ext on $ext_if bandwidth 19500K
+queue ext_dns parent ext bandwidth 100K min 50K
 # Low-delay ToS (ACKs and interactive SSH)
-queue ext_pri parent ext bandwidth 90K min 45K
-queue ext_def parent ext bandwidth 800K max 800K flows 1024 default
+queue ext_pri parent ext bandwidth 100K min 50K
+queue ext_def parent ext bandwidth 19300K max 19300K flows 1024 default
 
 # scrub incoming packets
 match in all scrub (no-df random-id)
@@ -45,7 +45,7 @@ pass in  on $int_if from $int_if:network modulate state
 pass out on $int_if to $int_if:network modulate state
 
 # Allow traffic to ADSL router
-pass out on {{ external_physical_interface }} proto { tcp udp icmp } to 192.168.1.1 keep state
+pass out on {{ external_physical_interface }} proto { tcp udp icmp } to 192.168.4.1 keep state
 
 # pass tcp, udp, and icmp out on the external (Internet) interface.
 # tcp connections will be modulated, udp/icmp will be tracked
