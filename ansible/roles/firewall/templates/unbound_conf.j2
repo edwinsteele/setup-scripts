@@ -3,6 +3,9 @@ server:
 	ip-address: {{ unbound_listening_ips }}
 	statistics-interval: 3600
 	do-ip6: no
+        log-replies: yes
+        # 6.4+ (shows which queries are being blocked)
+        #log-local-actions: yes
 
 	access-control: 0.0.0.0/0 refuse
 	access-control: 127.0.0.0/8 allow
@@ -11,5 +14,7 @@ server:
 
 # Enable dnssec
 auto-trust-anchor-file: "/db/root.key"
+
+include: /var/unbound/etc/unbound-adhosts.conf
 
 {{ unbound_local_data_content }}

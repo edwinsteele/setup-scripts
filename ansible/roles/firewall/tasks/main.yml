@@ -14,6 +14,17 @@
   args:
     creates: /var/unbound/db/root.key
 
+- name: Copy script to populate ad blocking config
+  copy:
+    src: generate_unbound_ads_conf.sh
+    dest: /usr/local/bin/generate_unbound_ads_conf.sh
+    mode: 0755
+
+- name: Do first-run of ad-blocking script
+  command: /usr/local/bin/generate_unbound_ads_conf.sh
+  args:
+    creates: /var/unbound/etc/unbound-adhosts.conf
+
 # Can't validate with unbound-checkconf unfortunately because the
 # temporary file isn't under chroot
 - name: Create unbound.conf
@@ -29,6 +40,12 @@
   lineinfile: dest=/etc/sysctl.conf state=present create=yes
               line="net.inet.ip.forwarding=1"
   notify: Enable ipv4 forwarding now via sysctl
+
+- name: Schedule daily run of unbound ad-blocking script
+  cron:
+    name: Regenerate unbound ad-blocking list
+    special_time: daily
+    job: "/usr/local/bin/generate_unbound_ads_conf.sh"
 
 - name: Manage limited internet access
   cron: name="{{ item.desc }} internet access for particular devices"
