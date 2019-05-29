@@ -18,7 +18,7 @@ ad_lists[5]="https://s3.amazonaws.com/lists.disconnect.me/simple_ad.txt"
 for ad_list in ${ad_lists[*]}
 do
   echo "Processing: $ad_list";
-  curl -o - -s "$ad_list" |
+  /usr/local/bin/curl -o - -s "$ad_list" |
     grep '^0\.0\.0\.0' |
     awk '{print "local-zone: \""$2"\" redirect\nlocal-data: \""$2" A 0.0.0.0\""}' >> ${new_ads_conf}
 done
