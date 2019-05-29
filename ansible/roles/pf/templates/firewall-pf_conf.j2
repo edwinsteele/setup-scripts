@@ -4,6 +4,10 @@ int_if = "{{ internal_physical_interface }}"
 ext_if = "{{ external_physical_interface }}"
 
 icmp_types = "{ echoreq, unreach }"
+limited_internet_access_ok_ports = "{ domain ntp }"
+# www.studyladder.com.au and static.studyladder.com.au
+# Move this to a file, eventually, and have it updated by cron
+table <lia-web-exceptions> { 13.57.121.179, 52.52.157.221, 13.35.146.29, 13.35.146.37, 13.35.146.38, 13.35.146.58 }
 
 # table containing all IP addresses assigned to the firewall
 table <firewall> const { self }
@@ -52,7 +56,9 @@ pass in on $ext_if proto tcp to ($ext_if) port ssh modulate state
 pass in on $ext_if inet proto icmp icmp-type $icmp_types
 
 # Constrain internet access for device in the limited-internet-access table
-block out on $ext_if from <limited-internet-access>
+block in on $int_if from <limited-internet-access>
+pass proto { tcp udp } from <limited-internet-access> to port $limited_internet_access_ok_ports
+pass proto tcp from <limited-internet-access> to <lia-web-exceptions> port { http https }
 
 # NAT outbound packets
 match out on $ext_if from $int_if:network to any nat-to ($ext_if)
