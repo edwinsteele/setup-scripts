@@ -11,4 +11,3 @@ dhcpd_serving_subnet: "192.168.20"
 unbound_listening_ips: "192.168.20.254"
 default_gateway: "192.168.4.1"
 openbsd_version: 6.2
-install_url: https://fastly.cdn.openbsd.org/pub/OpenBSD

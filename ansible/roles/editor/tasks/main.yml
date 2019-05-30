@@ -1,11 +1,19 @@
 ---
+# Vultr OpenBSD machines come with vim--no_x11. That clashes with the
+#  vim that we want to install, so let's make sure it's removed
+- name: Remove Vultr pre-installed vim
+  openbsd_pkg:
+    name: vim--no_x11
+    state: absent
+  become: True
+  become_method: doas
+  become_user: root
+
 # cmake and boost are required for YCM
 - name: Install standard packages
-  openbsd_pkg: name={{ item }} state=present
-  with_items:
-    - "{{ vim_package }}"
-    - cmake
-    - boost
+  openbsd_pkg:
+    name: [ "{{ vim_package }}", "cmake", "boost" ]
+    state: present
   become: True
   become_method: doas
   become_user: root
@@ -16,7 +24,7 @@
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
   with_items:
-    - {src: "/home/esteele/Code/dotfiles/vimrc",
+    - {src: "/home/esteele/Code/dotfiles/vim/vimrc",
        dest: "/home/esteele/.vimrc" }
     - {src: "/home/esteele/Code/dotfiles/vim",
        dest: "/home/esteele/.vim" }

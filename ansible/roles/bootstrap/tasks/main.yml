@@ -3,14 +3,24 @@
 #  that will fail if DNS is not working. This allows us to proceed under
 #  those circumstances if we have already installed all the packages
 - name: Check if a python that can be used for ansible is installed
-  raw: pkg_info -a
-  register: pkg_info_contents
+  raw: which {{ ansible_python_interpreter }}
+  register: which_python_contents
   changed_when: False
   check_mode: no
 
 - name: Install a python that can be used for ansible
   raw: pkg_add {{PKG_PATH}}{{python_package}}
-  when: pkg_info_contents.stdout.find("python") == -1
+  when: which_python_contents.stdout.find("python") == -1
+
+- name: Find python location now that we know it's installed
+  raw: which {{ ansible_python_interpreter }}
+  register: which_python_contents
+  changed_when: False
+  check_mode: no
+
+- name: Set python intepreter
+  set_fact:
+    ansible_python_interpreter: "{{which_python_contents.stdout}}"
 
 - name: Gather facts now that an interpreter is installed
   setup:
@@ -30,4 +40,3 @@
     mode: 0644
     create: yes
     line: "{{ install_url }}"
-  when: ansible_distribution_version == "6.2"

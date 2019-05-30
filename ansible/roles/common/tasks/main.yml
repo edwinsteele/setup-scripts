@@ -42,10 +42,8 @@
   when: ansible_swaptotal_mb < 950
 
 - name: Install standard packages
-  openbsd_pkg: name={{ item }} state=present
-  with_items:
-    - p5-ack
-    - curl
+  openbsd_pkg:
+    name: ['p5-ack', 'curl']
 
 # Setup a bare-bones system python
 - name: Install pip (system python)

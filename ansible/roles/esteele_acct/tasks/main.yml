@@ -7,7 +7,9 @@
 
 # Users with no passwd set have 13 asterisks in their password
 #  field in master.passwd. If this isn't set, security(8) complains.
-- name: create user esteele
+# Ansible thinks this is bogus password, but there doesn't seem to be
+#  a way in 2.7 to provide an (clearly) invalid password
+- name: create user esteele with nerfed password
   user:
     name: esteele
     group: esteele

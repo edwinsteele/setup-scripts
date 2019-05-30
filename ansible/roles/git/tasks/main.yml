@@ -1,10 +1,8 @@
 ---
 - name: Install standard packages
   openbsd_pkg:
-    name: "{{ item }}"
+    name: ['git']
     state: present
-  with_items:
-    - git
   become: True
   become_method: doas
   become_user: root

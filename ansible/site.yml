@@ -22,7 +22,7 @@
     - /Users/esteele/Code/local/ansible/roles/firewall/vars/private_vars.yml
     - /Users/esteele/Code/local/ansible/roles/firewall/vars/local_address_vars.yml
 
-- hosts: all:!ami-builder
+- hosts: all
   user: esteele
   gather_facts: no
   roles:
