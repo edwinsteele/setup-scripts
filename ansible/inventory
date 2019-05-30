@@ -3,8 +3,8 @@ gemini.wordspeak.org
 gemini62.wordspeak.org
 192.168.20.254
 
-[openbsd_6.4]
-149.28.164.30
+[openbsd_6.5]
+149.28.176.119
 
 [cd_deployment]
 gemini62.wordspeak.org
@@ -16,4 +16,4 @@ gemini62.wordspeak.org
 [webservers]
 gemini.wordspeak.org
 gemini62.wordspeak.org
-149.28.164.30
+149.28.176.119
