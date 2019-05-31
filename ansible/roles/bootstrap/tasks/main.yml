@@ -33,6 +33,8 @@
 - name: Activate doas and allow wheel users to use doas
   lineinfile: 'line="permit nopass :wheel" dest=/etc/doas.conf owner=root group=wheel mode=0600 create=yes'
 
+# This is redundant from 6.4 onwards (it defaults to cdn.openbsd.org) so
+#  remove once all machines are 6.4+
 - name: Set installurl
   lineinfile:
     dest: /etc/installurl

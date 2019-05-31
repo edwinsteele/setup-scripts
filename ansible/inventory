@@ -1,19 +1,11 @@
 [openbsd_6.2]
-gemini.wordspeak.org
-gemini62.wordspeak.org
 192.168.20.254
 
 [openbsd_6.5]
-gemini65.wordspeak.org
-
-[cd_deployment]
-gemini62.wordspeak.org
-192.16.20.254
+gemini.wordspeak.org
 
 [firewalls]
 192.168.20.254
 
 [webservers]
 gemini.wordspeak.org
-gemini62.wordspeak.org
-gemini65.wordspeak.org
