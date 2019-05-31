@@ -26,6 +26,11 @@
     - { dir: "/etc/letsencrypt", mode: "0700" }
     - { dir: "/etc/letsencrypt/private", mode: "0700" }
 
+# This actually has a wordspeak.org reference in it, so this isn't a base
+#  template. If/when acme-client supports .d directories this can be made
+#  into a base template and the nginx_wordspeak role can simply drop the
+#  wordspeak acme config into that directory and we can remove the hardcoded
+#  include that's in this base config
 - name: Copy base /etc/acme-client.conf
   copy:
     src: etc_acme-client.conf

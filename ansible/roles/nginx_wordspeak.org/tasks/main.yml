@@ -82,11 +82,6 @@
     group: wheel
     mode: 0600
 
-- name: make sure letsencrypt config for wordspeak.org is read
-  lineinfile:
-    dest: /etc/acme-client.conf
-    line: 'include "/etc/acme-client.wordspeak-org.conf"'
-
 - name: Create nginx enabled-sites directory
   file:
     path: "/etc/nginx/sites-enabled"
