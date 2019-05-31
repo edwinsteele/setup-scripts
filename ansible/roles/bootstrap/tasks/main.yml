@@ -7,10 +7,11 @@
   register: which_python_contents
   changed_when: False
   check_mode: no
+  ignore_errors: yes
 
 - name: Install a python that can be used for ansible
   raw: pkg_add {{PKG_PATH}}{{python_package}}
-  when: which_python_contents.stdout.find("python") == -1
+  when: which_python_contents.stdout.find("not found") != -1
 
 - name: Find python location now that we know it's installed
   raw: which {{ ansible_python_interpreter }}
