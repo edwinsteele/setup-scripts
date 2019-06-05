@@ -18,6 +18,13 @@
   register: command_call
   changed_when: command_call.rc == 1
 
+# Can't validate with unbound-checkconf unfortunately because the
+# temporary file isn't under chroot
+- name: Create unbound.conf
+  template: src=unbound_conf.j2 dest=/var/unbound/etc/unbound.conf
+            owner=root group=wheel mode=0644
+  notify: Restart unbound
+
 - name: Copy script to populate ad blocking config
   copy:
     src: generate_unbound_ads_conf.sh
@@ -28,12 +35,6 @@
   command: /usr/local/bin/generate_unbound_ads_conf.sh
   args:
     creates: /var/unbound/etc/unbound-adhosts.conf
-
-# Can't validate with unbound-checkconf unfortunately because the
-# temporary file isn't under chroot
-- name: Create unbound.conf
-  template: src=unbound_conf.j2 dest=/var/unbound/etc/unbound.conf
-            owner=root group=wheel mode=0644
   notify: Restart unbound
 
 - name: Enable and start unbound
