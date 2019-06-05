@@ -9,10 +9,14 @@
   service: name=dhcpd state=started enabled=yes
           arguments="{{ internal_physical_interface }}"
 
+# unbound-anchor has rc 1 when it has updated the root anchor
 - name: Get root.key for dnssec
   command: unbound-anchor
   args:
     creates: /var/unbound/db/root.key
+  ignore_errors: yes
+  register: command_call
+  changed_when: command_call.rc == 1
 
 - name: Copy script to populate ad blocking config
   copy:
