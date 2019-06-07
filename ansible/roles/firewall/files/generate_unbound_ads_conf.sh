@@ -26,4 +26,4 @@ done
 echo $new_ads_conf
 
 mv $new_ads_conf /var/unbound/etc/unbound-adhosts.conf
-rcctl reload unbound
+rcctl restart unbound

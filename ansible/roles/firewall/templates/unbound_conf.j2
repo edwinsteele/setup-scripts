@@ -4,8 +4,7 @@ server:
 	statistics-interval: 3600
 	do-ip6: no
         log-replies: yes
-        # 6.4+ (shows which queries are being blocked)
-        #log-local-actions: yes
+        log-local-actions: yes
 
 	access-control: 0.0.0.0/0 refuse
 	access-control: 127.0.0.0/8 allow
