@@ -5,7 +5,7 @@ table secrets file:/etc/mail/secrets
 
 # DO WE REALLY WANT ANY LOCALLY DELIVERY?
 action "local" mbox alias <aliases>
-action "relay" relay host smtp+tls://fastmail@mail.messagingengine.com:465 \
+action "relay" relay host smtps://fastmail@mail.messagingengine.com:465 \
         auth <secrets>
 
 match for local action "local"
