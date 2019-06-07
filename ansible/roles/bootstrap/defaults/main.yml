@@ -1,4 +1,1 @@
 ---
-install_url: https://cdn.openbsd.org/pub/OpenBSD
-openbsd_arch: amd64
-PKG_PATH: '{{ install_url }}/{{ openbsd_version }}/packages/{{ openbsd_arch }}/'
