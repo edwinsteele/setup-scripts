@@ -1,3 +1,2 @@
 ---
 default_gateway: 45.63.28.1
-openbsd_version: 6.5
