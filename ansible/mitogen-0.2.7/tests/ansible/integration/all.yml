@@ -1,0 +1,22 @@
+
+#
+# This playbook imports all tests that are known to work at present.
+#
+
+- include: action/all.yml
+- include: async/all.yml
+- include: become/all.yml
+- include: connection/all.yml
+- include: connection_delegation/all.yml
+- include: connection_loader/all.yml
+- include: context_service/all.yml
+- include: glibc_caches/all.yml
+- include: local/all.yml
+- include: module_utils/all.yml
+- include: playbook_semantics/all.yml
+- include: process/all.yml
+- include: runner/all.yml
+- include: ssh/all.yml
+- include: strategy/all.yml
+- include: stub_connections/all.yml
+- include: transport_config/all.yml
