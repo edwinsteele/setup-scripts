@@ -1,6 +1,6 @@
 psutil==5.4.8
 coverage==4.5.1
-Django==1.6.11  # Last version supporting 2.6.
+Django==1.11.22  # Last version supporting 2.6.
 mock==2.0.0
 pytz==2018.5
 cffi==1.11.2  # Random pin to try and fix pyparser==2.18 not having effect
