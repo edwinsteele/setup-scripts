@@ -9,6 +9,8 @@
     validate: "pfctl -n -f %s"
   register: pf_conf_changed
 
-- name: apply any new pf rules immediately
+# This needs to run immediately so that any newly provisioned
+#  network-accessible services are firewalled correctly from the outset
+- name: apply any new pf rules immediately  # noqa 503
   command: pfctl -f /etc/pf.conf
   when: pf_conf_changed["changed"]

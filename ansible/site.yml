@@ -3,7 +3,7 @@
   gather_facts: no
   roles:
     - bootstrap
-  
+
 - hosts: webservers
   gather_facts: no
   roles:

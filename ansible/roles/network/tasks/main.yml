@@ -9,7 +9,10 @@
   with_items: "{{ interface_definitions }}"
   register: interface_management
 
-- name: Start network
+# This cannot be a handler because we need newly added interfaces to be
+#  present because subsequent tasks will load firewall rules that reference
+#  those interfaces
+- name: Start network  # noqa 503
   command: sh /etc/netstart
   when: interface_management["changed"]
 

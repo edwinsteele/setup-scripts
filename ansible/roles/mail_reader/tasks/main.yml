@@ -19,8 +19,8 @@
     - {src: "/home/esteele/Code/dotfiles/offlineimaprc",
        dest: "/home/esteele/.offlineimaprc" }
 
-# Set colors correctly for mutt
-- lineinfile:
+- name: Set colours correctly for mutt
+  lineinfile:
     dest: /home/esteele/.profile
     line: "export MUTT_COLORS=.mutt-colors`tput Co`"
     state: present

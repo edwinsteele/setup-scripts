@@ -10,7 +10,7 @@
   ignore_errors: yes
 
 - name: Install a python that can be used for ansible
-  raw: pkg_add {{PKG_PATH}}{{python_package}}
+  raw: pkg_add {{ PKG_PATH }}{{ python_package }}
   when: which_python_contents.stdout.find("not found") != -1
 
 - name: Find python location now that we know it's installed
@@ -21,7 +21,7 @@
 
 - name: Set python intepreter
   set_fact:
-    ansible_python_interpreter: "{{which_python_contents.stdout}}"
+    ansible_python_interpreter: "{{ which_python_contents.stdout }}"
 
 - name: Gather facts now that an interpreter is installed
   setup:

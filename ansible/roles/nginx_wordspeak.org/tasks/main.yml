@@ -21,7 +21,7 @@
     force: no
     owner: root
     group: wheel
-    mode: 444
+    mode: 0444
   with_items:
     - { src: /Users/esteele/Code/local/ansible/roles/nginx_wordspeak.org/files/etc_ssl_wordspeak.org_cert.pem, dest: wordspeak.org/cert.pem }
     - { src: /Users/esteele/Code/local/ansible/roles/nginx_wordspeak.org/files/etc_ssl_wordspeak.org_fullchain.pem, dest: wordspeak.org/fullchain.pem }
@@ -34,7 +34,7 @@
     force: no
     owner: root
     group: wheel
-    mode: 400
+    mode: 0400
   with_items:
     - { src: /Users/esteele/Code/local/ansible/roles/nginx_wordspeak.org/files/etc_ssl_private_wordspeak.org_privkey.pem, dest: wordspeak.org/privkey.pem }
 
@@ -45,10 +45,12 @@
     force: no
     owner: root
     group: wheel
-    mode: 400
+    mode: 0400
   with_items:
-    - { src: /Users/esteele/Code/local/ansible/roles/nginx_wordspeak.org/files/etc_letsencrypt_wordspeak.org_acme-staging-privkey.pem, dest: wordspeak.org/acme-staging-privkey.pem }
-    - { src: /Users/esteele/Code/local/ansible/roles/nginx_wordspeak.org/files/etc_letsencrypt_wordspeak.org_acme-v01-privkey.pem, dest: wordspeak.org/acme-v01-privkey.pem }
+    - { src: /Users/esteele/Code/local/ansible/roles/nginx_wordspeak.org/files/etc_letsencrypt_wordspeak.org_acme-staging-privkey.pem,
+       dest: wordspeak.org/acme-staging-privkey.pem }
+    - { src: /Users/esteele/Code/local/ansible/roles/nginx_wordspeak.org/files/etc_letsencrypt_wordspeak.org_acme-v01-privkey.pem,
+        dest: wordspeak.org/acme-v01-privkey.pem }
 
 - name: Setup webserver parent and acme-client challenge directories
   file:
