@@ -111,7 +111,7 @@ server {
     access_log /var/www/logs/language-explorer.wordspeak.org-access.log;
 
 
-    add_header Content-Security-Policy "default-src 'self'; base-uri 'self'; form-action 'self' https://legacy.joshuaproject.net; frame-ancestors 'none'; frame-src *.vimeo.com; child-src *.vimeo.com; connect-src 'self'; img-src 'self' https://*.cloudinary.com https://*.tile.openstreetmap.org; media-src *.vimeo.com; object-src 'none'; script-src 'self'; style-src 'self'; report-uri https://wordspeak.report-uri.io/r/default/csp/enforce" always;
+    add_header Content-Security-Policy "default-src 'self'; base-uri 'self'; form-action 'self' https://legacy.joshuaproject.net; frame-ancestors 'none'; frame-src *.vimeo.com; child-src *.vimeo.com; connect-src 'self'; img-src 'self' https://*.cloudinary.com https://*.tile.openstreetmap.org; media-src *.vimeo.com; object-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; report-uri https://wordspeak.report-uri.io/r/default/csp/enforce" always;
     ssl_certificate /etc/ssl/wordspeak.org/fullchain.pem;
     ssl_trusted_certificate /etc/ssl/wordspeak.org/chain.pem;
     ssl_certificate_key /etc/ssl/private/wordspeak.org/privkey.pem;
