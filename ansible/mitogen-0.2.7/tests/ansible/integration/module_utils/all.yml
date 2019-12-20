@@ -1,6 +1,0 @@
-
-#- include: from_config_path.yml
-#- include: from_config_path_pkg.yml
-#- include: adjacent_to_playbook.yml
-- include: adjacent_to_role.yml
-#- include: overrides_builtin.yml

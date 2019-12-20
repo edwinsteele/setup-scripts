@@ -1,6 +1,0 @@
-  - file:
-      path: /tmp/foo-{{inventory_hostname}}
-      state: absent
-  - copy:
-      dest: /tmp/foo-{{inventory_hostname}}
-      content: "{{content}}"
