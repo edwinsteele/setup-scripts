@@ -3,21 +3,21 @@
   gather_facts: no
   roles:
     - bootstrap
+    - common
+    - network
+    - pf
+    - mail_sender
+    - esteele_acct
 
 - hosts: webservers
   gather_facts: no
   roles:
-    - network
-    - esteele_acct
     - webhost
 
 - hosts: firewalls
   gather_facts: no
   roles:
-    - network
-    - pf
     - firewall
-    - esteele_acct
   vars_files:
     - /Users/esteele/Code/local/ansible/roles/firewall/vars/private_vars.yml
     - /Users/esteele/Code/local/ansible/roles/firewall/vars/local_address_vars.yml

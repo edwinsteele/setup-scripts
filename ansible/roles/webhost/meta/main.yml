@@ -1,6 +1,2 @@
 dependencies:
-  - common
-  - pf
-  - mail_sender
-  - nginx_base
   - nginx_wordspeak.org
