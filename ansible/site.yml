@@ -1,8 +1,14 @@
 ---
+# Run this without mitogen. See
+#  https://mitogen.networkgenomics.com/ansible_detailed.html#noteworthy-differences
 - hosts: all
   gather_facts: no
+  strategy: linear
   roles:
     - bootstrap
+
+- hosts: all
+  roles:
     - common
     - network
     - pf
@@ -10,12 +16,10 @@
     - esteele_acct
 
 - hosts: webservers
-  gather_facts: no
   roles:
     - webhost
 
 - hosts: firewalls
-  gather_facts: no
   roles:
     - firewall
   vars_files:
@@ -24,7 +28,6 @@
 
 - hosts: all
   user: esteele
-  gather_facts: no
   roles:
     - esteele_contents
     - git
