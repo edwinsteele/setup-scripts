@@ -32,7 +32,7 @@ match in all scrub (no-df random-id)
 # Low-delay ToS goes to a different queue
 match out on $ext_if proto { tcp, udp } set queue(ext_def, ext_pri)
 # prioritise dns
-match out on $ext_if proto { tcp, udp } to port domain set queue ext_dns
+match out on $ext_if proto { tcp, udp } to port { domain, domain-s } set queue ext_dns
 
 # setup a default deny policy
 block log
