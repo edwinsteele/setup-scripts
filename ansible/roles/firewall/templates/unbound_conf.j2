@@ -8,12 +8,10 @@ server:
 
 	access-control: 0.0.0.0/0 refuse
 	access-control: 127.0.0.0/8 allow
-	access-control: 192.168.1.0/24 allow
 	access-control: 192.168.20.0/24 allow
 
 # Enable dnssec
 auto-trust-anchor-file: "/db/root.key"
 
 include: /var/unbound/etc/unbound-adhosts.conf
-
-{{ unbound_local_data_content }}
+include: /var/unbound/etc/unbound-local-data.conf
