@@ -9,8 +9,10 @@
   check_mode: no
   ignore_errors: yes
 
+# 6.6 installer sets /etc/installurl, so we will always have a valid
+#  prefix for packages
 - name: Install a python that can be used for ansible
-  raw: pkg_add {{ PKG_PATH }}{{ python_package }}
+  raw: pkg_add {{ python_package }}
   when: which_python_contents.stdout.find("not found") != -1
 
 - name: Find python location now that we know it's installed
