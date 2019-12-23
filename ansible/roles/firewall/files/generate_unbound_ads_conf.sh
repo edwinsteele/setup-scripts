@@ -17,13 +17,12 @@ ad_lists[5]="https://s3.amazonaws.com/lists.disconnect.me/simple_ad.txt"
 
 for ad_list in ${ad_lists[*]}
 do
-  echo "Processing: $ad_list";
   /usr/local/bin/curl -o - -s "$ad_list" |
     grep '^0\.0\.0\.0' |
     awk '{print "local-zone: \""$2"\" redirect\nlocal-data: \""$2" A 0.0.0.0\""}' >> ${new_ads_conf}
 done
 
-echo $new_ads_conf
-
 mv $new_ads_conf /var/unbound/etc/unbound-adhosts.conf
-rcctl restart unbound
+# This has exit code 1 under normal circumstances, but that's ok given
+#  cron will yell at us only if something is printed on stdout
+rcctl restart unbound | grep -v '(ok)$'
