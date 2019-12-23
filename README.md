@@ -31,20 +31,11 @@ option bootfile-name "auto_install";
 
 # OS Setup a cloud host from scratch
 
-OpenBSD requires hand-installation on cloud providers, and vagrant images
-so we install ourselves.
+OpenBSD requires hand-installation on cloud providers
 
-* do install from CD,
-* setup all network interfaces
-* do not setup a user
-* start ssh and allow root login with 'prohibit-password'
-* selecting correct timezone
-* default disk layout
-* all packages (for simplicity)
-* reboot
-* add root `.ssh/authorized_keys` via console
-  * `.ssh` directory is 600
-  * `authorized_keys` is 600
+* boot from ISO
+* do an auto-install, using an auto-install conf hosted in this repo i.e. use https://raw.githubusercontent.com/edwinsteele/setup-scripts/master/autoinstall/gemini-install.conf
+* detach the ISO (which triggers a reboot on Vultr - manual reboot may be necessary)
 
 # Provisioning using ansible on a base OS install
 
@@ -66,11 +57,6 @@ a different key to ansible with `--private-key=PRIVATE_KEY_FILE`
 Note that it's not possible to test ansible connectivity on OpenBSD hosts
 until they have a python interpreter, which is the first step in the common
 playbook.
-
-The default architecture is `openbsd-amd64` and if the installation machine is
-another architecture, create a file under `host_vars` with a PKG_PATH
-definition with the appropriate architecture specified e.g.
-`PKG_PATH: 'http://mirror.internode.on.net/pub/OpenBSD/5.9/packages/powerpc/'`
 
 In the `ansible` directory at the same level as this `README.md` file run:
 
