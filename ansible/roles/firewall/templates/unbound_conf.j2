@@ -1,17 +1,23 @@
 server:
-        ip-address: 127.0.0.1
-	ip-address: {{ unbound_listening_ips }}
-	statistics-interval: 3600
-	do-ip6: no
-        log-replies: yes
-        log-local-actions: yes
+    ip-address: 127.0.0.1
+    ip-address: {{ unbound_listening_ips }}
+    statistics-interval: 3600
+    do-ip6: no
+    log-replies: yes
+    log-local-actions: yes
 
-	access-control: 0.0.0.0/0 refuse
-	access-control: 127.0.0.0/8 allow
-	access-control: 192.168.20.0/24 allow
+    access-control: 0.0.0.0/0 refuse
+    access-control: 127.0.0.0/8 allow
+    access-control: 192.168.20.0/24 allow
 
 # Enable dnssec
 auto-trust-anchor-file: "/db/root.key"
 
 include: /var/unbound/etc/unbound-adhosts.conf
 include: /var/unbound/etc/unbound-local-data.conf
+
+forward-zone:
+    name: "."
+    forward-ssl-upstream: yes
+    forward-addr: 1.1.1.1@853
+    forward-addr: 1.0.0.1@853  
