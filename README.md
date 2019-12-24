@@ -37,26 +37,24 @@ OpenBSD requires hand-installation on cloud providers
 * do an auto-install, using an auto-install conf hosted in this repo i.e. use https://raw.githubusercontent.com/edwinsteele/setup-scripts/master/autoinstall/gemini-install.conf
 * detach the ISO (which triggers a reboot on Vultr - manual reboot may be necessary)
 
-# Provisioning using ansible on a base OS install
+# Provisioning using ansible once the OS setup is complete
 
-Once the base operating system has been setup, we do further setup using ansible.
+Once the base OS has been setup, we do further setup using ansible.
 Assumes that your default ssh public key is installed on the server under
 the account that you'll be using for provisioning (root), or that you provide
 a different key to ansible with `--private-key=PRIVATE_KEY_FILE`
 
 ## General pre-work
 1. `workon ansible`  (the virtualenv should already exist from previous work)
-2. `cd ~/Code/setup-scripts/ansible`
-2. Replace the host in `hosts` with the IP address of the newly provisioned
+1. `cd ~/Code/setup-scripts/ansible`
+1. Replace the host in `hosts` with the IP address of the newly provisioned
    host, placing it in the group section that corresponds to the `--limit`
    argument used in the `ansible-playbook` commands for the appropriate type of VM install
-3. `cd ~/Code/local/startssl; ./make_bundles.sh` (if deploying a webserver)
 
 ## Performing non-OS setup
 
-Note that it's not possible to test ansible connectivity on OpenBSD hosts
-until they have a python interpreter, which is the first step in the common
-playbook.
+Note that it's not possible to test ansible connectivity on OpenBSD hosts until they
+have a python interpreter, which is the first step in the common playbook.
 
 In the `ansible` directory at the same level as this `README.md` file run:
 
@@ -70,9 +68,9 @@ Where the limit criteria is something like:
 
 ## Additional steps
 
-15. Logon to the VM to perform the rest of the steps
-16. Update `/etc/hosts` to have FQDN for host, and short and FQDN for any sites that the machine will serve
-20. `cd ~/Code && git clone git@github.com:edwinsteele/dotfiles.git`
-21. `cd ~/Code/dotfiles && ./make.sh`
-22. ``doas acme-client -vbNn wordspeak.org www.wordspeak.org staging.wordspeak.org origin.wordspeak.org gemini.wordspeak.org language-explorer.wordspeak.org``
-25. `cd ~/Code/wordspeak.org && /home/esteele/.virtualenvs/wordspeak_n7/bin/fab build staging_sync` (for webserver)
+1. Logon to the VM to perform the rest of the steps
+1. Update `/etc/hosts` to have FQDN for host, and short and FQDN for any sites that the machine will serve
+1. `cd ~/Code && git clone git@github.com:edwinsteele/dotfiles.git`
+1. `cd ~/Code/dotfiles && ./make.sh`
+1. ``doas acme-client -vbNn wordspeak.org www.wordspeak.org staging.wordspeak.org origin.wordspeak.org gemini.wordspeak.org language-explorer.wordspeak.org``
+1. `cd ~/Code/wordspeak.org && /home/esteele/.virtualenvs/wordspeak_n7/bin/fab build staging_sync` (for webserver)
