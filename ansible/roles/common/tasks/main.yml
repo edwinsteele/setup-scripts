@@ -19,6 +19,13 @@
     user: root
     key: "{{ lookup('file', '/Users/esteele/.ssh/id_rsa.pub') }}"
 
+- name: setup root password
+  lineinfile:
+    dest: /etc/master.passwd
+    regexp: "^root:"
+    line: 'root:{{ lookup("file", "/Users/esteele/Code/local/ansible/root.hash" ) }}:0:0:daemon:0:0:Charlie &:/root:/bin/ksh'
+  notify: Rebuild passwd database
+
 - name: Set timezone as Sydney
   copy: src=/usr/share/zoneinfo/Australia/Sydney dest=/etc/localtime
 

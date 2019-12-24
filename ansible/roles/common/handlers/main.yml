@@ -4,3 +4,6 @@
 
 - name: Reload pf
   command: pfctl -f /etc/pf.conf
+
+- name: Rebuild passwd database
+  command: pwd_mkdb /etc/master.passwd
