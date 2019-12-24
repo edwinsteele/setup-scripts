@@ -2,8 +2,12 @@
 gemini.wordspeak.org
 192.168.20.254
 
+[openbsd_6.6]
+149.28.177.135
+
 [firewalls]
 192.168.20.254
 
 [webservers]
 gemini.wordspeak.org
+149.28.177.135

@@ -70,7 +70,6 @@ Where the limit criteria is something like:
 
 1. Logon to the VM to perform the rest of the steps
 1. Update `/etc/hosts` to have FQDN for host, and short and FQDN for any sites that the machine will serve
-1. `cd ~/Code && git clone git@github.com:edwinsteele/dotfiles.git`
 1. `cd ~/Code/dotfiles && ./make.sh`
-1. ``doas acme-client -vbNn wordspeak.org www.wordspeak.org staging.wordspeak.org origin.wordspeak.org gemini.wordspeak.org language-explorer.wordspeak.org``
-1. `cd ~/Code/wordspeak.org && /home/esteele/.virtualenvs/wordspeak_n7/bin/fab build staging_sync` (for webserver)
+1. ``doas acme-client -v wordspeak.org``
+1. (on desktop, not the VM) `cd ~/Code/wordspeak.org && /home/esteele/.virtualenvs/wordspeak_n7/bin/fab build staging_sync` (for webserver)
