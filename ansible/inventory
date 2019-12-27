@@ -1,13 +1,13 @@
 [openbsd_6.5]
-gemini.wordspeak.org
+gemini65.wordspeak.org
 192.168.20.254
 
 [openbsd_6.6]
-139.180.174.179
+gemini66.wordspeak.org
 
 [firewalls]
 192.168.20.254
 
 [webservers]
 gemini.wordspeak.org
-139.180.174.179
+gemini66.wordspeak.org
