@@ -5,8 +5,9 @@
 # Ignore errors so that we can have local uncommitted mods and still run
 #  the playbook
 - name: Checkout dotfiles repo
-  git: repo=https://github.com/edwinsteele/dotfiles.git
-       dest=/home/esteele/Code/dotfiles
+  git:
+    repo: https://github.com/edwinsteele/dotfiles.git
+    dest: /home/esteele/Code/dotfiles
   ignore_errors: yes
   tags:
     - skip_ansible_lint

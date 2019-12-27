@@ -33,5 +33,11 @@
 # Fully quoted because of the ': ' on the line. See the Gotchas section
 #  in Ansible's YAML Syntax page.
 - name: Activate doas and allow wheel users to use doas
-  lineinfile: 'line="permit nopass :wheel" dest=/etc/doas.conf owner=root group=wheel mode=0600 create=yes'
+  lineinfile:
+    line: "permit nopass :wheel"
+    dest: /etc/doas.conf
+    owner: root
+    group: wheel
+    mode: 0600
+    create: yes
 

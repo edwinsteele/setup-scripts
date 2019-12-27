@@ -1,3 +1,5 @@
 ---
 - name: Reload smtpd
-  service: name=smtpd state=restarted
+  service:
+    name: smtpd
+    state: restarted

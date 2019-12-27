@@ -1,13 +1,20 @@
 ---
 - name: Create dhcpd.conf
-  template: src=dhcpd_conf.j2 dest=/etc/dhcpd.conf
-            owner=root group=wheel mode=0644
-            validate="dhcpd -n -c %s"
+  template:
+    src: dhcpd_conf.j2
+    dest: /etc/dhcpd.conf
+    owner: root
+    group: wheel
+    mode: 0644
+    validate: "dhcpd -n -c %s"
   notify: Restart dhcpd
 
 - name: Enable and start dhcpd
-  service: name=dhcpd state=started enabled=yes
-          arguments="{{ internal_physical_interface }}"
+  service:
+    name: dhcpd
+    state: started
+    enabled: yes
+    arguments: "{{ internal_physical_interface }}"
 
 # unbound-anchor has rc 1 when it has updated the root anchor
 - name: Get root.key for dnssec
@@ -42,17 +49,27 @@
 # Can't validate with unbound-checkconf unfortunately because the
 # temporary file isn't under chroot
 - name: Create unbound.conf
-  template: src=unbound_conf.j2 dest=/var/unbound/etc/unbound.conf
-            owner=root group=wheel mode=0644
+  template:
+    src: unbound_conf.j2
+    dest: /var/unbound/etc/unbound.conf
+    owner: root
+    group: wheel
+    mode: 0644
   notify: Restart unbound
 
 - name: Enable and start unbound
-  service: name=unbound state=started enabled=yes
+  service:
+    name: unbound
+    state: started
+    enabled: yes
   notify: Update resolv.conf to use unbound
 
 - name: Enable ipv4 ip forwarding
-  lineinfile: dest=/etc/sysctl.conf state=present create=yes
-              line="net.inet.ip.forwarding=1"
+  lineinfile:
+    dest: /etc/sysctl.conf
+    state: present
+    create: yes
+    line: "net.inet.ip.forwarding=1"
   notify: Enable ipv4 forwarding now via sysctl
 
 - name: Schedule daily run of unbound ad-blocking script
@@ -62,9 +79,11 @@
     job: "/usr/local/bin/generate_unbound_ads_conf.sh"
 
 - name: Manage limited internet access
-  cron: name="{{ item.desc }} internet access for particular devices"
-        minute="{{ item.min }}" hour="{{ item.hour }}"
-        job="pfctl -q -t limited-internet-access -T {{ item.verb }} {{ limited_internet_access_addresses }}"
+  cron:
+    name: "{{ item.desc }} internet access for particular devices"
+    minute: "{{ item.min }}"
+    hour: "{{ item.hour }}"
+    job: "pfctl -q -t limited-internet-access -T {{ item.verb }} {{ limited_internet_access_addresses }}"
   with_items:
   - { desc: "Disable", verb: "add", hour: "5", min: "30" }
   - { desc: "Enable", verb: "delete", hour: "19", min: "30" }

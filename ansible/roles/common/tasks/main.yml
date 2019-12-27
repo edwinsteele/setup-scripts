@@ -1,15 +1,19 @@
 ---
 - name: Only allow root login with keys
-  lineinfile: dest=/etc/ssh/sshd_config
-              regexp="^#?PermitRootLogin.*"
-              line="PermitRootLogin without-password" validate="sshd -t -f %s"
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^#?PermitRootLogin.*"
+    line: "PermitRootLogin without-password"
+    validate: "sshd -t -f %s"
   notify:
     - Restart sshd
 
 - name: Don't allow auth with password
-  lineinfile: dest=/etc/ssh/sshd_config
-              insertafter="^#PasswordAuthentication"
-              line="PasswordAuthentication no" validate="sshd -t -f %s"
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    insertafter: "^#PasswordAuthentication"
+    line: "PasswordAuthentication no"
+    validate: "sshd -t -f %s"
   notify:
   - Restart sshd
 
@@ -28,10 +32,15 @@
   notify: Rebuild passwd database
 
 - name: Set timezone as Sydney
-  copy: src=/usr/share/zoneinfo/Australia/Sydney dest=/etc/localtime
+  copy:
+    src: /usr/share/zoneinfo/Australia/Sydney
+    dest: /etc/localtime
 
 - name: Enable and start ntpd
-  action: service name=ntpd state=started enabled=yes
+  service:
+    name: ntpd
+    state: started
+    enabled: yes
 
 - name: Setup /etc/hosts with FQDN
   lineinfile:
@@ -44,7 +53,9 @@
   when: ansible_swaptotal_mb < 950
 
 - name: Set permissions on swapfile
-  file: path=/home/swapfile mode=0600
+  file:
+    path: /home/swapfile
+    mode: 0600
   when: ansible_swaptotal_mb < 950
 
 - name: Enable swap on /home/swapfile
@@ -52,7 +63,11 @@
   when: ansible_swaptotal_mb < 950
 
 - name: Add swapfile to fstab
-  action: lineinfile dest=/etc/fstab regexp="swapfile" line="/home/swapfile /home/swapfile swap sw 0 0" state=present
+  lineinfile:
+    dest: /etc/fstab
+    regexp: "swapfile"
+    line: "/home/swapfile /home/swapfile swap sw 0 0"
+    state: present
   when: ansible_swaptotal_mb < 950
 
 - name: Install standard packages

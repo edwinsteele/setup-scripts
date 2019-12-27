@@ -1,6 +1,8 @@
 ---
 - name: Restart sshd
-  service: name=sshd state=restarted
+  service:
+    name: sshd
+    state: restarted
 
 - name: Reload pf
   command: pfctl -f /etc/pf.conf
