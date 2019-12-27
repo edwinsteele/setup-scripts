@@ -1,7 +1,7 @@
 ---
 - name: Copy mail secrets
   copy:
-    src: /Users/esteele/Code/local/ansible/roles/common/files/etc_mail_secrets
+    src: /Users/esteele/Code/local_setup-scripts/ansible/roles/common/files/etc_mail_secrets
     dest: /etc/mail/secrets
     owner: root
     group: _smtpd

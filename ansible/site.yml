@@ -23,8 +23,8 @@
   roles:
     - firewall
   vars_files:
-    - /Users/esteele/Code/local/ansible/roles/firewall/vars/private_vars.yml
-    - /Users/esteele/Code/local/ansible/roles/firewall/vars/local_address_vars.yml
+    - /Users/esteele/Code/local_setup-scripts/ansible/roles/firewall/vars/private_vars.yml
+    - /Users/esteele/Code/local_setup-scripts/ansible/roles/firewall/vars/local_address_vars.yml
 
 - hosts: all
   user: esteele

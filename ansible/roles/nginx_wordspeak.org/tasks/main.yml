@@ -23,9 +23,9 @@
     group: wheel
     mode: 0444
   with_items:
-    - { src: /Users/esteele/Code/local/ansible/roles/nginx_wordspeak.org/files/etc_ssl_wordspeak.org_cert.pem, dest: wordspeak.org/cert.pem }
-    - { src: /Users/esteele/Code/local/ansible/roles/nginx_wordspeak.org/files/etc_ssl_wordspeak.org_fullchain.pem, dest: wordspeak.org/fullchain.pem }
-    - { src: /Users/esteele/Code/local/ansible/roles/nginx_wordspeak.org/files/etc_ssl_wordspeak.org_chain.pem, dest: wordspeak.org/chain.pem }
+    - { src: /Users/esteele/Code/local_setup-scripts/ansible/roles/nginx_wordspeak.org/files/etc_ssl_wordspeak.org_cert.pem, dest: wordspeak.org/cert.pem }
+    - { src: /Users/esteele/Code/local_setup-scripts/ansible/roles/nginx_wordspeak.org/files/etc_ssl_wordspeak.org_fullchain.pem, dest: wordspeak.org/fullchain.pem }
+    - { src: /Users/esteele/Code/local_setup-scripts/ansible/roles/nginx_wordspeak.org/files/etc_ssl_wordspeak.org_chain.pem, dest: wordspeak.org/chain.pem }
 
 - name: Copy (likely outdated) wordspeak domain privkeys to allow nginx to start
   copy:
@@ -36,7 +36,7 @@
     group: wheel
     mode: 0400
   with_items:
-    - { src: /Users/esteele/Code/local/ansible/roles/nginx_wordspeak.org/files/etc_ssl_private_wordspeak.org_privkey.pem, dest: wordspeak.org/privkey.pem }
+    - { src: /Users/esteele/Code/local_setup-scripts/ansible/roles/nginx_wordspeak.org/files/etc_ssl_private_wordspeak.org_privkey.pem, dest: wordspeak.org/privkey.pem }
 
 - name: Copy LE account privkeys to allow certificate renewals
   copy:
@@ -47,9 +47,9 @@
     group: wheel
     mode: 0400
   with_items:
-    - { src: /Users/esteele/Code/local/ansible/roles/nginx_wordspeak.org/files/etc_letsencrypt_wordspeak.org_acme-staging-privkey.pem,
+    - { src: /Users/esteele/Code/local_setup-scripts/ansible/roles/nginx_wordspeak.org/files/etc_letsencrypt_wordspeak.org_acme-staging-privkey.pem,
        dest: wordspeak.org/acme-staging-privkey.pem }
-    - { src: /Users/esteele/Code/local/ansible/roles/nginx_wordspeak.org/files/etc_letsencrypt_wordspeak.org_acme-v01-privkey.pem,
+    - { src: /Users/esteele/Code/local_setup-scripts/ansible/roles/nginx_wordspeak.org/files/etc_letsencrypt_wordspeak.org_acme-v01-privkey.pem,
         dest: wordspeak.org/acme-v01-privkey.pem }
 
 - name: Setup webserver parent and acme-client challenge directories
