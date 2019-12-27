@@ -1,2 +1,0 @@
----
-default_gateway: 45.63.28.1
