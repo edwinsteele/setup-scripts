@@ -33,6 +33,12 @@
 - name: Enable and start ntpd
   action: service name=ntpd state=started enabled=yes
 
+- name: Setup /etc/hosts with FQDN
+  lineinfile:
+    path: /etc/hosts
+    regexp: '^127.0.0.1'
+    line: '127.0.0.1 localhost {{ ansible_fqdn }} {{ ansible_hostname }}'
+
 - name: Create swap space as /home/swapfile
   command: dd if=/dev/zero of=/home/swapfile bs=1024 count=1000000
   when: ansible_swaptotal_mb < 950

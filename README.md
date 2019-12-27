@@ -69,7 +69,6 @@ Where the limit criteria is something like:
 ## Additional steps
 
 1. On the newly provisioned VM:
-  1. Update `/etc/hosts` to have FQDN for host, and short and FQDN for any sites that the machine will serve
   1. `cd ~/Code/dotfiles && ./make.sh`
   1. ``doas acme-client -v wordspeak.org``
 1. (for a webserver) From the old webserver:
