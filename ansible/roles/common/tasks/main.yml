@@ -24,7 +24,7 @@
   lineinfile:
     dest: /etc/master.passwd
     regexp: "^root:"
-    line: 'root:{{ lookup("file", "/Users/esteele/Code/local/ansible/root.hash" ) }}:0:0:daemon:0:0:Charlie &:/root:/bin/ksh'
+    line: 'root:{{ lookup("file", "/Users/esteele/Code/local_setup-scripts/ansible/root.hash" ) }}:0:0:daemon:0:0:Charlie &:/root:/bin/ksh'
   notify: Rebuild passwd database
 
 - name: Set timezone as Sydney
