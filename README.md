@@ -68,8 +68,10 @@ Where the limit criteria is something like:
 
 ## Additional steps
 
-1. Logon to the VM to perform the rest of the steps
-1. Update `/etc/hosts` to have FQDN for host, and short and FQDN for any sites that the machine will serve
-1. `cd ~/Code/dotfiles && ./make.sh`
-1. ``doas acme-client -v wordspeak.org``
+1. On the newly provisioned VM:
+  1. Update `/etc/hosts` to have FQDN for host, and short and FQDN for any sites that the machine will serve
+  1. `cd ~/Code/dotfiles && ./make.sh`
+  1. ``doas acme-client -v wordspeak.org``
+1. (for a webserver) From the old webserver:
+  1. `for d in images.wordspeak.org language-explorer.wordspeak.org staging.wordspeak.org www.wordspeak.org; do rsync --rsync-path=/usr/bin/openrsync -av /home/esteele/Sites/$d/ 139.180.174.179:/home/esteele/Sites/$d/; done`
 1. (on desktop, not the VM) `cd ~/Code/wordspeak.org && /home/esteele/.virtualenvs/wordspeak_n7/bin/fab build staging_sync` (for webserver)
