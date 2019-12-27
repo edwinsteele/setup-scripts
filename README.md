@@ -68,9 +68,14 @@ Where the limit criteria is something like:
 
 ## Additional steps
 
-1. On the newly provisioned VM:
+1. On the newly provisioned VM as root (in an ssh session with agent forwarding enabled):
+  1. `openrsync -av www.wordspeak.org:/etc/ssl/wordspeak.org/ /etc/ssl/wordspeak.org/`
+  1. `openrsync -av www.wordspeak.org:/etc/ssl/private/wordspeak.org/ /etc/ssl/private/wordspeak.org/`
+  1. `rcctl restart nginx`
+1. On the newly provisioned VM as esteele (in an ssh session with agent forwarding enabled):
+  1. `for d in images.wordspeak.org language-explorer.wordspeak.org staging.wordspeak.org www.wordspeak.org; do openrsync -av www.wordspeak.org:/home/esteele/Sites/$d/ /home/esteele/Sites/$d/; done`
   1. `cd ~/Code/dotfiles && ./make.sh`
-  1. ``doas acme-client -v wordspeak.org``
-1. (for a webserver) From the old webserver:
-  1. `for d in images.wordspeak.org language-explorer.wordspeak.org staging.wordspeak.org www.wordspeak.org; do rsync --rsync-path=/usr/bin/openrsync -av /home/esteele/Sites/$d/ 139.180.174.179:/home/esteele/Sites/$d/; done`
+`flip the DNS to point to the new host`
+  1. ``doas acme-client -v wordspeak.org && rcctl restart nginx``
+
 1. (on desktop, not the VM) `cd ~/Code/wordspeak.org && /home/esteele/.virtualenvs/wordspeak_n7/bin/fab build staging_sync` (for webserver)
