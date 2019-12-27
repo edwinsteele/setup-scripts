@@ -21,4 +21,4 @@
 - name: setup authorised key esteele
   authorized_key:
     user: esteele
-    key: "{{ lookup('file', '/Users/esteele/.ssh/id_rsa.pub') }}"
+    key: "{{ lookup('file', '/Users/esteele/.ssh/id_external_facing_ed25519.pub') }}"
