@@ -1,6 +1,0 @@
----
-dependencies:
-  - common
-  - esteele_acct
-  - dotfiles
-  - mail_sender
