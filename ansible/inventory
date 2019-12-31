@@ -1,15 +1,15 @@
 [openbsd_6.5]
 gemini65.wordspeak.org
-192.168.20.254
 
 [openbsd_6.6]
 gemini66.wordspeak.org
 v6.wordspeak.org
+192.168.20.254
 
 [firewalls]
 192.168.20.254
 
 [webservers]
-gemini.wordspeak.org
+gemini65.wordspeak.org
 gemini66.wordspeak.org
 v6.wordspeak.org
