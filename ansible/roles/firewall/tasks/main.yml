@@ -34,6 +34,15 @@
     mode: 0644
   notify: Restart unbound
 
+- name: Copy default ad blocking config
+  copy:
+    src: unbound-default-adhosts.conf
+    dest: /var/unbound/etc/unbound-default-adhosts.conf
+    owner: root
+    group: wheel
+    mode: 0644
+  notify: Restart unbound
+
 - name: Copy script to populate ad blocking config
   copy:
     src: generate_unbound_ads_conf.sh
