@@ -84,3 +84,9 @@
   openbsd_pkg:
     name: "{{ python_virtualenv_package }}"
     state: present
+
+- name: Schedule syspatch run via cron
+  cron:
+    name: Check for new syspatch patches
+    special_time: daily
+    job: syspatch -c
