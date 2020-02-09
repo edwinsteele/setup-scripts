@@ -1,7 +1,7 @@
-[openbsd_6.5]
+[openbsd_65]
 gemini65.wordspeak.org
 
-[openbsd_6.6]
+[openbsd_66]
 gemini66.wordspeak.org
 v6.wordspeak.org
 192.168.20.254
