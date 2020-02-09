@@ -5,19 +5,17 @@
 #    pip-compile
 #
 ansible-lint==4.2.0
-ansible==2.9.2
-asn1crypto==0.24.0        # via cryptography
-cffi==1.12.3              # via cryptography
-cryptography==2.7         # via ansible
+ansible==2.9.4
+cffi==1.14.0              # via cryptography
+cryptography==2.8         # via ansible
 enum34==1.1.6             # via cryptography
 ipaddress==1.0.23         # via cryptography
-jinja2==2.10.1            # via ansible
+jinja2==2.11.1            # via ansible
 markupsafe==1.1.1         # via jinja2
 pathlib2==2.3.5           # via ansible-lint
 pycparser==2.19           # via cffi
-pyyaml==5.1               # via ansible, ansible-lint
-ruamel.ordereddict==0.4.14  # via ruamel.yaml
+pyyaml==5.3               # via ansible, ansible-lint
 ruamel.yaml.clib==0.2.0   # via ruamel.yaml
-ruamel.yaml==0.16.5       # via ansible-lint
+ruamel.yaml==0.16.7       # via ansible-lint
 scandir==1.10.0           # via pathlib2
-six==1.12.0               # via ansible-lint, cryptography, pathlib2
+six==1.14.0               # via ansible-lint, cryptography, pathlib2
