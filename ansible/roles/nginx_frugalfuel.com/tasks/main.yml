@@ -1,0 +1,86 @@
+---
+- name: Create frugalfuel unix user to own content
+  user:
+    name: frugalfuel
+    system: yes
+    password_lock: yes
+    password: '*************'
+
+- name: Create Let's Encrypt directories
+  file:
+    path: "{{ item.dir }}"
+    state: directory
+    owner: root
+    group: wheel
+    mode: "{{ item.mode }}"
+  with_items:
+    - { dir: "/etc/ssl/frugalfuel.com", mode: "0755" }
+    - { dir: "/etc/ssl/private/frugalfuel.com", mode: "0700" }
+    - { dir: "/etc/letsencrypt/frugalfuel.com", mode: "0700" }
+
+#       Also need to add a crontab entry to renew the certificate.
+#       See acme-client(1) for an example
+
+- name: Copy (likely outdated) frugalfuel certs to allow nginx to start
+  copy:
+    src: "{{ item.src }}"
+    dest: "/etc/ssl/{{ item.dest }}"
+    force: no
+    owner: root
+    group: wheel
+    mode: 0444
+  with_items:
+    - { src: /Users/esteele/Code/local_setup-scripts/ansible/roles/nginx_frugalfuel.com/files/etc_ssl_frugalfuel.com_cert.pem,
+        dest: frugalfuel.com/cert.pem }
+    - { src: /Users/esteele/Code/local_setup-scripts/ansible/roles/nginx_frugalfuel.com/files/etc_ssl_frugalfuel.com_fullchain.pem,
+        dest: frugalfuel.com/fullchain.pem }
+
+- name: Copy (likely outdated) frugalfuel domain privkeys to allow nginx to start
+  copy:
+    src: "/Users/esteele/Code/local_setup-scripts/ansible/roles/nginx_frugalfuel.com/files/etc_ssl_private_frugalfuel.com_privkey.pem"
+    dest: "/etc/ssl/private/frugalfuel.com/privkey.pem"
+    force: no
+    owner: root
+    group: wheel
+    mode: 0400
+
+- name: Setup webserver parent directories
+  file:
+    path: "/var/www/htdocs/{{ item }}"
+    state: directory
+    owner: frugalfuel
+    group: frugalfuel
+    mode: 0755
+  with_items:
+    - www.frugalfuel.com
+
+- name: copy letsencrypt config snippet
+  copy:
+    src: etc_acme-client.frugalfuel-com.conf
+    dest: /etc/acme-client.frugalfuel-com.conf
+    owner: root
+    group: wheel
+    mode: 0600
+
+- name: reference letsencrypt config snippet in acme-client.conf
+  lineinfile:
+    path: /etc/acme-client.conf
+    line: 'include "/etc/acme-client.frugalfuel-com.conf"'
+
+
+- name: Create nginx enabled-sites directory
+  file:
+    path: "/etc/nginx/sites-enabled"
+    state: directory
+    owner: root
+    group: wheel
+    mode: 0755
+
+- name: copy frugalfuel.com nginx config
+  copy:
+    src: frugalfuel-com.conf
+    dest: /etc/nginx/sites-enabled/frugalfuel-com.conf
+    owner: root
+    group: wheel
+    mode: 0644
+  notify: reload nginx
