@@ -67,15 +67,6 @@
     path: /etc/acme-client.conf
     line: 'include "/etc/acme-client.frugalfuel-com.conf"'
 
-
-- name: Create nginx enabled-sites directory
-  file:
-    path: "/etc/nginx/sites-enabled"
-    state: directory
-    owner: root
-    group: wheel
-    mode: 0755
-
 - name: copy frugalfuel.com nginx config
   copy:
     src: frugalfuel-com.conf

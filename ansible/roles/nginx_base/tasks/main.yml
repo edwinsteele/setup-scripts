@@ -30,23 +30,50 @@
     - { dir: "/etc/letsencrypt", mode: "0700" }
     - { dir: "/etc/letsencrypt/private", mode: "0700" }
 
-# This actually has a wordspeak.org reference in it, so this isn't a base
-#  template. If/when acme-client supports .d directories this can be made
-#  into a base template and the nginx_wordspeak role can simply drop the
-#  wordspeak acme config into that directory and we can remove the hardcoded
-#  include that's in this base config
-- name: Copy base /etc/acme-client.conf
+# Use copy task rather than file task with touch because we don't want any
+#  changes reported on a normal run
+- name: Create letsencrypt config if it doesn't exist
   copy:
-    src: etc_acme-client.conf
+    content: ""
     dest: /etc/acme-client.conf
     owner: root
     group: wheel
     mode: 0600
+    force: no
+
+# Build config by snippets beacuse acme-client doesn't support .d directories
+#  meaning we need to modify a file in several roles without having ansible
+#  report changes on each run
+# acme-client requires signing definitions to be above domain blocks, and we
+#  don't guarantee that specifically, but it happens to work out that way
+#  because this role runs before domain-specific ones
+# FIXME - move account keys out of a domain-specific directory and copying
+#  of them into this role
+- name: Add signing definitions to letsencrypt config
+  blockinfile:
+    path: /etc/acme-client.conf
+    block: |
+      authority letsencrypt {
+         api url "https://acme-v02.api.letsencrypt.org/directory"
+         account key "/etc/letsencrypt/wordspeak.org/acme-v01-privkey.pem"
+      }
+      authority letsencrypt-staging {
+         api url "https://acme-staging-v02.api.letsencrypt.org/directory"
+         account key "/etc/letsencrypt/wordspeak.org/acme-staging-privkey.pem"
+      }
 
 - name: Ensure nginx is installed.
   openbsd_pkg:
     name: nginx
     state: present
+
+- name: Create nginx enabled-sites directory
+  file:
+    path: "/etc/nginx/sites-enabled"
+    state: directory
+    owner: root
+    group: wheel
+    mode: 0755
 
 - name: Copy nginx configuration in place.
   copy:

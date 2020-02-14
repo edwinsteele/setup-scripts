@@ -69,7 +69,7 @@
     - language-explorer.wordspeak.org
     - images.wordspeak.org
 
-- name: copy letsencrypt config for wordspeak.org
+- name: copy wordspeak letsencrypt config
   copy:
     src: etc_acme-client.wordspeak-org.conf
     dest: /etc/acme-client.wordspeak-org.conf
@@ -77,13 +77,10 @@
     group: wheel
     mode: 0600
 
-- name: Create nginx enabled-sites directory
-  file:
-    path: "/etc/nginx/sites-enabled"
-    state: directory
-    owner: root
-    group: wheel
-    mode: 0755
+- name: reference wordspeak letsencrypt config in acme-client.conf
+  lineinfile:
+    path: /etc/acme-client.conf
+    line: 'include "/etc/acme-client.wordspeak-org.conf"'
 
 - name: copy wordspeak.org nginx config
   template:
