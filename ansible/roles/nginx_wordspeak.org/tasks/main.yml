@@ -69,17 +69,6 @@
     - language-explorer.wordspeak.org
     - images.wordspeak.org
 
-- name: Setup symlinks from web roots
-  file:
-    dest: "/home/esteele/Sites/{{ item }}"
-    src: "/var/www/htdocs/{{ item }}"
-    state: link
-  with_items:
-    - staging.wordspeak.org
-    - www.wordspeak.org
-    - language-explorer.wordspeak.org
-    - images.wordspeak.org
-
 - name: copy letsencrypt config for wordspeak.org
   copy:
     src: etc_acme-client.wordspeak-org.conf
