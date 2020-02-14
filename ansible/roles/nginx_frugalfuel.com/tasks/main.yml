@@ -5,6 +5,8 @@
     system: yes
     password_lock: yes
     password: '*************'
+    shell: /sbin/nologin
+    comment: Service account for frugalfuel web files
 
 - name: Create Let's Encrypt directories
   file:
