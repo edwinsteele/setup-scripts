@@ -18,14 +18,6 @@
   args:
     creates: /etc/ssl/certs/misc/nginx-dhparam2048.pem
 
-- name: Setup ~esteele/Sites, allowing it to be served up
-  file:
-    dest: /home/esteele/Sites
-    state: directory
-    owner: esteele
-    group: esteele
-    mode: 0711
-
 - name: Create Base Let's Encrypt directories
   file:
     path: "{{ item.dir }}"
