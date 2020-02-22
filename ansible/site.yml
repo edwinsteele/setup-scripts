@@ -19,6 +19,16 @@
   roles:
     - webhost
 
+# Frugalfuel user has a locked account, so we use become so that perms are
+#  correct.
+- hosts: webservers
+  strategy: linear
+  roles:
+    - frugalfuel_app
+  become: yes
+  become_method: doas
+  become_user: frugalfuel
+
 - hosts: firewalls
   roles:
     - firewall
@@ -27,7 +37,7 @@
     - /Users/esteele/Code/local_setup-scripts/ansible/roles/firewall/vars/local_address_vars.yml
 
 - hosts: all
-  user: esteele
+  remote_user: esteele
   roles:
     - esteele_contents
     - git

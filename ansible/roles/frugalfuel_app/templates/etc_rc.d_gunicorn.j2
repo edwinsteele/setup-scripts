@@ -1,0 +1,14 @@
+daemon="/home/frugalfuel/{{ frugalfuel_django_virtualenv_dir }}/bin/gunicorn"
+daemon_user="frugalfuel"
+daemon_flags=--log-file - --bind 127.0.0.1:{{ frugalfuel_django_listen_port }} project.wsgi
+
+#pexp=
+
+
+#--log-level {{ captiveportal_log_level }} \
+#--pid {{ captiveportal_pid_file }}  \
+#--bind 127.0.0.1:{{ captiveportal_listen_port }} captiveportal:app
+
+. /etc/rc.d/rc.subr
+
+

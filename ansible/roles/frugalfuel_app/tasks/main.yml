@@ -1,0 +1,44 @@
+---
+- name: Make frugalfuel base directory
+  file:
+    path: "{{ frugalfuel_base_dir }}"
+    state: directory
+
+- name: Make data directories for loading
+  file:
+    path: "{{ frugalfuel_base_dir }}/{{ item }}"
+    state: directory
+  loop:
+    - data
+    - data-raw
+
+- name: Make frugalfuel django virtualenv base directory
+  file:
+    path: "{{ frugalfuel_django_virtualenv_dir }}"
+    state: directory
+
+- name: Copy production env file
+  template:
+    src: /Users/esteele/Code/local_setup-scripts/ansible/roles/frugalfuel_app/templates/production.env.j2
+    dest: "{{ frugalfuel_base_dir }}/production.env"
+    mode: 0600
+
+- name: Setup frugalfuel django virtualenv - install_requires
+  pip:
+    virtualenv: "{{ frugalfuel_django_virtualenv_dir }}"
+    virtualenv_python: python3.7
+    virtualenv_command: /usr/local/bin/virtualenv-3
+    name: git+https://github.com/edwinsteele/petrol_prices.git
+
+# Can move to gunicorn 20.x once a release has been made that includes
+#  https://github.com/benoitc/gunicorn/commit/2d40e6daceb9735d27bb91d9c32743695de8e01c
+- name: Setup frugalfuel django virtualenv - gunicorn
+  pip:
+    virtualenv: "{{ frugalfuel_django_virtualenv_dir }}"
+    virtualenv_python: python3.7
+    name: gunicorn==19.9.0
+
+# install
+# template copy rc file
+# service enable
+# create database if not already  (django-admin migrate) -> creates db file

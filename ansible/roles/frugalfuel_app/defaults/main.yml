@@ -1,0 +1,4 @@
+---
+frugalfuel_base_dir: "/home/frugalfuel/frugalfuel_app"
+frugalfuel_django_virtualenv_dir: "{{ frugalfuel_base_dir }}/virtualenv"
+frugalfuel_django_listen_port: 5001
