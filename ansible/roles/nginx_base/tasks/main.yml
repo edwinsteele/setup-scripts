@@ -28,7 +28,7 @@
   with_items:
     - { dir: "/var/www/letsencrypt", mode: "0755" }
     - { dir: "/etc/letsencrypt", mode: "0700" }
-    - { dir: "/etc/letsencrypt/private", mode: "0700" }
+      #    - { dir: "/etc/letsencrypt/private", mode: "0700" }
 
 # Use copy task rather than file task with touch because we don't want any
 #  changes reported on a normal run

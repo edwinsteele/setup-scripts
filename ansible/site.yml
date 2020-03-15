@@ -15,13 +15,17 @@
     - mail_sender
     - esteele_acct
 
-- hosts: webservers
+- hosts: wordspeak
   roles:
-    - webhost
+    - wordspeak_site
+
+- hosts: frugalfuel
+  roles:
+    - frugalfuel_site
 
 # Frugalfuel user has a locked account, so we use become so that perms are
 #  correct.
-- hosts: webservers
+- hosts: frugalfuel
   strategy: linear
   roles:
     - frugalfuel_app
