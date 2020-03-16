@@ -10,3 +10,18 @@
         key: AAAAB3NzaC1yc2EAAAADAQABAAABAQCbsvzantF5jM8bXd7DSJCNaDWWoMWyDDnfOMiXhkKSrPxYzuM643gX1wEiw1ywR3GvE2v2B9s4R9s4hxeuoXNx8CN1Zn5T2If5pjloD0YEVdz2KrrtIbjyCMtb+z9c4P6b6CTjJwaIm8Q364lzVwA02r8wNsgY43fKJwMArhKyzf1tXLTwknJQfhwzLepAKGWC5utDI25iuaRnUPGaMBRpZ93iLg+YOlaXmGG8hg6L7pL5MqmutM7zrCII2FKLaLEGCj9gYA2ML6JG3dovVNUlqvnJ+GHWCZoYUt36QyEEywSWpRudS8yupnUhEOl7PPNDUNn4OwgFxalcWy15HBmD }  # noqa 204
     - { site: www.wordspeak.org,
         key: AAAAB3NzaC1yc2EAAAADAQABAAABAQDKycXLuWGG0t6f37n755PIW+/Usk3RK85nTKmp7XInK3z5SIUBCvhj7MplkyiFd48oz/jenppFGqKrKr0Pbzw1jGTTM3C1xZVyvB4b56YJr49ZPDrfWtSaXJe9zismbGpZKTRJtpjLE2gg44QD7AFqB8IbXCCUeZ/P9y7on7UoTEYHR+SlaKnQ28DSRUdWQa2f5sM7KcWHVHNwAUDagidRv2OuHo0UE8n8ovpgc3uGfQs1Y8HH+XCxxUOnV+oW32gUW9t2mEZ1yn00oILjUHuV6myJiqnUmMSkn494lxJIfTgHhY3bexnb/Hkh2Wibnk4ylQAsnoEKdKGsIsEVY7ST }  # noqa 204
+
+# We deliberately do not attempt to mount this because we do not want to fail
+#  the playbook run if we haven't attached the disk to the VM (perhaps because
+#  we're in testing). We do set it up in fstab though to make it easy to mount
+#  when we get to it
+- name: Setup /var/www/htdocs mount in fstab (if in AWS)
+  mount:
+    path: /var/www/htdocs
+    src: "{{ var_www_htdocs_duid }}.a"
+    fstype: ffs
+    opts: rw,nodev,nosuid
+    dump: "1"
+    passno: "2"
+    state: present
+  when: "'amazon' in ansible_product_version"
