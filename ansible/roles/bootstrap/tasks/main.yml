@@ -4,7 +4,7 @@
 #  those circumstances if we have already installed all the packages
 - name: Check if a python that can be used for ansible is installed
   raw: which {{ ansible_python_interpreter }}
-  register: which_python_contents
+  register: initial_python_interpreter
   changed_when: False
   check_mode: no
   ignore_errors: yes
@@ -13,17 +13,17 @@
 #  prefix for packages
 - name: Install a python that can be used for ansible
   raw: pkg_add {{ python_package }}
-  when: which_python_contents.stdout.find("not found") != -1
+  when: initial_python_interpreter.stdout.find("not found") != -1
 
 - name: Find python location now that we know it's installed
   raw: which {{ ansible_python_interpreter }}
-  register: which_python_contents
+  register: installed_python_interpreter
   changed_when: False
   check_mode: no
 
 - name: Set python intepreter
   set_fact:
-    ansible_python_interpreter: "{{ which_python_contents.stdout }}"
+    ansible_python_interpreter: "{{ installed_python_interpreter.stdout }}"
 
 - name: Gather facts now that an interpreter is installed
   setup:
@@ -41,3 +41,7 @@
     mode: 0600
     create: yes
 
+- name: Apply patches with sysctl (first time only)
+  command: /usr/sbin/syspatch
+  when: initial_python_interpreter.stdout.find("not found") != -1
+  notify: reboot
