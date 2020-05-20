@@ -98,7 +98,7 @@
 
 - name: Manage nighttime limited internet access
   cron:
-    name: "{{ item.desc }} internet access for particular devices"
+    name: "{{ item.desc }} nighttime internet access for particular devices"
     minute: "{{ item.min }}"
     hour: "{{ item.hour }}"
     job: "pfctl -q -t limited-internet-access -T {{ item.verb }} {{ nighttime_limited_internet_access_addresses }}"
@@ -108,7 +108,7 @@
 
 - name: Manage daytime limited internet access
   cron:
-    name: "{{ item.desc }} internet access for particular devices"
+    name: "{{ item.desc }} daytime internet access for particular devices"
     minute: "{{ item.min }}"
     hour: "{{ item.hour }}"
     job: "pfctl -q -t limited-internet-access -T {{ item.verb }} {{ daytime_limited_internet_access_addresses }}"
