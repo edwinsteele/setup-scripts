@@ -34,6 +34,15 @@
     mode: 0644
   notify: Restart unbound
 
+- name: Copy unbound safesearch config
+  copy:
+    src: unbound-safesearch.conf
+    dest: /var/unbound/etc/unbound-safesearch.conf
+    owner: root
+    group: wheel
+    mode: 0644
+  notify: Restart unbound
+
 - name: Copy default ad blocking config
   copy:
     src: unbound-default-adhosts.conf

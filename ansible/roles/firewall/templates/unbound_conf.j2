@@ -19,6 +19,5 @@ include: /var/unbound/etc/unbound-local-data.conf
 
 forward-zone:
     name: "."
-    forward-ssl-upstream: yes
-    forward-addr: 1.1.1.1@853
-    forward-addr: 1.0.0.1@853  
+    forward-addr: 172.64.36.1  # cloudflare gateway
+    forward-addr: 172.64.36.2
