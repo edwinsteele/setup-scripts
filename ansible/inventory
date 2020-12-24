@@ -1,18 +1,5 @@
-[openbsd_66]
-gemini66.wordspeak.org
+[openbsd_68]
 192.168.20.254
-52.62.115.169 ansible_become=yes ansible_user=ec2-user ansible_become_method=doas
 
 [firewalls]
 192.168.20.254
-
-[webservers]
-gemini66.wordspeak.org
-52.62.115.169
-
-[wordspeak]
-gemini66.wordspeak.org
-52.62.115.169
-
-[frugalfuel]
-#gemini66.wordspeak.org

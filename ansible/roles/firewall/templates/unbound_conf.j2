@@ -9,9 +9,21 @@ server:
     access-control: 0.0.0.0/0 refuse
     access-control: 127.0.0.0/8 allow
     access-control: 192.168.20.0/24 allow
+    hide-identity: yes
+    hide-version: yes
+    prefetch: yes
+    prefetch-key: yes
 
 # Enable dnssec
 auto-trust-anchor-file: "/db/root.key"
+val-log-level: 2
+aggressive-nsec: yes
+
+# UDP EDNS reassembly buffer advertised to peers. Default 4096.
+# May need lowering on broken networks with fragmentation/MTU issues,
+# particularly if validating DNSSEC.
+#
+#edns-buffer-size: 1480
 
 include: /var/unbound/etc/unbound-default-adhosts.conf
 include: /var/unbound/etc/unbound-adhosts.conf
@@ -19,5 +31,6 @@ include: /var/unbound/etc/unbound-local-data.conf
 
 forward-zone:
     name: "."
-    forward-addr: 172.64.36.1  # cloudflare gateway
-    forward-addr: 172.64.36.2
+    forward-tls-upstream: yes
+    forward-addr: 172.64.36.1@853  # cloudflare gateway
+    forward-addr: 172.64.36.2@853
