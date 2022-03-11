@@ -45,5 +45,3 @@
   roles:
     - esteele_contents
     - git
-    - dotfiles
-    - editor
