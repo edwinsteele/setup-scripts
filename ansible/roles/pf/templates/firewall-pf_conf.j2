@@ -18,12 +18,17 @@ table <limited-internet-access> persist
 # don't filter on the loopback interface
 set skip on lo0
 
-# Queues. NBN plan has 20Mb/sec up. Let's cap at 19500Kb/sec
-queue ext on $ext_if bandwidth 19500K
+# Queues. NBN plan has 20Mb/sec up. Let's cap at 18500Kb/sec (92% of 20M)
+#  (per Mike Belophuov's 90-95% recommendation)
+#  https://www.reddit.com/r/openbsd/comments/75ps6h/fqcodel_and_pf/doca4uv/
+queue ext on $ext_if bandwidth 18500K
 queue ext_dns parent ext bandwidth 100K min 50K
 # Low-delay ToS (ACKs and interactive SSH)
 queue ext_pri parent ext bandwidth 100K min 50K
-queue ext_def parent ext bandwidth 19300K max 19300K flows 1024 default
+queue ext_def parent ext bandwidth 18300K max 18300K flows 1024 qlimit 1024 default
+
+# Effective queueing for downloading. 92% of 50M = 47M
+queue inbound on $int_if bandwidth 47M max 47M flows 1024 qlimit 1024 default
 
 # scrub incoming packets
 match in all scrub (no-df random-id)
