@@ -8,7 +8,10 @@
 
 Creation of virtualbox images is done via packer.
 
-This setup relies on packer being able to accept incoming connections, so review firewall on the host if it's not working. It also requires the `variables["mirror"]` setting in the packer json file correspond to the HTTP server in the `http/install.conf`.
+This setup relies on packer being able to accept incoming connections, so
+review firewall on the host if it's not working. It also requires the
+`variables["mirror"]` setting in the packer json file correspond to the HTTP
+server in the `http/install.conf`.
 
 As this setup uses OpenBSD autoinstall, it's necessary to set DHCP variables:
 
@@ -17,7 +20,10 @@ option tftp-server-name "openbsd-mirror.soyuz.local:8080";
 option bootfile-name "auto_install";
 ```
 
-(the type-server-name corresponds, again, to the `variables["mirror"]` setting in the packer json file. The dhcp options (for VMWare Fusion) are set in `/Library/Preferences/VMware Fusion/vmnet8/dhcpd.conf` (then restart the process to apply changes. Probably `/Applications/VMware Fusion.app/Contents/Library/vmnet-dhcpd -s 6 -cf /Library/Preferences/VMware Fusion/vmnet8/dhcpd.conf -lf /var/db/vmware/vmnet-dhcpd-vmnet8.leases -pf /var/run/vmnet-dhcpd-vmnet8.pid vmnet8`)
+(the type-server-name corresponds, again, to the `variables["mirror"]` setting
+in the packer json file. The dhcp options (for VMWare Fusion) are set in
+`/Library/Preferences/VMware Fusion/vmnet8/dhcpd.conf` (then restart the
+process to apply changes. Probably `/Applications/VMware Fusion.app/Contents/Library/vmnet-dhcpd -s 6 -cf /Library/Preferences/VMware Fusion/vmnet8/dhcpd.conf -lf /var/db/vmware/vmnet-dhcpd-vmnet8.leases -pf /var/run/vmnet-dhcpd-vmnet8.pid vmnet8`)
 
 1. Setup or review the file *(the varfile)* containing the private packer variables (`ssh_private_key_file`, `ssh_public_key_str`, `root_bcrypt_hash`)
 2. cd ~/Code/setup-scripts/packer
@@ -29,12 +35,15 @@ option bootfile-name "auto_install";
 7. If you haven't done a DHCP mapping, find the new IP address on the DHCP server (look for recent *DHCPACK* log line in `/var/log/daemon` if it's OpenBSD)
 13. Login as root, using the private key associated with the `ssh_private_key_file` that was used in the packer setup phase
 
-# OS Setup a cloud host from scratch
+# OS Setup a Vultr cloud host from scratch
 
-OpenBSD requires hand-installation on cloud providers
+OpenBSD requires hand-installation on Vultr, even though they offer pre-build
+images because their partitioning scheme only has a single partition.
 
-* boot from ISO
-* do an auto-install, using an auto-install conf hosted in this repo i.e. use https://raw.githubusercontent.com/edwinsteele/setup-scripts/master/autoinstall/gemini-install.conf
+* boot from ISO that has installation packages e.g. `install70.iso`
+* do an auto-install, using an auto-install conf. Note that noVNC (used by
+  Vultr) has a paste option in the client's pop-out, so you don't need to
+  type in the autoinstall URL - ` https://raw.githubusercontent.com/edwinsteele/setup-scripts/master/autoinstall/gemini-install.conf`
 * detach the ISO (which triggers a reboot on Vultr - manual reboot may be necessary)
 
 # Provisioning using ansible once the OS setup is complete
@@ -78,4 +87,8 @@ Where the limit criteria is something like:
 `flip the DNS to point to the new host`
   1. ``doas acme-client -v wordspeak.org && rcctl restart nginx``
 
-1. (on desktop, not the VM) `cd ~/Code/wordspeak.org && /home/esteele/.virtualenvs/wordspeak_n7/bin/fab build staging_sync` (for webserver)
+### For Webserver
+
+1. Update DNS record for staging.wordspeak.org (to simplify final setup, knowing that nobody is looking at staging)
+1. `rsync -av --rsync-path=/usr/bin/openrsync /usr/local/var/www/lex-mirror/ staging.wordspeak.org:/var/www/htdocs/language-explorer.wordspeak.org/`
+1. RUn github actions

@@ -41,7 +41,7 @@
     mode: 0600
     create: yes
 
-- name: Apply patches with sysctl (first time only)
+- name: Apply patches with syspatch (first time only)
   command: /usr/sbin/syspatch
   when: initial_python_interpreter.stdout.find("not found") != -1
   notify: reboot
