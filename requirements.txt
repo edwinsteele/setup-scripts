@@ -4,9 +4,9 @@
 #
 #    pip-compile
 #
-ansible==5.4.0
+ansible==7.0.0
     # via -r requirements.in
-ansible-core==2.12.3
+ansible-core==2.14.1
     # via ansible
 ansible-lint==5.4.0
     # via -r requirements.in
@@ -46,8 +46,6 @@ rich==12.0.0
     #   enrich
 ruamel-yaml==0.17.21
     # via ansible-lint
-ruamel-yaml-clib==0.2.6
-    # via ruamel-yaml
 tenacity==8.0.1
     # via ansible-lint
 wcmatch==8.3
