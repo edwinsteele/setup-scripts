@@ -16,7 +16,7 @@ cffi==1.15.0
     # via cryptography
 commonmark==0.9.1
     # via rich
-cryptography==36.0.1
+cryptography==39.0.1
     # via ansible-core
 enrich==1.2.7
     # via ansible-lint
@@ -46,8 +46,6 @@ rich==12.0.0
     #   enrich
 ruamel-yaml==0.17.21
     # via ansible-lint
-ruamel-yaml-clib==0.2.6
-    # via ruamel-yaml
 tenacity==8.0.1
     # via ansible-lint
 wcmatch==8.3
