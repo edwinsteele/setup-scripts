@@ -59,6 +59,7 @@ a different key to ansible with `--private-key=PRIVATE_KEY_FILE`
 1. Replace the host in `hosts` with the IP address of the newly provisioned
    host, placing it in the group section that corresponds to the `--limit`
    argument used in the `ansible-playbook` commands for the appropriate type of VM install
+   e.g. `ansible-playbook -u root -i inventory site.yml --limit=192.168.20.254`
 
 ## Performing non-OS setup
 
@@ -91,4 +92,5 @@ Where the limit criteria is something like:
 
 1. Update DNS record for staging.wordspeak.org (to simplify final setup, knowing that nobody is looking at staging)
 1. `rsync -av --rsync-path=/usr/bin/openrsync /usr/local/var/www/lex-mirror/ staging.wordspeak.org:/var/www/htdocs/language-explorer.wordspeak.org/`
+1. in images.wordspeak.org checkout, run `./images_tool.py sync`
 1. RUn github actions
