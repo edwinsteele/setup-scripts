@@ -104,7 +104,7 @@
     job: "pfctl -q -t limited-internet-access -T {{ item.verb }} {{ nighttime_limited_internet_access_addresses }}"
   with_items:
   - { desc: "Disable", verb: "add", hour: "21", min: "0" }
-  - { desc: "Enable", verb: "delete", hour: "4", min: "30" }
+  - { desc: "Enable", verb: "delete", hour: "4", min: "0" }
   when: nighttime_limited_internet_access_addresses != ""
 
 - name: Manage daytime limited internet access
