@@ -1,0 +1,9 @@
+---
+python_package: python%3.10
+python_pip_package: py3-pip
+python_virtualenv_package: py3-virtualenv
+ansible_python_interpreter: /usr/local/bin/python3.10
+system_pip_location: /usr/local/bin/pip3.10
+current_pip_location: /usr/local/bin/pip3.10
+virtualenv_binary_location: /usr/local/bin/virtualenv-3
+vim_package: vim--no_x11-python3

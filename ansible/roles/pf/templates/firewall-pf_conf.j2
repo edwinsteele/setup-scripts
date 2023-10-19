@@ -7,7 +7,7 @@ icmp_types = "{ echoreq, unreach }"
 limited_internet_access_ok_ports = "{ domain ntp }"
 # www.studyladder.com.au and static.studyladder.com.au
 # Move this to a file, eventually, and have it updated by cron
-table <lia-web-exceptions> { 13.57.121.179, 52.52.157.221, 13.35.146.29, 13.35.146.37, 13.35.146.38, 13.35.146.58 }
+table <lia-web-exceptions> { }
 
 # table containing all IP addresses assigned to the firewall
 table <firewall> const { self }
@@ -27,8 +27,8 @@ queue ext_dns parent ext bandwidth 100K min 50K
 queue ext_pri parent ext bandwidth 100K min 50K
 queue ext_def parent ext bandwidth 18300K max 18300K flows 1024 qlimit 1024 default
 
-# Effective queueing for downloading. 92% of 50M = 47M
-queue inbound on $int_if bandwidth 47M max 47M flows 1024 qlimit 1024 default
+# Effective queueing for downloading. 92% of 100M = 92M
+queue inbound on $int_if bandwidth 92M max 92M flows 1024 qlimit 1024 default
 
 # scrub incoming packets
 match in all scrub (no-df random-id)

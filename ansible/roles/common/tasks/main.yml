@@ -22,7 +22,7 @@
 - name: setup authorised key for root
   authorized_key:
     user: root
-    key: "{{ lookup('file', '/Users/esteele/.ssh/id_external_facing_root_ed25519.pub') }}"
+    key: "{{ lookup('file', '/Users/esteele/.ssh/id_external_facing_root_ed25519.downloaded-from-1password.pub') }}"
 
 - name: setup root password
   lineinfile:
