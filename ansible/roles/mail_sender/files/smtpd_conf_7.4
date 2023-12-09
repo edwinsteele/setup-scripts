@@ -1,0 +1,12 @@
+listen on lo0
+
+table aliases file:/etc/mail/aliases
+table secrets file:/etc/mail/secrets
+
+# DO WE REALLY WANT ANY LOCALLY DELIVERY?
+action "local" mbox alias <aliases>
+action "relay" relay host smtps://fastmail@mail.messagingengine.com:465 \
+        auth <secrets>
+
+match for local action "local"
+match for any action "relay"
