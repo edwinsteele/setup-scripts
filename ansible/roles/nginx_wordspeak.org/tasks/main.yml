@@ -82,6 +82,12 @@
     path: /etc/acme-client.conf
     line: 'include "/etc/acme-client.wordspeak-org.conf"'
 
+- name: Schedule acme-client run via cron
+  cron:
+    name: Attempt to renew and apply new LE cert
+    special_time: weekly
+    job: acme-client -v wordspeak.org && rcctl restart nginx
+
 - name: copy wordspeak.org nginx config
   template:
     src: wordspeak-org.conf.j2
