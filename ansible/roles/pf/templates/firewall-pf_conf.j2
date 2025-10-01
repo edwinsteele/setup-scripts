@@ -4,16 +4,8 @@ int_if = "{{ internal_physical_interface }}"
 ext_if = "{{ external_physical_interface }}"
 
 icmp_types = "{ echoreq, unreach }"
-limited_internet_access_ok_ports = "{ domain ntp }"
-# www.studyladder.com.au and static.studyladder.com.au
-# Move this to a file, eventually, and have it updated by cron
-table <lia-web-exceptions> { }
-
 # table containing all IP addresses assigned to the firewall
 table <firewall> const { self }
-
-# table for permitting timed internet access
-table <limited-internet-access> persist
 
 # don't filter on the loopback interface
 set skip on lo0
@@ -49,9 +41,6 @@ block in quick from urpf-failed
 pass in  on $int_if from $int_if:network modulate state
 pass out on $int_if to $int_if:network modulate state
 
-# Allow traffic to ADSL router
-pass out on {{ external_physical_interface }} proto { tcp udp icmp } to 192.168.4.1 keep state
-
 # pass tcp, udp, and icmp out on the external (Internet) interface.
 # tcp connections will be modulated, udp/icmp will be tracked
 # statefully.
@@ -59,11 +48,6 @@ pass out on $ext_if proto { tcp udp icmp } all modulate state
 
 pass in on $ext_if proto tcp to ($ext_if) port ssh modulate state
 pass in on $ext_if inet proto icmp icmp-type $icmp_types
-
-# Constrain internet access for device in the limited-internet-access table
-block in on $int_if from <limited-internet-access>
-pass proto { tcp udp } from <limited-internet-access> to port $limited_internet_access_ok_ports
-pass proto tcp from <limited-internet-access> to <lia-web-exceptions> port { http https }
 
 # NAT outbound packets
 match out on $ext_if from $int_if:network to any nat-to ($ext_if)
