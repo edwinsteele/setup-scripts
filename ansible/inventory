@@ -1,8 +1,10 @@
 [openbsd_77]
-45.77.238.164
 #gateway-int.wordspeak.org
 192.168.20.254
 gateway.wordspeak.org
+
+[openbsd_78]
+45.77.238.164
 
 [firewalls]
 192.168.20.254
