@@ -1,0 +1,39 @@
+---
+- name: Enable ipv4 ip forwarding
+  lineinfile:
+    dest: /etc/sysctl.conf
+    state: present
+    create: yes
+    line: "net.inet.ip.forwarding=1"
+  notify: Enable ipv4 forwarding now via sysctl
+
+- name: Copy iked.conf
+  copy:
+    src: iked.conf
+    dest: /etc/iked.conf
+    mode: 0600
+
+# For reference:
+#  ikectl ca vpn create
+#    (creates files under /etc/ssl/vpn)
+#  ikeca vpn install
+#    certificate for CA 'vpn' installed into /etc/iked/ca/ca.crt
+#    CRL for CA 'vpn' installed to /etc/iked/crls/ca.crl
+#  ikectl ca vpn certificate vpn.wordspeak.org create
+#  ikectl ca vpn certificate vpn.wordspeak.org install
+
+- name: Lock down CA area
+  file:
+    state: directory
+    path: /etc/iked/ca
+    owner: root
+    group: wheel
+    recurse: true
+    mode: g-rwx,o-rwx
+
+- name: Enable and start iked
+  service:
+    name: iked
+    state: started
+    enabled: yes
+

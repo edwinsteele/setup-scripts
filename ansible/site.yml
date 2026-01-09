@@ -23,6 +23,11 @@
   roles:
     - frugalfuel_site
 
+- hosts: wordspeak
+  roles:
+    - vpn_concentrator
+
+
 # Frugalfuel user has a locked account, so we use become so that perms are
 #  correct.
 - hosts: frugalfuel

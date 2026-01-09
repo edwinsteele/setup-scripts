@@ -1,0 +1,3 @@
+---
+- name: Enable ipv4 forwarding now via sysctl
+  command: sysctl net.inet.ip.forwarding=1

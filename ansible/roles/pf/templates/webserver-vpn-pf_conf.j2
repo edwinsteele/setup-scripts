@@ -1,0 +1,32 @@
+tcp_services = "{ ssh, www, https }"
+icmp_types="echoreq"
+
+# VPN parameters
+rw_pool  = "10.20.0.0/24"
+home_lan = "192.168.20.0/24"
+
+set block-policy return
+
+# don't filter on the loopback interface
+set skip on lo
+
+# scrub incoming packets
+match in all scrub (no-df)
+
+# default deny
+block in log
+pass out quick
+
+pass in inet proto tcp to port $tcp_services
+pass in inet proto icmp all icmp-type $icmp_types
+
+# --- IKEv2 / IPsec (NAT-T) ---
+# Allow IKE (500) and NAT-T (4500) to the VPS itself
+pass in inet proto udp to (vio0) port { 500, 4500 }
+
+# --- IPsec traffic after decryption/encryption ---
+pass on enc0
+
+# allow road-warrior clients to reach the home LAN, and return traffic
+pass in  on enc0 from $rw_pool to $home_lan
+pass out on enc0 from $home_lan to $rw_pool
