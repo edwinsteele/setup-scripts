@@ -6,7 +6,7 @@
     owner: root
     group: wheel
     mode: "{{ item.mode }}"
-  with_items:
+  loop:
     - { dir: "/etc/ssl/wordspeak.org", mode: "0755" }
     - { dir: "/etc/ssl/private/wordspeak.org", mode: "0700" }
     - { dir: "/etc/letsencrypt/wordspeak.org", mode: "0700" }
@@ -22,7 +22,7 @@
     owner: root
     group: wheel
     mode: 0444
-  with_items:
+  loop:
     - { src: /Users/esteele/Code/local_setup-scripts/ansible/roles/nginx_wordspeak.org/files/etc_ssl_wordspeak.org_cert.pem,
         dest: wordspeak.org/cert.pem }
     - { src: /Users/esteele/Code/local_setup-scripts/ansible/roles/nginx_wordspeak.org/files/etc_ssl_wordspeak.org_fullchain.pem,
@@ -38,7 +38,7 @@
     owner: root
     group: wheel
     mode: 0400
-  with_items:
+  loop:
     - { src: /Users/esteele/Code/local_setup-scripts/ansible/roles/nginx_wordspeak.org/files/etc_ssl_private_wordspeak.org_privkey.pem,
         dest: wordspeak.org/privkey.pem }
 
@@ -50,7 +50,7 @@
     owner: root
     group: wheel
     mode: 0400
-  with_items:
+  loop:
     - { src: /Users/esteele/Code/local_setup-scripts/ansible/roles/nginx_wordspeak.org/files/etc_letsencrypt_wordspeak.org_acme-staging-privkey.pem,
        dest: wordspeak.org/acme-staging-privkey.pem }
     - { src: /Users/esteele/Code/local_setup-scripts/ansible/roles/nginx_wordspeak.org/files/etc_letsencrypt_wordspeak.org_acme-v01-privkey.pem,
@@ -63,7 +63,7 @@
     owner: esteele
     group: esteele
     mode: 0755
-  with_items:
+  loop:
     - staging.wordspeak.org
     - www.wordspeak.org
     - language-explorer.wordspeak.org

@@ -6,7 +6,7 @@
     owner: root
     group: wheel
     mode: 0640
-  with_items: "{{ interface_definitions }}"
+  loop: "{{ interface_definitions }}"
   register: interface_management
 
 # This cannot be a handler because we need newly added interfaces to be

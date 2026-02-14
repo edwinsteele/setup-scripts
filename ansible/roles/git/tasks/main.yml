@@ -18,7 +18,7 @@
     group: esteele
     mode: 0644
 
-  with_items:
+  loop:
     - { section: user, option: email, value: edwin@wordspeak.org }
     - { section: user, option: name, value: Edwin Steele }
     - { section: core, option: editor, value: /usr/local/bin/vim }

@@ -25,7 +25,7 @@
     owner: root
     group: wheel
     mode: "{{ item.mode }}"
-  with_items:
+  loop:
     - { dir: "/var/www/letsencrypt", mode: "0755" }
     - { dir: "/etc/letsencrypt", mode: "0700" }
       #    - { dir: "/etc/letsencrypt/private", mode: "0700" }

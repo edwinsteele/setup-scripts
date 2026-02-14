@@ -13,7 +13,7 @@
     owner: root
     group: wheel
     mode: "{{ item.mode }}"
-  with_items:
+  loop:
     - { dir: "/etc/ssl/frugalfuel.com", mode: "0755" }
     - { dir: "/etc/ssl/private/frugalfuel.com", mode: "0700" }
     - { dir: "/etc/letsencrypt/frugalfuel.com", mode: "0700" }
@@ -29,7 +29,7 @@
     owner: root
     group: wheel
     mode: 0444
-  with_items:
+  loop:
     - { src: /Users/esteele/Code/local_setup-scripts/ansible/roles/nginx_frugalfuel.com/files/etc_ssl_frugalfuel.com_cert.pem,
         dest: frugalfuel.com/cert.pem }
     - { src: /Users/esteele/Code/local_setup-scripts/ansible/roles/nginx_frugalfuel.com/files/etc_ssl_frugalfuel.com_fullchain.pem,
@@ -51,7 +51,7 @@
     owner: frugalfuel
     group: frugalfuel
     mode: 0755
-  with_items:
+  loop:
     - www.frugalfuel.com
 
 - name: copy letsencrypt config snippet
