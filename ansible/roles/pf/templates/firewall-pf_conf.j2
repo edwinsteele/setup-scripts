@@ -3,6 +3,10 @@
 int_if = "{{ internal_physical_interface }}"
 ext_if = "{{ external_physical_interface }}"
 
+# IKED
+rw_pool  = "10.20.0.0/24"
+home_lan = "192.168.20.0/24"
+
 icmp_types = "{ echoreq, unreach }"
 # table containing all IP addresses assigned to the firewall
 table <firewall> const { self }
@@ -48,6 +52,18 @@ pass out on $ext_if proto { tcp udp icmp } all modulate state
 
 pass in on $ext_if proto tcp to ($ext_if) port ssh modulate state
 pass in on $ext_if inet proto icmp icmp-type $icmp_types
+
+# Allow outbound IKEv2 / NAT-T
+pass out on $ext_if proto udp to any port { 500, 4500 } keep state
+
+# IPsec decrypted/encrypted traffic
+pass on enc0
+
+# Allow roaming VPN clients to reach home LAN
+pass in  on enc0 from $rw_pool to $home_lan
+pass out on $int_if from $rw_pool to $home_lan
+pass in  on $int_if from $home_lan to $rw_pool
+pass out on enc0 from $home_lan to $rw_pool
 
 # NAT outbound packets
 match out on $ext_if from $int_if:network to any nat-to ($ext_if)

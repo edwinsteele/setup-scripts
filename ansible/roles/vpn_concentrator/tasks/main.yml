@@ -22,15 +22,6 @@
 #  ikectl ca vpn certificate vpn.wordspeak.org create
 #  ikectl ca vpn certificate vpn.wordspeak.org install
 
-- name: Lock down CA area
-  file:
-    state: directory
-    path: /etc/iked/ca
-    owner: root
-    group: wheel
-    recurse: true
-    mode: g-rwx,o-rwx
-
 - name: Enable and start iked
   service:
     name: iked

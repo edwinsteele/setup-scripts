@@ -1,0 +1,13 @@
+---
+- name: Copy iked.conf
+  copy:
+    src: iked.conf
+    dest: /etc/iked.conf
+    mode: 0600
+
+- name: Enable and start iked
+  service:
+    name: iked
+    state: started
+    enabled: yes
+
