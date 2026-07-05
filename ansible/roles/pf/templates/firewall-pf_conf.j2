@@ -8,13 +8,11 @@ rw_pool  = "10.20.0.0/24"
 home_lan = "192.168.20.0/24"
 
 icmp_types = "{ echoreq, unreach }"
-# table containing all IP addresses assigned to the firewall
-table <firewall> const { self }
 
 # don't filter on the loopback interface
 set skip on lo0
 
-# Queues. NBN plan has 20Mb/sec up. Let's cap at 18500Kb/sec (92% of 20M)
+# Queues. NBN plan has 50Mb/sec up. Let's cap at 46000Kb/sec (92% of 50M)
 #  (per Mike Belophuov's 90-95% recommendation)
 #  https://www.reddit.com/r/openbsd/comments/75ps6h/fqcodel_and_pf/doca4uv/
 queue ext on $ext_if bandwidth 46000K
@@ -23,7 +21,7 @@ queue ext_dns parent ext bandwidth 100K min 50K
 queue ext_pri parent ext bandwidth 100K min 50K
 queue ext_def parent ext bandwidth 45800K max 45800K flows 1024 qlimit 1024 default
 
-# Effective queueing for downloading. 92% of 100M = 92M
+# Effective queueing for downloading. 92% of 500M = 460M
 queue inbound on $int_if bandwidth 460M max 460M flows 1024 qlimit 1024 default
 
 # scrub incoming packets

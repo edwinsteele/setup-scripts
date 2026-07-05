@@ -1,5 +1,6 @@
 *.pyc
 *.vagrant
+.claude
 *.swp
 *.retry
 .DS_Store
