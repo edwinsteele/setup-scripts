@@ -18,8 +18,8 @@ set skip on lo0
 queue ext on $ext_if bandwidth 46000K
 queue ext_dns parent ext bandwidth 100K min 50K
 # Low-delay ToS (ACKs and interactive SSH)
-queue ext_pri parent ext bandwidth 100K min 50K
-queue ext_def parent ext bandwidth 45800K max 45800K flows 1024 qlimit 1024 default
+queue ext_pri parent ext bandwidth 3M min 1M
+queue ext_def parent ext bandwidth 42800K max 42800K flows 1024 qlimit 1024 default
 
 # Effective queueing for downloading. 92% of 500M = 460M
 queue inbound on $int_if bandwidth 460M max 460M flows 1024 qlimit 1024 default
