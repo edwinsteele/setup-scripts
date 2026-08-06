@@ -1,5 +1,5 @@
 ---
-python_package: python%3.12
+python_package: python-3.12.13
 python_pip_package: py3-pip
 python_virtualenv_package: py3-virtualenv
 ansible_python_interpreter: /usr/local/bin/python3.12

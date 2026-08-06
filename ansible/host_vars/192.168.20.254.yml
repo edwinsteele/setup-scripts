@@ -1,9 +1,9 @@
 ---
 interface_definitions:
-  - "hostname.em0"
-  - "hostname.em1"
-external_physical_interface: "em0"
-internal_physical_interface: "em1"
+  - "hostname.igc0"
+  - "hostname.igc1"
+external_physical_interface: "igc0"
+internal_physical_interface: "igc1"
 # Ugly, but allows testing against virtualbox
 # Always assumes /24, which is ok for the moment
 dhcpd_serving_subnet: "192.168.20"
