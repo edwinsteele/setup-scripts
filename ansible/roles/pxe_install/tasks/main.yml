@@ -1,0 +1,108 @@
+---
+# Temporary TFTP/HTTP netboot service for one-off OpenBSD PXE reimages.
+# pxe_install_enabled is a single on/off switch: flipping it back to false
+# (the default) is a full teardown, not a pause - see the "disable" block
+# below.
+
+- name: Ensure tftp root exists
+  file:
+    path: "{{ pxe_install_tftp_root }}"
+    state: directory
+    owner: root
+    group: wheel
+    mode: 0755
+  when: pxe_install_enabled
+
+- name: Fetch pxeboot/bsd/bsd.rd from the OpenBSD mirror
+  get_url:
+    url: "{{ pxe_install_mirror }}/{{ pxe_install_openbsd_version }}/{{ pxe_install_openbsd_arch }}/{{ item }}"
+    dest: "{{ pxe_install_tftp_root }}/{{ item }}"
+    owner: root
+    group: wheel
+    mode: 0644
+  loop:
+    - pxeboot
+    - bsd
+    - bsd.rd
+  when: pxe_install_enabled
+
+# On netboot, OpenBSD only triggers unattended autoinstall/autoupgrade when
+# the DHCP `filename` matches one of these two exact names (autoinstall(8)).
+- name: Symlink bsd.rd to the autoinstall/autoupgrade trigger names
+  file:
+    src: "{{ pxe_install_tftp_root }}/bsd.rd"
+    dest: "{{ pxe_install_tftp_root }}/{{ item }}"
+    state: link
+  loop:
+    - auto_install
+    - auto_upgrade
+  when: pxe_install_enabled
+
+- name: Template install.conf answer file
+  template:
+    src: install_conf.j2
+    dest: /var/www/htdocs/install.conf
+    owner: root
+    group: wheel
+    mode: 0644
+  when: pxe_install_enabled
+
+- name: Template httpd.conf
+  template:
+    src: httpd_conf.j2
+    dest: /etc/httpd.conf
+    owner: root
+    group: wheel
+    mode: 0644
+    validate: "httpd -n -f %s"
+  when: pxe_install_enabled
+
+- name: Enable and start httpd
+  service:
+    name: httpd
+    state: started
+    enabled: yes
+  when: pxe_install_enabled
+
+- name: Enable and start tftpd
+  service:
+    name: tftpd
+    state: started
+    enabled: yes
+    arguments: "-l {{ pxe_install_listen_ip }} {{ pxe_install_tftp_root }}"
+  when: pxe_install_enabled
+
+# Full teardown: stop/disable both daemons and remove every file this role
+# ever wrote, including the fetched boot images and the templated
+# install.conf (which carries a bcrypt root password hash).
+- name: Stop and disable tftpd
+  service:
+    name: tftpd
+    state: stopped
+    enabled: no
+  when: not pxe_install_enabled
+
+- name: Stop and disable httpd
+  service:
+    name: httpd
+    state: stopped
+    enabled: no
+  when: not pxe_install_enabled
+
+- name: Remove httpd.conf
+  file:
+    path: /etc/httpd.conf
+    state: absent
+  when: not pxe_install_enabled
+
+- name: Remove install.conf
+  file:
+    path: /var/www/htdocs/install.conf
+    state: absent
+  when: not pxe_install_enabled
+
+- name: Remove tftp root and all fetched boot files
+  file:
+    path: "{{ pxe_install_tftp_root }}"
+    state: absent
+  when: not pxe_install_enabled

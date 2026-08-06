@@ -1,0 +1,19 @@
+---
+pxe_install_enabled: false
+
+pxe_install_openbsd_version: "7.8"
+pxe_install_openbsd_arch: "amd64"
+pxe_install_mirror: "https://cdn.openbsd.org/pub/OpenBSD"
+
+pxe_install_tftp_root: /tftpboot
+pxe_install_listen_ip: "{{ unbound_listening_ips }}"
+
+# install.conf answer-file prompts. Re-verify exact prompt wording against a
+# real interactive OpenBSD {{ pxe_install_openbsd_version }} install before
+# relying on this for an unattended run - prompt text drifts between
+# releases. pxe_install_root_password_hash and pxe_install_root_ssh_pubkey
+# are expected to come from the private vars file, not be set here.
+pxe_install_hostname: "old-firewall"
+pxe_install_timezone: "Australia/Sydney"
+pxe_install_root_password_hash: ""
+pxe_install_root_ssh_pubkey: ""
