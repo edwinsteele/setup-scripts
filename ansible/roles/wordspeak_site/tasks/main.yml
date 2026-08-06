@@ -22,4 +22,4 @@
     dump: "1"
     passno: "2"
     state: present
-  when: "'amazon' in ansible_facts['product_version']"
+  when: "'amazon' in ansible_facts.get('product_version', '')"
