@@ -25,4 +25,4 @@ done
 mv $new_ads_conf /var/unbound/etc/unbound-adhosts.conf
 # This has exit code 1 under normal circumstances, but that's ok given
 #  cron will yell at us only if something is printed on stdout
-rcctl restart unbound | grep -v '(ok)$'
+rcctl restart -f unbound | grep -v '(ok)$'
