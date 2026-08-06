@@ -46,21 +46,21 @@
   lineinfile:
     path: /etc/hosts
     regexp: '^127.0.0.1'
-    line: '127.0.0.1 localhost {{ ansible_fqdn }} {{ ansible_hostname }}'
+    line: '127.0.0.1 localhost {{ ansible_facts["fqdn"] }} {{ ansible_facts["hostname"] }}'
 
 - name: Create swap space as /home/swapfile
   command: dd if=/dev/zero of=/home/swapfile bs=1024 count=1000000
-  when: ansible_swaptotal_mb < 950
+  when: ansible_facts["swaptotal_mb"] < 950
 
 - name: Set permissions on swapfile
   file:
     path: /home/swapfile
     mode: 0600
-  when: ansible_swaptotal_mb < 950
+  when: ansible_facts["swaptotal_mb"] < 950
 
 - name: Enable swap on /home/swapfile
   command: swapctl -a /home/swapfile
-  when: ansible_swaptotal_mb < 950
+  when: ansible_facts["swaptotal_mb"] < 950
 
 - name: Add swapfile to fstab
   lineinfile:
@@ -68,7 +68,7 @@
     regexp: "swapfile"
     line: "/home/swapfile /home/swapfile swap sw 0 0"
     state: present
-  when: ansible_swaptotal_mb < 950
+  when: ansible_facts["swaptotal_mb"] < 950
 
 - name: Install standard packages
   openbsd_pkg:
