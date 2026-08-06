@@ -6,6 +6,8 @@
   become: True
   become_method: doas
   become_user: root
+  vars:
+    ansible_doas_allow_pipelining: true  # safe: doas.conf grants nopass to :wheel for root
 
 - name: Setup git variables for esteele
   ini_file:

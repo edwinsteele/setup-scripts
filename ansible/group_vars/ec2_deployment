@@ -3,3 +3,4 @@ ansible_ssh_user: ec2-user
 ansible_become_method: doas
 ansible_become: true
 ansible_become_user: root
+ansible_doas_allow_pipelining: true  # safe: doas.conf grants nopass to :wheel for root
