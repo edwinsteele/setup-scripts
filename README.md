@@ -54,7 +54,7 @@ the account that you'll be using for provisioning (root), or that you provide
 a different key to ansible with `--private-key=PRIVATE_KEY_FILE`
 
 ## General pre-work
-1. `workon ansible`  (the virtualenv should already exist from previous work)
+1. `brew install ansible` (if not already installed)
 1. `cd ~/Code/setup-scripts/ansible`
 1. Replace the host in `hosts` with the IP address of the newly provisioned
    host, placing it in the group section that corresponds to the `--limit`
