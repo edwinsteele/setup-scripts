@@ -57,6 +57,33 @@ wouldn't give them. Bluetooth/BLE integrations (Xiaomi BLE, iBeacon
 Tracker) were intentionally left out of scope here - `viking`'s APU3 board
 has no Bluetooth radio, and there's no USB BT passthrough in this role.
 
+## Restoring a backup from a previous install
+
+Home Assistant's onboarding wizard offers an "Upload backup" step, but its
+upload endpoint caps the request body well below the size of a real
+backup (hit a hard "16777216 bytes exceeded" error restoring a 36MB
+backup here) - and it's upload-only, it doesn't detect files already
+present locally. The reliable path: click through onboarding *without*
+restoring (a throwaway first-run user is fine, you're about to overwrite
+it), then use the authenticated `Settings > System > Backups` page
+instead, which manages the `backups/` directory directly. You can drop
+the backup file straight into `{{ home_assistant_config_path }}/backups/`
+over SSH first (`scp` + `sudo mv`) so it's already there when you get to
+that page.
+
+**If you do copy/move a file into the config directory from outside the
+container**, and Home Assistant/the Backups page doesn't seem to see it:
+check `ls -Z` on it vs. its siblings. A same-filesystem `mv` preserves the
+*source's* SELinux label (e.g. `user_tmp_t` from wherever it was `scp`'d
+to) rather than adopting the destination directory's - it won't match the
+private `container_file_t:s0:cXXX,cYYY` category Podman's `:Z` flag
+assigned this container, and the container will silently fail to see the
+file (a denial, not a missing-file error, but it looks identical from
+Home Assistant's side). `sudo systemctl restart home-assistant` fixes it
+- Podman re-walks and relabels the whole bind-mounted tree on every
+start - or `sudo restorecon -Rv <path>` / `sudo chcon -t container_file_t
+<path>` for a targeted fix without restarting.
+
 ## Updating Home Assistant
 
 `home_assistant_image` defaults to the `:stable` tag for a friendly first
