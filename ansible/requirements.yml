@@ -3,7 +3,9 @@ collections:
   # Provides openbsd_pkg, ini_file, and the doas become plugin, all used
   #  across roles/common, roles/git, roles/nginx_base, and become_method:
   #  community.general.doas in site.yml. Also provides sefcontext, used by
-  #  roles/samba_timemachine to label the Time Machine share samba_share_t.
+  #  roles/samba_timemachine to label the Time Machine share samba_share_t,
+  #  and git_config, used by roles/home_assistant to set a local git
+  #  identity for the config repo's autosnapshot commits.
   - name: community.general
     version: ">=8.0.0"
   # Provides authorized_key (roles/common, roles/esteele_acct,

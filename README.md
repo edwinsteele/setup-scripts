@@ -56,3 +56,8 @@ for reimaging a piece of hardware (e.g. old firewall) via netboot.
 
 See [ansible/roles/samba_timemachine/README.md](ansible/roles/samba_timemachine/README.md)
 for the reimaged APU3 hardware, now a Rocky Linux Time Machine target.
+
+## viking: Home Assistant
+
+See [ansible/roles/home_assistant/README.md](ansible/roles/home_assistant/README.md)
+for Home Assistant Container, running alongside Samba on the same box.

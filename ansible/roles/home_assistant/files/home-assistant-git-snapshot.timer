@@ -1,0 +1,10 @@
+# Managed by ansible - roles/home_assistant
+[Unit]
+Description=Nightly snapshot of Home Assistant config into git
+
+[Timer]
+OnCalendar=*-*-* 03:30:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

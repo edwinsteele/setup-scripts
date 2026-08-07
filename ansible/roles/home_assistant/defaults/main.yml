@@ -1,0 +1,10 @@
+---
+# Home Assistant Container's official image - see
+# https://www.home-assistant.io/installation/linux#install-home-assistant-container
+# ":stable" is friendliest for a first apply; pinning to a specific version
+# (e.g. "2025.12.0") is the recommended pattern once this is running, so an
+# upgrade is a deliberate git commit rather than whatever ships next.
+home_assistant_image: docker.io/homeassistant/home-assistant:stable
+home_assistant_config_path: /srv/homeassistant/config
+# Matches pxe_install_timezone and the OpenBSD common role's Sydney default.
+home_assistant_timezone: Australia/Sydney

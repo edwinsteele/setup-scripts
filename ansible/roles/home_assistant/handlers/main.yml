@@ -1,0 +1,6 @@
+---
+- name: Restart Home Assistant
+  ansible.builtin.systemd:
+    daemon_reload: true
+    name: home-assistant.service
+    state: restarted

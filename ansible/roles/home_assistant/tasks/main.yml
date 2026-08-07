@@ -1,0 +1,114 @@
+---
+- name: Install podman
+  ansible.builtin.dnf:
+    name: podman
+    state: present
+  become: true
+
+- name: Create Home Assistant config directory
+  ansible.builtin.file:
+    path: "{{ home_assistant_config_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  become: true
+
+# Runs as root, same as the container itself (see the Quadlet unit below) -
+# every file HA writes into this directory is root-owned, so hand edits
+# and any ad-hoc git commands need `sudo` (frictionless: esteele already
+# has passwordless wheel sudo from roles/common's RedHat branch).
+- name: Initialise git repo for the Home Assistant config directory
+  ansible.builtin.command: git init
+  args:
+    chdir: "{{ home_assistant_config_path }}"
+    creates: "{{ home_assistant_config_path }}/.git"
+  become: true
+
+- name: Configure git identity for the Home Assistant config repo
+  community.general.git_config:
+    repo: "{{ home_assistant_config_path }}"
+    scope: local
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+  become: true
+  loop:
+    - { name: user.name, value: "Home Assistant autosnapshot" }
+    # Deliberately not ansible_facts['fqdn'] - this becomes the commit
+    #  author on every autosnapshot forever, and shouldn't depend on
+    #  whatever domain the box's FQDN happens to resolve to today.
+    - { name: user.email, value: "homeassistant-autosnapshot@viking.invalid" }
+
+- name: Template .gitignore for the Home Assistant config repo
+  ansible.builtin.copy:
+    src: gitignore
+    dest: "{{ home_assistant_config_path }}/.gitignore"
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+
+- name: Seed a baseline configuration.yaml (first run only, never overwritten)
+  ansible.builtin.template:
+    src: configuration.yaml.j2
+    dest: "{{ home_assistant_config_path }}/configuration.yaml"
+    owner: root
+    group: root
+    mode: 0644
+    force: false
+  become: true
+
+- name: Open firewalld port for the Home Assistant web UI
+  ansible.posix.firewalld:
+    port: 8123/tcp
+    permanent: true
+    immediate: true
+    state: enabled
+  become: true
+
+- name: Template Home Assistant Quadlet unit
+  ansible.builtin.template:
+    src: home-assistant.container.j2
+    dest: /etc/containers/systemd/home-assistant.container
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+  notify: Restart Home Assistant
+
+- name: Reload systemd, enable and start Home Assistant
+  ansible.builtin.systemd:
+    daemon_reload: true
+    name: home-assistant.service
+    state: started
+    enabled: true
+  become: true
+
+- name: Template the git-snapshot script
+  ansible.builtin.template:
+    src: home-assistant-git-snapshot.sh.j2
+    dest: /usr/local/bin/home-assistant-git-snapshot.sh
+    owner: root
+    group: root
+    mode: 0755
+  become: true
+
+- name: Install the git-snapshot systemd service and timer
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/etc/systemd/system/{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+  loop:
+    - home-assistant-git-snapshot.service
+    - home-assistant-git-snapshot.timer
+
+- name: Reload systemd, enable and start the git-snapshot timer
+  ansible.builtin.systemd:
+    daemon_reload: true
+    name: home-assistant-git-snapshot.timer
+    state: started
+    enabled: true
+  become: true

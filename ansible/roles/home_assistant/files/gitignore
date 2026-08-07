@@ -1,0 +1,19 @@
+# Managed by ansible - roles/home_assistant
+# UI-managed runtime state - not hand-edited, and not usefully diffable
+# (JSON blobs, and some of it holds plaintext integration credentials).
+# Recovered via Home Assistant's own Backup feature instead of git
+# history - see the role README for why this is excluded rather than
+# tracked-and-encrypted.
+.storage/
+.cloud/
+
+# Referenced via !secret in the tracked YAML - kept out of git entirely.
+secrets.yaml
+
+*.log
+*.log.*
+*.db
+*.db-*
+deps/
+tts/
+image/

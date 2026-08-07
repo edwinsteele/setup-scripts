@@ -45,6 +45,7 @@
     - common
     - esteele_acct
     - samba_timemachine
+    - home_assistant
 
 - hosts: rocky_9
   remote_user: esteele

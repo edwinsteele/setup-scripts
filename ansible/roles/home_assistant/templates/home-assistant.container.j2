@@ -1,0 +1,30 @@
+# Managed by ansible - roles/home_assistant
+# Quadlet unit - podman-system-generator turns this into
+# home-assistant.service on `systemctl daemon-reload` (podman >=4.4, ships
+# in the base "podman" package on current Rocky 9, no separate package).
+[Unit]
+Description=Home Assistant
+Wants=network-online.target
+After=network-online.target
+
+[Container]
+Image={{ home_assistant_image }}
+ContainerName=home-assistant
+# Host networking, not a published port - mDNS/discovery (HomeKit Bridge,
+# Apple TV, Google Cast, etc.) needs to see the real LAN, which a bridged
+# network namespace won't give it.
+Network=host
+Volume={{ home_assistant_config_path }}:/config:Z
+Environment=TZ={{ home_assistant_timezone }}
+
+[Service]
+# Not "on-failure" - Home Assistant's own restart trigger (used by
+# Settings > Restart, updates, and backup restores) just exits the
+# process cleanly (code 0), which "on-failure" wouldn't consider worth
+# restarting for. "always" is what actually brings it back up in that
+# case, not just after a crash.
+Restart=always
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target

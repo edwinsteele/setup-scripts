@@ -1,0 +1,10 @@
+#!/bin/sh
+# Managed by ansible - roles/home_assistant
+# Captures UI-driven drift (new automations, renamed devices, tweaked
+# scripts/scenes) into git history. .storage/ is excluded (see
+# .gitignore) - that layer's recovery path is Home Assistant's own Backup
+# feature (Settings > System > Backups), not this script.
+set -eu
+cd "{{ home_assistant_config_path }}"
+git add -A
+git diff --cached --quiet || git commit --quiet -m "autosnapshot $(date -Is)"
