@@ -39,6 +39,9 @@
   become_user: frugalfuel
 
 - hosts: firewalls
+  become: yes
+  become_method: doas
+  become_user: root
   roles:
     - { role: firewall, tags: firewall }
     - { role: vpn_client, tags: vpn_client }
