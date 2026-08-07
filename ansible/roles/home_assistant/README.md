@@ -71,19 +71,6 @@ the backup file straight into `{{ home_assistant_config_path }}/backups/`
 over SSH first (`scp` + `sudo mv`) so it's already there when you get to
 that page.
 
-**If you do copy/move a file into the config directory from outside the
-container**, and Home Assistant/the Backups page doesn't seem to see it:
-check `ls -Z` on it vs. its siblings. A same-filesystem `mv` preserves the
-*source's* SELinux label (e.g. `user_tmp_t` from wherever it was `scp`'d
-to) rather than adopting the destination directory's - it won't match the
-private `container_file_t:s0:cXXX,cYYY` category Podman's `:Z` flag
-assigned this container, and the container will silently fail to see the
-file (a denial, not a missing-file error, but it looks identical from
-Home Assistant's side). `sudo systemctl restart home-assistant` fixes it
-- Podman re-walks and relabels the whole bind-mounted tree on every
-start - or `sudo restorecon -Rv <path>` / `sudo chcon -t container_file_t
-<path>` for a targeted fix without restarting.
-
 ## Updating Home Assistant
 
 `home_assistant_image` defaults to the `:stable` tag for a friendly first
