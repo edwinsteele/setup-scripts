@@ -1,13 +1,13 @@
 ---
 - name: Copy iked.conf
-  copy:
+  ansible.builtin.copy:
     src: iked.conf
     dest: /etc/iked.conf
     mode: 0600
 
 - name: Enable and start iked
-  service:
+  ansible.builtin.service:
     name: iked
     state: started
-    enabled: yes
+    enabled: true
 

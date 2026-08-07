@@ -5,7 +5,7 @@
 # below.
 
 - name: Ensure tftp root exists
-  file:
+  ansible.builtin.file:
     path: "{{ pxe_install_tftp_root }}"
     state: directory
     owner: root
@@ -14,7 +14,7 @@
   when: pxe_install_enabled
 
 - name: Fetch vmlinuz/initrd.img from the Rocky mirror
-  get_url:
+  ansible.builtin.get_url:
     url: "{{ pxe_install_mirror }}/images/pxeboot/{{ item }}"
     dest: "{{ pxe_install_tftp_root }}/{{ item }}"
     owner: root
@@ -31,7 +31,7 @@
 # host rather than us pre-staging a pxelinux/syslinux chain, which needs no
 # extra bootloader binaries on this OpenBSD box.
 - name: Template iPXE boot script
-  template:
+  ansible.builtin.template:
     src: boot_ipxe.j2
     dest: "{{ pxe_install_tftp_root }}/{{ pxe_install_boot_script_name }}"
     owner: root
@@ -40,7 +40,7 @@
   when: pxe_install_enabled
 
 - name: Template kickstart answer file
-  template:
+  ansible.builtin.template:
     src: ks_cfg.j2
     dest: /var/www/htdocs/ks.cfg
     owner: root
@@ -49,7 +49,7 @@
   when: pxe_install_enabled
 
 - name: Template httpd.conf
-  template:
+  ansible.builtin.template:
     src: httpd_conf.j2
     dest: /etc/httpd.conf
     owner: root
@@ -59,17 +59,17 @@
   when: pxe_install_enabled
 
 - name: Enable and start httpd
-  service:
+  ansible.builtin.service:
     name: httpd
     state: started
-    enabled: yes
+    enabled: true
   when: pxe_install_enabled
 
 - name: Enable and start tftpd
-  service:
+  ansible.builtin.service:
     name: tftpd
     state: started
-    enabled: yes
+    enabled: true
     arguments: "-l {{ pxe_install_listen_ip }} {{ pxe_install_tftp_root }}"
   when: pxe_install_enabled
 
@@ -77,33 +77,33 @@
 # ever wrote, including the fetched boot images and the templated
 # kickstart file (which carries a SHA-512 crypt root password hash).
 - name: Stop and disable tftpd
-  service:
+  ansible.builtin.service:
     name: tftpd
     state: stopped
-    enabled: no
+    enabled: false
   when: not pxe_install_enabled
 
 - name: Stop and disable httpd
-  service:
+  ansible.builtin.service:
     name: httpd
     state: stopped
-    enabled: no
+    enabled: false
   when: not pxe_install_enabled
 
 - name: Remove httpd.conf
-  file:
+  ansible.builtin.file:
     path: /etc/httpd.conf
     state: absent
   when: not pxe_install_enabled
 
 - name: Remove kickstart file
-  file:
+  ansible.builtin.file:
     path: /var/www/htdocs/ks.cfg
     state: absent
   when: not pxe_install_enabled
 
 - name: Remove tftp root and all fetched boot files
-  file:
+  ansible.builtin.file:
     path: "{{ pxe_install_tftp_root }}"
     state: absent
   when: not pxe_install_enabled

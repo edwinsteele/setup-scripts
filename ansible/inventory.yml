@@ -1,0 +1,18 @@
+---
+all:
+  children:
+    openbsd_78:
+      hosts:
+        45.77.238.164: {}
+        192.168.20.254: {}
+        gateway.wordspeak.org: {}
+    firewalls:
+      hosts:
+        192.168.20.254: {}
+        gateway.wordspeak.org: {}
+    wordspeak:
+      hosts:
+        45.77.238.164: {}
+    webservers:
+      hosts:
+        45.77.238.164: {}

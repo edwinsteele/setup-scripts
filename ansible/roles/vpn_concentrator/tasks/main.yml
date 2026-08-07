@@ -1,14 +1,14 @@
 ---
 - name: Enable ipv4 ip forwarding
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: /etc/sysctl.conf
     state: present
-    create: yes
+    create: true
     line: "net.inet.ip.forwarding=1"
   notify: Enable ipv4 forwarding now via sysctl
 
 - name: Copy iked.conf
-  copy:
+  ansible.builtin.copy:
     src: iked.conf
     dest: /etc/iked.conf
     mode: 0600
@@ -23,8 +23,8 @@
 #  ikectl ca vpn certificate vpn.wordspeak.org install
 
 - name: Enable and start iked
-  service:
+  ansible.builtin.service:
     name: iked
     state: started
-    enabled: yes
+    enabled: true
 

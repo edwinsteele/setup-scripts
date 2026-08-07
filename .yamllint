@@ -1,0 +1,22 @@
+---
+extends: default
+
+rules:
+  # Task files embed things like SSH public keys and long mirror URLs on a
+  # single line - genuine data, not a readability problem worth wrapping.
+  line-length: disable
+  truthy:
+    allowed-values: ["true", "false"]
+  # This repo's established style pads flow mappings, e.g.
+  # `{ dir: "...", mode: "..." }` in loop items - matches common Ansible
+  # convention.
+  braces:
+    max-spaces-inside: 1
+  # `notify:` lists are indented inconsistently (some at the same level as
+  # the key, some indented further) throughout the existing roles - both
+  # are valid YAML, not worth a repo-wide reformat here.
+  indentation:
+    indent-sequences: whatever
+  comments-indentation: disable
+  empty-lines:
+    max-end: 1

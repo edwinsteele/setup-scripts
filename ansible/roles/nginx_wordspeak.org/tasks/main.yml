@@ -1,6 +1,6 @@
 ---
 - name: Create Let's Encrypt directories
-  file:
+  ansible.builtin.file:
     path: "{{ item.dir }}"
     state: directory
     owner: root
@@ -15,10 +15,10 @@
 #       See acme-client(1) for an example
 
 - name: Copy (likely outdated) wordspeak certs to allow nginx to start
-  copy:
+  ansible.builtin.copy:
     src: "{{ item.src }}"
     dest: "/etc/ssl/{{ item.dest }}"
-    force: no
+    force: false
     owner: root
     group: wheel
     mode: 0444
@@ -31,10 +31,10 @@
         dest: wordspeak.org/chain.pem }
 
 - name: Copy (likely outdated) wordspeak domain privkeys to allow nginx to start
-  copy:
+  ansible.builtin.copy:
     src: "{{ item.src }}"
     dest: "/etc/ssl/private/{{ item.dest }}"
-    force: no
+    force: false
     owner: root
     group: wheel
     mode: 0400
@@ -43,21 +43,21 @@
         dest: wordspeak.org/privkey.pem }
 
 - name: Copy LE account privkeys to allow certificate renewals
-  copy:
+  ansible.builtin.copy:
     src: "{{ item.src }}"
     dest: "/etc/letsencrypt/{{ item.dest }}"
-    force: no
+    force: false
     owner: root
     group: wheel
     mode: 0400
   loop:
     - { src: /Users/esteele/Code/local_setup-scripts/ansible/roles/nginx_wordspeak.org/files/etc_letsencrypt_wordspeak.org_acme-staging-privkey.pem,
-       dest: wordspeak.org/acme-staging-privkey.pem }
+        dest: wordspeak.org/acme-staging-privkey.pem }
     - { src: /Users/esteele/Code/local_setup-scripts/ansible/roles/nginx_wordspeak.org/files/etc_letsencrypt_wordspeak.org_acme-v01-privkey.pem,
         dest: wordspeak.org/acme-v01-privkey.pem }
 
 - name: Setup webserver parent and acme-client challenge directories
-  file:
+  ansible.builtin.file:
     path: "/var/www/htdocs/{{ item }}"
     state: directory
     owner: esteele
@@ -70,7 +70,7 @@
     - images.wordspeak.org
 
 - name: copy wordspeak letsencrypt config
-  copy:
+  ansible.builtin.copy:
     src: etc_acme-client.wordspeak-org.conf
     dest: /etc/acme-client.wordspeak-org.conf
     owner: root
@@ -78,18 +78,18 @@
     mode: 0600
 
 - name: reference wordspeak letsencrypt config in acme-client.conf
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/acme-client.conf
     line: 'include "/etc/acme-client.wordspeak-org.conf"'
 
 - name: Schedule acme-client run via cron
-  cron:
+  ansible.builtin.cron:
     name: Attempt to renew and apply new LE cert
     special_time: weekly
     job: acme-client -v wordspeak.org && rcctl restart nginx
 
 - name: copy wordspeak.org nginx config
-  template:
+  ansible.builtin.template:
     src: wordspeak-org.conf.j2
     dest: /etc/nginx/sites-enabled/wordspeak-org.conf
     owner: root

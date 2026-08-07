@@ -1,6 +1,6 @@
 ---
 - name: Manage interface files
-  template:
+  ansible.builtin.template:
     src: "{{ item }}"
     dest: "/etc/{{ item }}"
     owner: root
@@ -12,11 +12,11 @@
 # This cannot be a handler because we need newly added interfaces to be
 #  present because subsequent tasks will load firewall rules that reference
 #  those interfaces
-- name: Start network  # noqa 503
-  command: sh /etc/netstart
+- name: Start network  # noqa no-handler
+  ansible.builtin.command: sh /etc/netstart
   when: interface_management["changed"]
 
 - name: Setup default gateway (/etc/mygate)
-  template:
+  ansible.builtin.template:
     src: mygate.j2
     dest: /etc/mygate

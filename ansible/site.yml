@@ -1,8 +1,9 @@
 ---
-# Run this without mitogen. See
-#  https://mitogen.networkgenomics.com/ansible_detailed.html#noteworthy-differences
+# A fresh OpenBSD host has no Python interpreter yet, so facts can't be
+#  gathered until the bootstrap role installs one - hence gather_facts:
+#  false and a plain linear strategy for this first play.
 - hosts: all
-  gather_facts: no
+  gather_facts: false
   strategy: linear
   roles:
     - bootstrap
@@ -24,8 +25,8 @@
     - vpn_concentrator
 
 - hosts: firewalls
-  become: yes
-  become_method: doas
+  become: true
+  become_method: community.general.doas
   become_user: root
   roles:
     - { role: firewall, tags: firewall }

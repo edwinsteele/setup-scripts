@@ -1,6 +1,6 @@
 ---
 - name: Allow CI to push staging web assets
-  authorized_key:
+  ansible.posix.authorized_key:
     user: esteele
     state: present
     key_options: command="/usr/bin/openrsync --server -vlogDtpr --delete . /var/www/htdocs/{{ item.site }}/"
@@ -14,7 +14,7 @@
 #  we're in testing). We do set it up in fstab though to make it easy to mount
 #  when we get to it
 - name: Setup /var/www/htdocs mount in fstab (if in AWS)
-  mount:
+  ansible.posix.mount:
     path: /var/www/htdocs
     src: "{{ var_www_htdocs_duid }}.a"
     fstype: ffs

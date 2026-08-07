@@ -1,6 +1,6 @@
 ---
 - name: Create dhcpd.conf
-  template:
+  ansible.builtin.template:
     src: dhcpd_conf.j2
     dest: /etc/dhcpd.conf
     owner: root
@@ -10,23 +10,23 @@
   notify: Restart dhcpd
 
 - name: Enable and start dhcpd
-  service:
+  ansible.builtin.service:
     name: dhcpd
     state: started
-    enabled: yes
+    enabled: true
     arguments: "{{ internal_physical_interface }}"
 
 # unbound-anchor has rc 1 when it has updated the root anchor
 - name: Get root.key for dnssec
-  command: unbound-anchor
+  ansible.builtin.command: unbound-anchor
   args:
     creates: /var/unbound/db/root.key
-  ignore_errors: yes
+  ignore_errors: true
   register: command_call
   changed_when: command_call.rc == 1
 
 - name: Copy unbound local data config snippet
-  template:
+  ansible.builtin.template:
     src: unbound-local-data_conf.j2
     dest: /var/unbound/etc/unbound-local-data.conf
     owner: root
@@ -35,7 +35,7 @@
   notify: Restart unbound
 
 - name: Copy unbound safesearch config
-  copy:
+  ansible.builtin.copy:
     src: unbound-safesearch.conf
     dest: /var/unbound/etc/unbound-safesearch.conf
     owner: root
@@ -44,7 +44,7 @@
   notify: Restart unbound
 
 - name: Copy default ad blocking config
-  copy:
+  ansible.builtin.copy:
     src: unbound-default-adhosts.conf
     dest: /var/unbound/etc/unbound-default-adhosts.conf
     owner: root
@@ -53,13 +53,13 @@
   notify: Restart unbound
 
 - name: Copy script to populate ad blocking config
-  copy:
+  ansible.builtin.copy:
     src: generate_unbound_ads_conf.sh
     dest: /usr/local/bin/generate_unbound_ads_conf.sh
     mode: 0755
 
 - name: Do first-run of ad-blocking script
-  command: /usr/local/bin/generate_unbound_ads_conf.sh
+  ansible.builtin.command: /usr/local/bin/generate_unbound_ads_conf.sh
   args:
     creates: /var/unbound/etc/unbound-adhosts.conf
   notify: Restart unbound
@@ -67,7 +67,7 @@
 # Can't validate with unbound-checkconf unfortunately because the
 # temporary file isn't under chroot
 - name: Create unbound.conf
-  template:
+  ansible.builtin.template:
     src: unbound_conf.j2
     dest: /var/unbound/etc/unbound.conf
     owner: root
@@ -76,22 +76,22 @@
   notify: Restart unbound
 
 - name: Enable and start unbound
-  service:
+  ansible.builtin.service:
     name: unbound
     state: started
-    enabled: yes
+    enabled: true
   notify: Update resolv.conf to use unbound
 
 - name: Enable ipv4 ip forwarding
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: /etc/sysctl.conf
     state: present
-    create: yes
+    create: true
     line: "net.inet.ip.forwarding=1"
   notify: Enable ipv4 forwarding now via sysctl
 
 - name: Schedule daily run of unbound ad-blocking script
-  cron:
+  ansible.builtin.cron:
     name: Regenerate unbound ad-blocking list
     special_time: daily
     job: "/usr/local/bin/generate_unbound_ads_conf.sh"

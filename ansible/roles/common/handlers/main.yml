@@ -1,11 +1,11 @@
 ---
 - name: Restart sshd
-  service:
+  ansible.builtin.service:
     name: sshd
     state: restarted
 
 - name: Reload pf
-  command: pfctl -f /etc/pf.conf
+  ansible.builtin.command: pfctl -f /etc/pf.conf
 
 - name: Rebuild passwd database
-  command: pwd_mkdb /etc/master.passwd
+  ansible.builtin.command: pwd_mkdb /etc/master.passwd

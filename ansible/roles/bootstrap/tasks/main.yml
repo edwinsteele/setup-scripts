@@ -3,45 +3,45 @@
 #  that will fail if DNS is not working. This allows us to proceed under
 #  those circumstances if we have already installed all the packages
 - name: Check if a python that can be used for ansible is installed
-  raw: which {{ ansible_python_interpreter }}
+  ansible.builtin.raw: which {{ ansible_python_interpreter }}
   register: initial_python_interpreter
-  changed_when: False
-  check_mode: no
-  ignore_errors: yes
+  changed_when: false
+  check_mode: false
+  ignore_errors: true
 
 # 6.6 installer sets /etc/installurl, so we will always have a valid
 #  prefix for packages
 - name: Install a python that can be used for ansible
-  raw: pkg_add {{ python_package }}
+  ansible.builtin.raw: pkg_add {{ python_package }}
   when: initial_python_interpreter.stdout.find("not found") != -1
 
 - name: Find python location now that we know it's installed
-  raw: which {{ ansible_python_interpreter }}
+  ansible.builtin.raw: which {{ ansible_python_interpreter }}
   register: installed_python_interpreter
-  changed_when: False
-  check_mode: no
+  changed_when: false
+  check_mode: false
 
 - name: Set python intepreter
-  set_fact:
+  ansible.builtin.set_fact:
     ansible_python_interpreter: "{{ installed_python_interpreter.stdout }}"
 
 - name: Gather facts now that an interpreter is installed
-  setup:
+  ansible.builtin.setup:
 
 # Setup a minimal doas.conf in this bootstrap phase so we can reliably
 #  use ansible become directives at any point in the playbooks
 # Fully quoted because of the ': ' on the line. See the Gotchas section
 #  in Ansible's YAML Syntax page.
 - name: Activate doas and allow wheel users to use doas
-  lineinfile:
+  ansible.builtin.lineinfile:
     line: "permit nopass :wheel"
     dest: /etc/doas.conf
     owner: root
     group: wheel
     mode: 0600
-    create: yes
+    create: true
 
 - name: Apply patches with syspatch (first time only)
-  command: /usr/sbin/syspatch
+  ansible.builtin.command: /usr/sbin/syspatch
   when: initial_python_interpreter.stdout.find("not found") != -1
   notify: reboot

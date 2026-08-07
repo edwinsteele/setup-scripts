@@ -1,5 +1,5 @@
 ---
 - name: Reload smtpd
-  service:
+  ansible.builtin.service:
     name: smtpd
     state: restarted

@@ -1,0 +1,12 @@
+---
+collections:
+  # Provides openbsd_pkg, ini_file, and the doas become plugin, all used
+  #  across roles/common, roles/git, roles/nginx_base, and become_method:
+  #  community.general.doas in site.yml.
+  - name: community.general
+    version: ">=8.0.0"
+  # Provides authorized_key (roles/common, roles/esteele_acct,
+  #  roles/wordspeak_site) and mount (roles/wordspeak_site) - both moved
+  #  out of ansible-core into this collection.
+  - name: ansible.posix
+    version: ">=1.5.0"

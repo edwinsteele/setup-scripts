@@ -23,10 +23,13 @@ a different key to ansible with `--private-key=PRIVATE_KEY_FILE`
 ## General pre-work
 1. `brew install ansible` (if not already installed)
 1. `cd ~/Code/setup-scripts/ansible`
-1. Replace the host in `inventory` with the IP address of the newly provisioned
+1. `ansible-galaxy collection install -r requirements.yml` (installs
+   `community.general`, needed for `openbsd_pkg`/`ini_file`/the `doas`
+   become plugin)
+1. Replace the host in `inventory.yml` with the IP address of the newly provisioned
    host, placing it in the group section that corresponds to the `--limit`
    argument used in the `ansible-playbook` commands for the appropriate type of VM install
-   e.g. `ansible-playbook -u root -i inventory site.yml --limit=192.168.20.254`
+   e.g. `ansible-playbook -u root -i inventory.yml site.yml --limit=192.168.20.254`
 
 ## Performing non-OS setup
 
@@ -35,7 +38,7 @@ have a python interpreter, which is the first step in the common playbook.
 
 In the `ansible` directory at the same level as this `README.md` file run:
 
-`ansible-playbook -u root -i inventory --limit <limit-criteria> site.yml`
+`ansible-playbook -u root -i inventory.yml --limit <limit-criteria> site.yml`
 
 Where the limit criteria is something like:
 
@@ -100,7 +103,7 @@ with "Conditionals must have a boolean result".
 
 ```bash
 cd ansible
-ansible-playbook -i inventory site.yml --tags firewall,pxe_install \
+ansible-playbook -i inventory.yml site.yml --tags firewall,pxe_install \
   -e '{"pxe_install_enabled": true}' --limit <gateway-ip>
 ```
 
@@ -115,7 +118,7 @@ gateway's LAN IP only. Verify with `rcctl check tftpd httpd` and
 done, either omit `-e` entirely or pass it explicitly:
 
 ```bash
-ansible-playbook -i inventory site.yml --tags pxe_install \
+ansible-playbook -i inventory.yml site.yml --tags pxe_install \
   -e '{"pxe_install_enabled": false}' --limit <gateway-ip>
 ```
 

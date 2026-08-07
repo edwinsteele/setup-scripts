@@ -1,18 +1,18 @@
 ---
 - name: Restart dhcpd
-  service:
+  ansible.builtin.service:
     name: dhcpd
     state: restarted
 
 - name: Restart unbound
-  service:
+  ansible.builtin.service:
     name: unbound
     state: restarted
 
 # We start using unbound after it has been restarted as we don't
 #  want to break DNS on the host
 - name: Update resolv.conf to use unbound
-  copy:
+  ansible.builtin.copy:
     src: resolv.conf
     dest: /etc/resolv.conf
     owner: root
@@ -20,4 +20,4 @@
     mode: 0644
 
 - name: Enable ipv4 forwarding now via sysctl
-  command: sysctl net.inet.ip.forwarding=1
+  ansible.builtin.command: sysctl net.inet.ip.forwarding=1
