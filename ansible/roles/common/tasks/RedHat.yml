@@ -32,6 +32,14 @@
     mode: 0440
     validate: "visudo -cf %s"
 
+- name: Install standard packages
+  ansible.builtin.dnf:
+    name:
+      - usbutils
+      - flashrom
+      - dmidecode
+    state: present
+
 - name: Enable and start chronyd
   ansible.builtin.service:
     name: chronyd
