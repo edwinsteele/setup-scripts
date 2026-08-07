@@ -38,6 +38,21 @@
     state: started
     enabled: true
 
+# Kickstart's `network --hostname=` only applies at install time - if that
+#  default drifts from the name we actually want (e.g. pxe_install_hostname
+#  said "apu3srv" when this box was reimaged, before it got the "viking"
+#  name), nothing else corrects it, including on reboot. common_hostname
+#  lets a specific host (see host_vars/192.168.20.200.yml) fix that.
+- name: Set system hostname
+  ansible.builtin.hostname:
+    name: "{{ common_hostname }}"
+  when: common_hostname | length > 0
+
+- name: Re-gather hostname/fqdn facts after a hostname change
+  ansible.builtin.setup:
+    filter: ansible_hostname,ansible_fqdn
+  when: common_hostname | length > 0
+
 - name: Setup /etc/hosts with FQDN
   ansible.builtin.lineinfile:
     path: /etc/hosts

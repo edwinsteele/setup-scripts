@@ -1,0 +1,7 @@
+---
+# Only the RedHat branch acts on this - OpenBSD hosts get their hostname
+#  from the autoinstall conf and nothing here manages it for them. Empty
+#  string means "leave whatever the OS already has" (e.g. kickstart's
+#  `network --hostname=`, which may drift from the name we actually want
+#  - see roles/samba_timemachine's viking case).
+common_hostname: ""

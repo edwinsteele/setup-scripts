@@ -20,7 +20,7 @@ pxe_install_boot_script_name: boot.ipxe
 # on this for an unattended run. pxe_install_root_password_hash and
 # pxe_install_root_ssh_pubkey are expected to come from the private vars
 # file, not be set here.
-pxe_install_hostname: "apu3srv"
+pxe_install_hostname: "viking"
 pxe_install_timezone: "Australia/Sydney"
 pxe_install_root_password_hash: ""
 pxe_install_root_ssh_pubkey: ""
