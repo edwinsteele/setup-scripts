@@ -1,19 +1,26 @@
 ---
 pxe_install_enabled: false
 
-pxe_install_openbsd_version: "7.8"
-pxe_install_openbsd_arch: "amd64"
-pxe_install_mirror: "https://cdn.openbsd.org/pub/OpenBSD"
+pxe_install_distro_version: "9"
+pxe_install_arch: "x86_64"
+# Plain HTTP, not HTTPS: the box's iPXE ROM fetches the kernel/initrd itself
+# and embedded iPXE builds don't reliably support TLS. Anaconda (which runs
+# a full Linux network stack once booted) fetches the package set from this
+# same mirror via inst.repo and would be fine with HTTPS, but there's no
+# reason to use two different mirrors, so keep this one HTTP throughout.
+pxe_install_mirror: "http://download.rockylinux.org/pub/rocky/{{ pxe_install_distro_version }}/BaseOS/{{ pxe_install_arch }}/os/"
 
 pxe_install_tftp_root: /tftpboot
 pxe_install_listen_ip: "{{ unbound_listening_ips }}"
+# Matches the DHCP host stanza's `filename` for this box's MAC.
+pxe_install_boot_script_name: boot.ipxe
 
-# install.conf answer-file prompts. Re-verify exact prompt wording against a
-# real interactive OpenBSD {{ pxe_install_openbsd_version }} install before
-# relying on this for an unattended run - prompt text drifts between
-# releases. pxe_install_root_password_hash and pxe_install_root_ssh_pubkey
-# are expected to come from the private vars file, not be set here.
-pxe_install_hostname: "old-firewall"
+# kickstart answer-file values. Re-verify exact directive syntax against a
+# real Rocky {{ pxe_install_distro_version }} kickstart install before relying
+# on this for an unattended run. pxe_install_root_password_hash and
+# pxe_install_root_ssh_pubkey are expected to come from the private vars
+# file, not be set here.
+pxe_install_hostname: "apu3srv"
 pxe_install_timezone: "Australia/Sydney"
 pxe_install_root_password_hash: ""
 pxe_install_root_ssh_pubkey: ""

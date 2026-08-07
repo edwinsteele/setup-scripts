@@ -1,5 +1,5 @@
 ---
-# Temporary TFTP/HTTP netboot service for one-off OpenBSD PXE reimages.
+# Temporary TFTP/HTTP netboot service for one-off Rocky Linux PXE reimages.
 # pxe_install_enabled is a single on/off switch: flipping it back to false
 # (the default) is a full teardown, not a pause - see the "disable" block
 # below.
@@ -13,35 +13,36 @@
     mode: 0755
   when: pxe_install_enabled
 
-- name: Fetch pxeboot/bsd/bsd.rd from the OpenBSD mirror
+- name: Fetch vmlinuz/initrd.img from the Rocky mirror
   get_url:
-    url: "{{ pxe_install_mirror }}/{{ pxe_install_openbsd_version }}/{{ pxe_install_openbsd_arch }}/{{ item }}"
+    url: "{{ pxe_install_mirror }}/images/pxeboot/{{ item }}"
     dest: "{{ pxe_install_tftp_root }}/{{ item }}"
     owner: root
     group: wheel
     mode: 0644
   loop:
-    - pxeboot
-    - bsd
-    - bsd.rd
+    - vmlinuz
+    - initrd.img
   when: pxe_install_enabled
 
-# On netboot, OpenBSD only triggers unattended autoinstall/autoupgrade when
-# the DHCP `filename` matches one of these two exact names (autoinstall(8)).
-- name: Symlink bsd.rd to the autoinstall/autoupgrade trigger names
-  file:
-    src: "{{ pxe_install_tftp_root }}/bsd.rd"
-    dest: "{{ pxe_install_tftp_root }}/{{ item }}"
-    state: link
-  loop:
-    - auto_install
-    - auto_upgrade
-  when: pxe_install_enabled
-
-- name: Template install.conf answer file
+# The box's coreboot+SeaBIOS boot menu offers an iPXE entry per NIC (see
+# plan notes); DHCP `filename` for the reserved MAC should point at this
+# script. iPXE fetches vmlinuz/initrd.img itself over tftp:// from this same
+# host rather than us pre-staging a pxelinux/syslinux chain, which needs no
+# extra bootloader binaries on this OpenBSD box.
+- name: Template iPXE boot script
   template:
-    src: install_conf.j2
-    dest: /var/www/htdocs/install.conf
+    src: boot_ipxe.j2
+    dest: "{{ pxe_install_tftp_root }}/{{ pxe_install_boot_script_name }}"
+    owner: root
+    group: wheel
+    mode: 0644
+  when: pxe_install_enabled
+
+- name: Template kickstart answer file
+  template:
+    src: ks_cfg.j2
+    dest: /var/www/htdocs/ks.cfg
     owner: root
     group: wheel
     mode: 0644
@@ -74,7 +75,7 @@
 
 # Full teardown: stop/disable both daemons and remove every file this role
 # ever wrote, including the fetched boot images and the templated
-# install.conf (which carries a bcrypt root password hash).
+# kickstart file (which carries a SHA-512 crypt root password hash).
 - name: Stop and disable tftpd
   service:
     name: tftpd
@@ -95,9 +96,9 @@
     state: absent
   when: not pxe_install_enabled
 
-- name: Remove install.conf
+- name: Remove kickstart file
   file:
-    path: /var/www/htdocs/install.conf
+    path: /var/www/htdocs/ks.cfg
     state: absent
   when: not pxe_install_enabled
 

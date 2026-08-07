@@ -1,0 +1,4 @@
+#!ipxe
+kernel tftp://{{ pxe_install_listen_ip }}/vmlinuz inst.ks=http://{{ pxe_install_listen_ip }}/ks.cfg inst.repo={{ pxe_install_mirror }} console=ttyS0,115200n8 console=tty0
+initrd tftp://{{ pxe_install_listen_ip }}/initrd.img
+boot

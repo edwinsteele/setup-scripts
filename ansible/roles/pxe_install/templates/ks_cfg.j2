@@ -1,0 +1,28 @@
+#version=RL9
+text
+reboot
+
+url --url="{{ pxe_install_mirror }}"
+
+rootpw --iscrypted {{ pxe_install_root_password_hash }}
+sshkey --username=root "{{ pxe_install_root_ssh_pubkey }}"
+
+network --bootproto=dhcp --hostname={{ pxe_install_hostname }} --activate
+
+timezone {{ pxe_install_timezone }} --utc
+keyboard --xlayouts='us'
+lang en_US.UTF-8
+
+bootloader --append="console=ttyS0,115200n8"
+
+zerombr
+clearpart --all --initlabel
+autopart
+
+%packages
+@^minimal-environment
+%end
+
+%post
+systemctl enable serial-getty@ttyS0.service
+%end
