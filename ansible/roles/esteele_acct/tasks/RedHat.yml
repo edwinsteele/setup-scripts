@@ -1,0 +1,23 @@
+---
+- name: create group - esteele
+  ansible.builtin.group:
+    name: esteele
+    system: false
+
+# password_lock forces key-only login without needing a bogus password
+#  hash - the RedHat-module equivalent of the OpenBSD branch's nerfed
+#  '*************' password.
+- name: create user esteele with locked password
+  ansible.builtin.user:
+    name: esteele
+    group: esteele
+    groups: wheel
+    append: true
+    shell: /bin/bash
+    password_lock: true
+
+# Also takes care of .ssh directory setup
+- name: setup authorised key esteele
+  ansible.posix.authorized_key:
+    user: esteele
+    key: "{{ lookup('file', '/Users/esteele/.ssh/id_external_facing_ed25519.downloaded-from-1password.pub') }}"

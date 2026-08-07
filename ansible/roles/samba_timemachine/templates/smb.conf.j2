@@ -1,0 +1,29 @@
+# Managed by ansible - roles/samba_timemachine
+[global]
+   workgroup = {{ samba_timemachine_workgroup }}
+   netbios name = {{ samba_timemachine_netbios_name }}
+   server string = {{ ansible_facts['hostname'] }} Time Machine server
+   security = user
+   map to guest = never
+   min protocol = SMB2
+   log file = /var/log/samba/log.%m
+   max log size = 1000
+   logging = file
+
+[{{ samba_timemachine_share_name }}]
+   path = {{ samba_timemachine_share_path }}
+   valid users = {{ samba_timemachine_valid_users }}
+   read only = no
+   browseable = yes
+   vfs objects = catia fruit streams_xattr
+   fruit:aapl = yes
+   fruit:time machine = yes
+{% if samba_timemachine_max_size %}
+   fruit:time machine max size = {{ samba_timemachine_max_size }}
+{% endif %}
+   fruit:metadata = stream
+   fruit:model = MacSamba
+   durable handles = yes
+   kernel oplocks = no
+   kernel share modes = no
+   posix locking = no

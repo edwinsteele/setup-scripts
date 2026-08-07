@@ -1,0 +1,24 @@
+---
+- name: create group - esteele
+  ansible.builtin.group:
+    name: esteele
+    gid: 1003
+    system: false
+
+# Users with no passwd set have 13 asterisks in their password
+#  field in master.passwd. If this isn't set, security(8) complains.
+# Ansible thinks this is bogus password, but there doesn't seem to be
+#  a way in 2.7 to provide an (clearly) invalid password
+- name: create user esteele with nerfed password
+  ansible.builtin.user:
+    name: esteele
+    group: esteele
+    groups: wheel,wsrc
+    login_class: staff
+    password: '*************'
+
+# Also takes care of .ssh directory setup
+- name: setup authorised key esteele
+  ansible.posix.authorized_key:
+    user: esteele
+    key: "{{ lookup('file', '/Users/esteele/.ssh/id_external_facing_ed25519.downloaded-from-1password.pub') }}"

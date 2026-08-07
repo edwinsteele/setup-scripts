@@ -1,0 +1,45 @@
+---
+# root's SSH key is already set by the pxe_install kickstart's `sshkey`
+#  directive, so unlike the OpenBSD branch there's no key-setup task here.
+- name: Only allow root login with keys
+  ansible.builtin.lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^#?PermitRootLogin.*"
+    line: "PermitRootLogin prohibit-password"
+    validate: "sshd -t -f %s"
+  notify:
+    - Restart sshd
+
+- name: Don't allow auth with password
+  ansible.builtin.lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^#?PasswordAuthentication.*"
+    line: "PasswordAuthentication no"
+    validate: "sshd -t -f %s"
+  notify:
+    - Restart sshd
+
+# esteele's password is locked (see roles/esteele_acct), so it needs
+#  passwordless sudo to do anything privileged - the RedHat-branch
+#  equivalent of the OpenBSD bootstrap role's `permit nopass :wheel` in
+#  doas.conf.
+- name: Allow wheel group passwordless sudo
+  ansible.builtin.copy:
+    content: "%wheel ALL=(ALL) NOPASSWD: ALL\n"
+    dest: /etc/sudoers.d/wheel-nopasswd
+    owner: root
+    group: root
+    mode: 0440
+    validate: "visudo -cf %s"
+
+- name: Enable and start chronyd
+  ansible.builtin.service:
+    name: chronyd
+    state: started
+    enabled: true
+
+- name: Setup /etc/hosts with FQDN
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '^127.0.0.1'
+    line: '127.0.0.1 localhost {{ ansible_facts["fqdn"] }} {{ ansible_facts["hostname"] }}'

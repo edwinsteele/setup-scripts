@@ -1,0 +1,38 @@
+---
+- name: Install standard packages
+  community.general.openbsd_pkg:
+    name: ['git']
+    state: present
+  become: true
+  become_method: community.general.doas
+  become_user: root
+  vars:
+    ansible_doas_allow_pipelining: true  # safe: doas.conf grants nopass to :wheel for root
+
+- name: Setup git variables for esteele
+  community.general.ini_file:
+    dest: /home/esteele/.gitconfig
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    create: true
+    owner: esteele
+    group: esteele
+    mode: 0644
+
+  loop:
+    - { section: user, option: email, value: edwin@wordspeak.org }
+    - { section: user, option: name, value: Edwin Steele }
+    - { section: core, option: editor, value: /usr/local/bin/vim }
+    - { section: push, option: default, value: current }
+
+# Don't use known_hosts module until we've tested how it works with doas
+- name: Add Github's ssh key
+  ansible.builtin.lineinfile:
+    mode: 0644
+    owner: esteele
+    group: esteele
+    state: present
+    dest: /home/esteele/.ssh/known_hosts
+    create: true
+    line: 'github.com,192.30.252.129 ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAq2A7hRGmdnm9tUDbO9IDSwBK6TbQa+PXYPCPy6rbTrTtw7PHkccKrpp0yVhp5HdEIcKr6pLlVDBfOLX9QUsyCOV0wzfjIJNlGEYsdlLJizHhbn2mUjvSAHQqZETYP81eFzLQNnPHt4EVVUh7VfDESU84KezmD5QlWpXLmvU31/yMf+Se8xhHTvKSCZIFImWwoG6mbUoWf9nzpIoaSjB+weqqUUmpaaasXVal72J+UX2B+2RPW3RcT0eOzQgqlJL3RKrTJvdsjE3JEAvGq3lGHSZXy28G3skua2SmVi/w4yCE6gbODqnTWlg7+wC604ydGXA8VJiS5ap43JXiUFFAaQ=='  # noqa yaml[line-length]

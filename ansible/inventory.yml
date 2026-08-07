@@ -16,3 +16,11 @@ all:
     webservers:
       hosts:
         45.77.238.164: {}
+    rocky_9:
+      hosts:
+        192.168.20.200: {}
+        viking.grus.space: {}
+    timemachine_servers:
+      hosts:
+        192.168.20.200: {}
+        viking.grus.space: {}

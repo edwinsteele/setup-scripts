@@ -2,13 +2,17 @@
 # A fresh OpenBSD host has no Python interpreter yet, so facts can't be
 #  gathered until the bootstrap role installs one - hence gather_facts:
 #  false and a plain linear strategy for this first play.
-- hosts: all
+# rocky_9 is excluded throughout this file's "all" plays: it ships its own
+#  Python interpreter (no bootstrap needed) and roles like network/pf/
+#  mail_sender are OpenBSD-only (pfctl, doas, openbsd_pkg) - it gets its
+#  own plays further down instead.
+- hosts: 'all:!rocky_9'
   gather_facts: false
   strategy: linear
   roles:
     - bootstrap
 
-- hosts: all
+- hosts: 'all:!rocky_9'
   roles:
     - common
     - { role: network, tags: network }
@@ -36,7 +40,19 @@
     - /Users/esteele/Code/local_setup-scripts/ansible/roles/firewall/vars/private_vars.yml
     - /Users/esteele/Code/local_setup-scripts/ansible/roles/firewall/vars/local_address_vars.yml
 
-- hosts: all
+- hosts: rocky_9
+  roles:
+    - common
+    - esteele_acct
+    - samba_timemachine
+
+- hosts: rocky_9
+  remote_user: esteele
+  roles:
+    - esteele_contents
+    - git
+
+- hosts: 'all:!rocky_9'
   remote_user: esteele
   roles:
     - esteele_contents
