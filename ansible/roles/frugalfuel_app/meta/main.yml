@@ -1,3 +1,0 @@
-# No dependencies here, because this role runs as frugalfuel
-#  and all the nginx stuff requires root i.e. deps are incompatible
-#  with the permissions active when applying that role

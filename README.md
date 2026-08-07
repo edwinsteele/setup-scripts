@@ -1,7 +1,6 @@
 # Files in this area
 
 * ansible: Provisioning of wordspeak webserver and home firewall
-* vagrant: Vagrantfiles for each type of machine
 
 # OS Setup a Vultr cloud host from scratch
 
@@ -24,7 +23,7 @@ a different key to ansible with `--private-key=PRIVATE_KEY_FILE`
 ## General pre-work
 1. `brew install ansible` (if not already installed)
 1. `cd ~/Code/setup-scripts/ansible`
-1. Replace the host in `hosts` with the IP address of the newly provisioned
+1. Replace the host in `inventory` with the IP address of the newly provisioned
    host, placing it in the group section that corresponds to the `--limit`
    argument used in the `ansible-playbook` commands for the appropriate type of VM install
    e.g. `ansible-playbook -u root -i inventory site.yml --limit=192.168.20.254`
@@ -36,7 +35,7 @@ have a python interpreter, which is the first step in the common playbook.
 
 In the `ansible` directory at the same level as this `README.md` file run:
 
-`ansible-playbook -u root -i hosts --limit <limit-criteria> site.yml`
+`ansible-playbook -u root -i inventory --limit <limit-criteria> site.yml`
 
 Where the limit criteria is something like:
 

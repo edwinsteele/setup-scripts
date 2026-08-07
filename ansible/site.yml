@@ -19,24 +19,9 @@
   roles:
     - wordspeak_site
 
-- hosts: frugalfuel
-  roles:
-    - frugalfuel_site
-
 - hosts: wordspeak
   roles:
     - vpn_concentrator
-
-
-# Frugalfuel user has a locked account, so we use become so that perms are
-#  correct.
-- hosts: frugalfuel
-  strategy: linear
-  roles:
-    - frugalfuel_app
-  become: yes
-  become_method: doas
-  become_user: frugalfuel
 
 - hosts: firewalls
   become: yes
