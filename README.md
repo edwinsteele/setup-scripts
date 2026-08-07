@@ -1,130 +1,53 @@
-# Files in this area
+# setup-scripts
 
-* ansible: Provisioning of wordspeak webserver and home firewall
+Ansible provisioning for the wordspeak webserver and home firewall/gateway.
 
-# OS Setup a Vultr cloud host from scratch
+* `ansible/` - playbooks and roles
+* `autoinstall/` - OpenBSD autoinstall confs for bootstrapping new Vultr hosts
 
-OpenBSD requires hand-installation on Vultr, even though they offer pre-build
-images because their partitioning scheme only has a single partition.
+## New Vultr host (OpenBSD)
 
-* boot from ISO that has installation packages e.g. `install70.iso`
-* do an auto-install, using an auto-install conf. Note that noVNC (used by
-  Vultr) has a paste option in the client's pop-out, so you don't need to
-  type in the autoinstall URL - ` https://raw.githubusercontent.com/edwinsteele/setup-scripts/master/autoinstall/gemini-install.conf`
-* detach the ISO (which triggers a reboot on Vultr - manual reboot may be necessary)
+OpenBSD needs hand-installation on Vultr even though pre-built images exist,
+because their partitioning scheme only has a single partition.
 
-# Provisioning using ansible once the OS setup is complete
+1. Boot from an ISO with the installation packages (e.g. `install70.iso`).
+2. Auto-install using an autoinstall conf. noVNC (used by Vultr) has a paste
+   option in the client's pop-out, so you can paste the URL instead of
+   typing it: `https://raw.githubusercontent.com/edwinsteele/setup-scripts/master/autoinstall/gemini-install.conf`
+3. Detach the ISO (triggers a reboot on Vultr; manual reboot may be needed).
 
-Once the base OS has been setup, we do further setup using ansible.
-Assumes that your default ssh public key is installed on the server under
-the account that you'll be using for provisioning (root), or that you provide
-a different key to ansible with `--private-key=PRIVATE_KEY_FILE`
+## Provisioning with Ansible
 
-## General pre-work
-1. `brew install ansible` (if not already installed)
-1. `cd ~/Code/setup-scripts/ansible`
-1. `ansible-galaxy collection install -r requirements.yml` (installs
-   `community.general`, needed for `openbsd_pkg`/`ini_file`/the `doas`
-   become plugin)
-1. Replace the host in `inventory.yml` with the IP address of the newly provisioned
-   host, placing it in the group section that corresponds to the `--limit`
-   argument used in the `ansible-playbook` commands for the appropriate type of VM install
-   e.g. `ansible-playbook -u root -i inventory.yml site.yml --limit=192.168.20.254`
-
-## Performing non-OS setup
-
-Note that it's not possible to test ansible connectivity on OpenBSD hosts until they
-have a python interpreter, which is the first step in the common playbook.
-
-In the `ansible` directory at the same level as this `README.md` file run:
-
-`ansible-playbook -u root -i inventory.yml --limit <limit-criteria> site.yml`
-
-Where the limit criteria is something like:
-
-* 192.168.56.101  (an IP address)
-* webservers (a single group name)
-* 'webservers:&192.168.56.101' (the union of a group and an IP address)
-
-## Additional steps
-
-1. On the newly provisioned VM as root (in an ssh session with agent forwarding enabled):
-  1. `openrsync -av www.wordspeak.org:/etc/ssl/wordspeak.org/ /etc/ssl/wordspeak.org/`
-  1. `openrsync -av www.wordspeak.org:/etc/ssl/private/wordspeak.org/ /etc/ssl/private/wordspeak.org/`
-  1. `rcctl restart nginx`
-1. On the newly provisioned VM as esteele (in an ssh session with agent forwarding enabled):
-  1. `for d in images.wordspeak.org language-explorer.wordspeak.org staging.wordspeak.org www.wordspeak.org; do openrsync -av www.wordspeak.org:/home/esteele/Sites/$d/ /home/esteele/Sites/$d/; done`
-  1. `cd ~/Code/dotfiles && ./make.sh`
-`flip the DNS to point to the new host`
-  1. ``doas acme-client -v wordspeak.org && rcctl restart nginx``
-
-### For Webserver
-
-1. Update DNS record for staging.wordspeak.org (to simplify final setup, knowing that nobody is looking at staging)
-1. `rsync -av --rsync-path=/usr/bin/openrsync /usr/local/var/www/lex-mirror/ staging.wordspeak.org:/var/www/htdocs/language-explorer.wordspeak.org/`
-1. in images.wordspeak.org checkout, run `./images_tool.py sync`
-1. RUn github actions
-
-# One-off PXE reimage (pxe_install role)
-
-`ansible/roles/pxe_install` is a tag-gated role for wiping and reimaging a
-piece of hardware (currently used to reinstall old firewall hardware as
-Rocky Linux 9) via netboot, driven from a gateway's own DHCP/TFTP/HTTP. It's
-off by default and does a full teardown when disabled - it's meant to be
-switched on for one reimage and back off again, not left running.
-
-## Prerequisites (outside this repo)
-
-The gateway's `firewalls` play pulls in two files from the private,
-untracked `local_setup-scripts` repo (`vars_files` in `site.yml`):
-
-1. `ansible/roles/firewall/vars/private_vars.yml` needs
-   `pxe_install_root_password_hash` (a SHA-512 crypt hash, e.g. from
-   `openssl passwd -6` - not bcrypt) and `pxe_install_root_ssh_pubkey` set.
-2. `ansible/roles/firewall/vars/local_address_vars.yml` needs a MAC-scoped
-   DHCP host stanza for the target box's NIC, with `filename` pointing at
-   the role's iPXE boot script name (`pxe_install_boot_script_name` default
-   `boot.ipxe`) and `next-server` set to the gateway's LAN IP, e.g.:
-
-   ```
-   host old-firewall-pxe.grus.space { hardware ethernet <mac>; fixed-address <free-ip>; filename "boot.ipxe"; next-server 192.168.20.254; }
-   ```
-
-   That file is normally regenerated by `generate_local_address_files.py`,
-   which doesn't know about one-off entries like this - mark them clearly
-   and remove them once the reimage is done, rather than leaving them to be
-   silently dropped (or not) on the next regen.
-
-## Enabling
-
-ansible-core 2.19+ requires JSON-typed `-e` values for booleans used in
-`when:` - a plain `-e pxe_install_enabled=true` passes a string and fails
-with "Conditionals must have a boolean result".
+Requires your ssh public key installed on the server under the account
+you're provisioning as (root), or pass a different key with
+`--private-key=PRIVATE_KEY_FILE`.
 
 ```bash
+brew install ansible
 cd ansible
-ansible-playbook -i inventory.yml site.yml --tags firewall,pxe_install \
-  -e '{"pxe_install_enabled": true}' --limit <gateway-ip>
+ansible-galaxy collection install -r requirements.yml
 ```
 
-`--tags firewall` re-templates `dhcpd.conf` to pick up the host stanza
-above; `--tags pxe_install` stands up `tftpd`/`httpd` bound to the
-gateway's LAN IP only. Verify with `rcctl check tftpd httpd` and
-`pfctl -sr | grep -E '(69|80)'` on the gateway.
-
-## Disabling (full teardown)
-
-`pxe_install_enabled: false` is the role's default, so once the reimage is
-done, either omit `-e` entirely or pass it explicitly:
+Add the new host's IP to `inventory.yml`, under the group matching the type
+of install, then run:
 
 ```bash
-ansible-playbook -i inventory.yml site.yml --tags pxe_install \
-  -e '{"pxe_install_enabled": false}' --limit <gateway-ip>
+ansible-playbook -u root -i inventory.yml site.yml --limit <limit-criteria>
 ```
 
-This stops and disables `tftpd`/`httpd` and deletes every file the role
-wrote (fetched boot images, the templated iPXE script, and the kickstart
-file - the latter carries a secret-bearing password hash). It does **not**
-touch DHCP - separately remove the `filename`/`next-server` lines (or the
-whole host stanza) from the private `local_address_vars.yml` and rerun with
-`--tags firewall` so the box stops being offered netboot on future power-ons.
+`<limit-criteria>` can be an IP (`192.168.56.101`), a group (`webservers`),
+or a combination (`webservers:&192.168.56.101`).
+
+> OpenBSD hosts don't have a python interpreter until the `common` play
+> installs one, so ansible connectivity can't be tested before that runs.
+
+## After provisioning
+
+See [docs/webserver-post-provision.md](docs/webserver-post-provision.md)
+for the manual steps that bring a freshly provisioned webserver into
+service (cert sync, site content, DNS cutover).
+
+## One-off PXE reimage
+
+See [ansible/roles/pxe_install/README.md](ansible/roles/pxe_install/README.md)
+for reimaging a piece of hardware (e.g. old firewall) via netboot.
