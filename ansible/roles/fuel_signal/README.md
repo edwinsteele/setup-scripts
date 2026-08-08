@@ -82,18 +82,26 @@ venv on its next scheduled firing.
 Both systemd units load `/etc/fuelsignal/fuelsignal.env`
 (`EnvironmentFile=`, mode `0640` root:`fuelsignal`), templated from
 `fuel_signal_fuelapi_api_key`/`fuel_signal_fuelapi_api_secret` - blank by
-default in `defaults/main.yml`. Real values go in the private
-`local_setup-scripts` repo (not this one), same pattern as
-`roles/firewall`'s `pppoe_password`:
+default in `defaults/main.yml`. Real values come from the private
+`local_setup-scripts` repo (not this one), same pattern as `roles/firewall`'s
+`pppoe_password`, wired into `site.yml`'s `rocky_9` play via `vars_files:`:
 
 ```
 /Users/esteele/Code/local_setup-scripts/ansible/roles/fuel_signal/vars/private_vars.yml
 ```
 
-(scaffolded already, blank - fill in your NSW FuelCheck OAuth client
-credentials before running this role for real) and wired into `site.yml`'s
-`rocky_9` play via `vars_files:`, next to the equivalent `firewalls` play
-wiring.
+That file itself holds no secret material - it reads from the
+`ansible-playbook` process's own environment via `lookup('ansible.builtin.env', ...)`,
+so nothing leaks even into the private repo. Export both before running the
+play:
+
+```bash
+export FUELAPI_API_KEY=...
+export FUELAPI_API_SECRET=...
+```
+
+(the lookup reads the *control node's* environment, not the remote host's -
+exporting on viking itself would do nothing).
 
 ## One-time bootstrap: DB and trained models
 
