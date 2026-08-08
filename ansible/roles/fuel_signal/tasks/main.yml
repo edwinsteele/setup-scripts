@@ -46,6 +46,21 @@
     executable: /bin/bash
   become: true
 
+# The astral installer leaves this labeled user_tmp_t (a curl-to-temp-then-
+# move artifact), which systemd refuses to exec even though plain DAC
+# permissions and an interactive `sudo -u fuelsignal` exec both work fine -
+# confirmed on viking: fuelsignal-workbench.service crash-looped (200+
+# restarts) on "Failed to locate executable /usr/local/bin/uv: Permission
+# denied" until this was applied. Same persistent-fcontext + restorecon
+# pattern as roles/samba_timemachine's share-directory labeling.
+- name: Set SELinux context for the uv binary
+  community.general.sefcontext:
+    target: /usr/local/bin/uv
+    setype: bin_t
+    state: present
+  become: true
+  notify: Apply SELinux context on uv binary
+
 - name: Clone fuel-price-signal (first run only - updates go through fuelsignal-deploy)
   ansible.builtin.git:
     repo: "{{ fuel_signal_repo_url }}"
