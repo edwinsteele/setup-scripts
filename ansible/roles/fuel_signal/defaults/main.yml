@@ -14,8 +14,11 @@ fuel_signal_workbench_host: 127.0.0.1
 fuel_signal_workbench_port: 5000
 
 # How often to fetch fresh FuelCheck prices and print the buy/wait signal.
-# Any systemd OnCalendar expression - see systemd.time(7).
-fuel_signal_timer_oncalendar: hourly
+# Any systemd OnCalendar expression - see systemd.time(7). Daily, ~2h after
+# upstream fuel-price-signal's own daily-snapshot GitHub Action
+# (.github/workflows/daily-snapshot.yml, cron "0 10 * * *" = 10:00 UTC) -
+# explicit UTC so this doesn't depend on viking's system timezone.
+fuel_signal_timer_oncalendar: "*-*-* 12:00:00 UTC"
 
 fuel_signal_env_file: /etc/fuelsignal/fuelsignal.env
 
