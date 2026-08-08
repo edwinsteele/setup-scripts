@@ -77,6 +77,29 @@ then restarts `fuelsignal-workbench.service`. The signal-check timer
 doesn't need restarting - it's a oneshot that picks up the new checkout and
 venv on its next scheduled firing.
 
+## Known follow-up: the daily job may not need direct FuelCheck API access
+
+`fuelsignal-signal-check.sh` currently runs `fuel_signal.live` (hits the
+FuelCheck API directly, hence the credentials below) then `fuel_signal.signal`.
+But `fuel-price-signal` already runs its own `daily-snapshot.yml` GitHub
+Action that fetches the same data and commits it to
+`data/snapshots/**/*.csv` (tracked in git - see the bootstrap section
+below). Calling the live API a second time from viking is likely redundant.
+
+The better shape is probably: `git pull`, then whatever loads that day's
+newly-landed tracked snapshot into `fuel_signal.db` (the `db.py`/
+`loaded_files`-table machinery already used for the from-scratch backfill),
+then `fuel_signal.signal` - not `fuel_signal.live` at all. If that pans out,
+this role's entire FuelCheck credential plumbing
+(`fuel_signal_fuelapi_api_key`/`_secret`, `/etc/fuelsignal/fuelsignal.env`,
+`EnvironmentFile=` on both units) goes away with it.
+
+**Not implemented** - the exact steps (which git ref/branch to pull, how to
+detect "new since last run" reliably, what to do if a GH Action run gets
+missed) need working out, likely in the `fuel-price-signal` project itself
+first. Revisit `fuelsignal-signal-check.sh.j2` and this section together
+when that's settled.
+
 ## Secrets: FUELAPI_API_KEY / FUELAPI_API_SECRET
 
 Both systemd units load `/etc/fuelsignal/fuelsignal.env`

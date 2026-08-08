@@ -10,3 +10,7 @@
   ansible.builtin.systemd:
     daemon_reload: true
   become: true
+
+- name: Apply SELinux context on uv binary
+  ansible.builtin.command: restorecon -F /usr/local/bin/uv
+  become: true
