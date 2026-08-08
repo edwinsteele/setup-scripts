@@ -1,0 +1,29 @@
+# Managed by ansible - roles/fuel_signal
+"""Serves fuel_signal.inspect's Flask app via waitress instead of Flask's
+own dev server, without patching the upstream repo.
+
+fuel_signal.inspect.main() (a click command) builds the Flask app from
+live DB/model state and finishes by calling app.run(host, port, debug) -
+there's no module-level app object a WSGI server could import directly.
+Monkeypatching Flask.run lets click's own --host/--port/--no-browser
+parsing keep working unchanged; only the final app.run() call is
+redirected to waitress.serve(). Deliberately lives beside the repo
+checkout (not inside it) so `git pull` never touches it.
+"""
+
+from __future__ import annotations
+
+import flask
+from waitress import serve
+
+
+def _serve_with_waitress(self: flask.Flask, host=None, port=None, debug=None, **kwargs) -> None:
+    serve(self, host=host or "127.0.0.1", port=int(port or 5000))
+
+
+flask.Flask.run = _serve_with_waitress
+
+from fuel_signal.inspect import main  # noqa: E402 - patch must land before main() runs
+
+if __name__ == "__main__":
+    main()
