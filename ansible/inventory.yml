@@ -19,8 +19,8 @@ all:
     rocky_9:
       hosts:
         192.168.20.200: {}
-        viking.grus.space: {}
+        viking.home.wordspeak.org: {}
     timemachine_servers:
       hosts:
         192.168.20.200: {}
-        viking.grus.space: {}
+        viking.home.wordspeak.org: {}

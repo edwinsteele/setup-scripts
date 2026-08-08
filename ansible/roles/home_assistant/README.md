@@ -85,9 +85,9 @@ the same reason.
 
 ```bash
 cd ansible
-ansible-playbook -i inventory.yml site.yml --limit viking.grus.space
+ansible-playbook -i inventory.yml site.yml --limit viking.home.wordspeak.org
 ```
 
 Home Assistant's onboarding wizard (create the first user, set
-location/units) runs once at `http://viking.grus.space:8123/` after the
+location/units) runs once at `http://viking.home.wordspeak.org:8123/` after the
 first apply - that's an interactive step this role doesn't automate.
