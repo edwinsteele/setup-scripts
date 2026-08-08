@@ -1,0 +1,19 @@
+#!/bin/sh
+# Managed by ansible - roles/fuel_signal
+# Pulls the latest fuel-price-signal commit, syncs dependencies, and
+# restarts the workbench. Run by hand (sudo fuelsignal-deploy) whenever
+# you choose to update - this repo's ansible role never runs `git pull`
+# itself, so updates only happen when you decide to, in whatever batches
+# you like.
+set -eu
+
+if [ "$(id -u)" -ne 0 ]; then
+    echo "Run as root: sudo fuelsignal-deploy" >&2
+    exit 1
+fi
+
+runuser -u {{ fuel_signal_user }} -- git -C "{{ fuel_signal_repo_dir }}" pull --ff-only
+runuser -u {{ fuel_signal_user }} -- env UV_PYTHON_PREFERENCE=only-system /usr/local/bin/uv sync --directory "{{ fuel_signal_repo_dir }}"
+systemctl restart fuelsignal-workbench.service
+
+echo "Deployed $(runuser -u {{ fuel_signal_user }} -- git -C "{{ fuel_signal_repo_dir }}" rev-parse --short HEAD)"

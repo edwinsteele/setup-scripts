@@ -1,0 +1,12 @@
+---
+- name: Restart fuelsignal workbench
+  ansible.builtin.systemd:
+    daemon_reload: true
+    name: fuelsignal-workbench.service
+    state: restarted
+  become: true
+
+- name: Reload systemd for fuelsignal units
+  ansible.builtin.systemd:
+    daemon_reload: true
+  become: true

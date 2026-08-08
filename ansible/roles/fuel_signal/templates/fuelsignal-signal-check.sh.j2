@@ -1,0 +1,8 @@
+#!/bin/sh
+# Managed by ansible - roles/fuel_signal
+# Fetches fresh FuelCheck prices, then prints the buy/wait signal - both
+# land in the journal via this unit's stdout/stderr.
+set -eu
+cd "{{ fuel_signal_repo_dir }}"
+/usr/local/bin/uv run python -m fuel_signal.live
+/usr/local/bin/uv run python -m fuel_signal.signal

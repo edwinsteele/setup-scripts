@@ -1,2 +1,3 @@
 ---
 common_hostname: viking
+fuel_signal_workbench_host: 192.168.20.200

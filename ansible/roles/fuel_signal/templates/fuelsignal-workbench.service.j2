@@ -1,0 +1,21 @@
+# Managed by ansible - roles/fuel_signal
+[Unit]
+Description=fuel-price-signal analysis workbench (Flask app, served by waitress)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User={{ fuel_signal_user }}
+WorkingDirectory={{ fuel_signal_repo_dir }}
+EnvironmentFile={{ fuel_signal_env_file }}
+# Pin uv to the dnf-managed python3.14, not a downloaded standalone build.
+Environment=UV_PYTHON_PREFERENCE=only-system
+# --with waitress layers waitress into an ephemeral overlay for this run
+# only - it isn't added to the repo's pyproject.toml/uv.lock.
+ExecStart=/usr/local/bin/uv run --with waitress python {{ fuel_signal_base_dir }}/waitress_wrapper.py --host {{ fuel_signal_workbench_host }} --port {{ fuel_signal_workbench_port }} --no-browser
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

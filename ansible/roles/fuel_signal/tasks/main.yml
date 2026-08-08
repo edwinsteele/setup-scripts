@@ -1,0 +1,163 @@
+---
+- name: Assert the workbench isn't bound to a public address
+  ansible.builtin.assert:
+    that: fuel_signal_workbench_host != '0.0.0.0'
+    fail_msg: >-
+      fuel_signal_workbench_host must be a specific LAN address (override in
+      host_vars), not 0.0.0.0 - this workbench has no auth in front of it.
+
+- name: Create fuelsignal group
+  ansible.builtin.group:
+    name: "{{ fuel_signal_group }}"
+    system: true
+  become: true
+
+- name: Create fuelsignal service account
+  ansible.builtin.user:
+    name: "{{ fuel_signal_user }}"
+    group: "{{ fuel_signal_group }}"
+    system: true
+    home: "{{ fuel_signal_base_dir }}"
+    create_home: true
+    shell: /sbin/nologin
+  become: true
+
+- name: Install rsync (needed for the model/DB bootstrap sync from the dev checkout)
+  ansible.builtin.dnf:
+    name: rsync
+    state: present
+  become: true
+
+# AppStream ships versioned interpreter packages (python3.14, alongside the
+# python3.9 base the OS itself depends on) - installing this means `uv sync`
+# resolves the repo's `requires-python = ">=3.14"` against a dnf-managed,
+# patched-with-the-rest-of-the-OS interpreter instead of downloading its own
+# standalone build.
+- name: Install python3.14
+  ansible.builtin.dnf:
+    name: python3.14
+    state: present
+  become: true
+
+- name: Install uv
+  ansible.builtin.shell: set -o pipefail && curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=/usr/local/bin sh
+  args:
+    creates: /usr/local/bin/uv
+    executable: /bin/bash
+  become: true
+
+- name: Clone fuel-price-signal (first run only - updates go through fuelsignal-deploy)
+  ansible.builtin.git:
+    repo: "{{ fuel_signal_repo_url }}"
+    dest: "{{ fuel_signal_repo_dir }}"
+    version: "{{ fuel_signal_repo_version }}"
+    update: false
+  become: true
+  become_user: "{{ fuel_signal_user }}"
+
+- name: uv sync (first-run bootstrap of the venv)
+  ansible.builtin.command: /usr/local/bin/uv sync
+  args:
+    chdir: "{{ fuel_signal_repo_dir }}"
+    creates: "{{ fuel_signal_repo_dir }}/.venv/bin/python"
+  environment:
+    UV_PYTHON_PREFERENCE: only-system
+  become: true
+  become_user: "{{ fuel_signal_user }}"
+
+- name: Template the waitress wrapper for the workbench
+  ansible.builtin.template:
+    src: waitress_wrapper.py.j2
+    dest: "{{ fuel_signal_base_dir }}/waitress_wrapper.py"
+    owner: "{{ fuel_signal_user }}"
+    group: "{{ fuel_signal_group }}"
+    mode: "0644"
+  become: true
+  notify: Restart fuelsignal workbench
+
+- name: Create /etc/fuelsignal for the credentials EnvironmentFile
+  ansible.builtin.file:
+    path: /etc/fuelsignal
+    state: directory
+    owner: root
+    group: "{{ fuel_signal_group }}"
+    mode: "0750"
+  become: true
+
+- name: Template FuelCheck API credentials EnvironmentFile
+  ansible.builtin.template:
+    src: fuelsignal.env.j2
+    dest: "{{ fuel_signal_env_file }}"
+    owner: root
+    group: "{{ fuel_signal_group }}"
+    mode: "0640"
+  become: true
+  notify: Restart fuelsignal workbench
+
+- name: Open firewalld port for the fuel-price-signal workbench
+  ansible.posix.firewalld:
+    port: "{{ fuel_signal_workbench_port }}/tcp"
+    permanent: true
+    immediate: true
+    state: enabled
+  become: true
+
+- name: Template the fuelsignal-workbench systemd service
+  ansible.builtin.template:
+    src: fuelsignal-workbench.service.j2
+    dest: /etc/systemd/system/fuelsignal-workbench.service
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  notify: Restart fuelsignal workbench
+
+- name: Template the signal-check wrapper script
+  ansible.builtin.template:
+    src: fuelsignal-signal-check.sh.j2
+    dest: /usr/local/bin/fuelsignal-signal-check.sh
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+
+- name: Template the signal-check systemd service and timer
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "/etc/systemd/system/{{ item }}"
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  loop:
+    - fuelsignal-signal.service
+    - fuelsignal-signal.timer
+  notify: Reload systemd for fuelsignal units
+
+- name: Template the deploy script
+  ansible.builtin.template:
+    src: fuelsignal-deploy.sh.j2
+    dest: /usr/local/bin/fuelsignal-deploy
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+
+- name: Flush handlers so units are current before enabling them
+  ansible.builtin.meta: flush_handlers
+
+- name: Reload systemd, enable and start the workbench
+  ansible.builtin.systemd:
+    daemon_reload: true
+    name: fuelsignal-workbench.service
+    state: started
+    enabled: true
+  become: true
+
+- name: Reload systemd, enable and start the signal-check timer
+  ansible.builtin.systemd:
+    daemon_reload: true
+    name: fuelsignal-signal.timer
+    state: started
+    enabled: true
+  become: true
