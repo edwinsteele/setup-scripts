@@ -30,11 +30,11 @@ ansible-playbook -i inventory.yml site.yml --tags firewall --limit 192.168.20.25
 
 ```bash
 cd ansible
-ansible-playbook -u root -i inventory.yml site.yml --limit viking.grus.space
+ansible-playbook -u root -i inventory.yml site.yml --limit viking.home.wordspeak.org
 ```
 
 (or `--limit 192.168.20.200` until the DHCP/unbound change above has been
-applied to the gateway and `viking.grus.space` resolves).
+applied to the gateway and `viking.home.wordspeak.org` resolves).
 
 ## Manual post-step: Samba password
 
@@ -44,10 +44,10 @@ repo doesn't set it, the same way it doesn't commit root password
 hashes/SSH keys - run this once, interactively, after the first apply:
 
 ```bash
-ssh viking.grus.space sudo smbpasswd -a esteele
+ssh viking.home.wordspeak.org sudo smbpasswd -a esteele
 ```
 
 Then connect from a Mac via Finder (`Go > Connect to Server`,
-`smb://viking.grus.space/TimeMachine`) or System Settings > Time Machine,
+`smb://viking.home.wordspeak.org/TimeMachine`) or System Settings > Time Machine,
 where it should also auto-discover via Bonjour/mDNS (`avahi-daemon` +
 `_adisk._tcp`, see `templates/adisk.service.j2`).

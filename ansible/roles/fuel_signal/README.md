@@ -69,7 +69,7 @@ change) never pulls new commits. Updates go through `fuelsignal-deploy`
 choose:
 
 ```bash
-ssh viking.grus.space sudo fuelsignal-deploy
+ssh viking.home.wordspeak.org sudo fuelsignal-deploy
 ```
 
 which does `git pull --ff-only` + `uv sync` as the `fuelsignal` account,
@@ -117,13 +117,13 @@ cd ~/Code/fuel-price-signal   # your dev checkout
 rsync -avz --rsync-path="sudo -u fuelsignal rsync" \
   fuel_signal.db fuel_signal.db-wal fuel_signal.db-shm \
   data/models/ \
-  viking.grus.space:/srv/fuelsignal/fuel-price-signal/data/models/ \
+  viking.home.wordspeak.org:/srv/fuelsignal/fuel-price-signal/data/models/ \
   2>&1  # adjust source paths/flags to taste; run db + data/models as separate rsyncs if you prefer
 
 # data/tgp/ (AIP TGP downloader cache) if you're relying on it rather than
 # letting it rebuild on first live.py run:
 rsync -avz --rsync-path="sudo -u fuelsignal rsync" \
-  data/tgp/ viking.grus.space:/srv/fuelsignal/fuel-price-signal/data/tgp/
+  data/tgp/ viking.home.wordspeak.org:/srv/fuelsignal/fuel-price-signal/data/tgp/
 ```
 
 Do this after the first `ansible-playbook` run (the checkout and
@@ -152,5 +152,5 @@ cd ansible
 ansible-playbook -u root -i inventory.yml site.yml --limit 192.168.20.200
 ```
 
-(by IP rather than `viking.grus.space`, same caveat as
+(by IP rather than `viking.home.wordspeak.org`, same caveat as
 `samba_timemachine`'s README, until the static-IP/DNS change lands).
