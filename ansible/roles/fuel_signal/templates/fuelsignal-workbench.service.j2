@@ -8,7 +8,6 @@ After=network-online.target
 Type=simple
 User={{ fuel_signal_user }}
 WorkingDirectory={{ fuel_signal_repo_dir }}
-EnvironmentFile={{ fuel_signal_env_file }}
 # Pin uv to the dnf-managed python3.14, not a downloaded standalone build.
 Environment=UV_PYTHON_PREFERENCE=only-system
 # --with waitress layers waitress into an ephemeral overlay for this run

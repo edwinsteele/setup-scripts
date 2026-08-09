@@ -47,8 +47,6 @@
     - samba_timemachine
     - home_assistant
     - fuel_signal
-  vars_files:
-    - /Users/esteele/Code/local_setup-scripts/ansible/roles/fuel_signal/vars/private_vars.yml
 
 - hosts: rocky_9
   remote_user: esteele

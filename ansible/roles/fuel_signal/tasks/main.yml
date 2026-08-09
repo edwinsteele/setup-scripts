@@ -90,25 +90,6 @@
   become: true
   notify: Restart fuelsignal workbench
 
-- name: Create /etc/fuelsignal for the credentials EnvironmentFile
-  ansible.builtin.file:
-    path: /etc/fuelsignal
-    state: directory
-    owner: root
-    group: "{{ fuel_signal_group }}"
-    mode: "0750"
-  become: true
-
-- name: Template FuelCheck API credentials EnvironmentFile
-  ansible.builtin.template:
-    src: fuelsignal.env.j2
-    dest: "{{ fuel_signal_env_file }}"
-    owner: root
-    group: "{{ fuel_signal_group }}"
-    mode: "0640"
-  become: true
-  notify: Restart fuelsignal workbench
-
 - name: Open firewalld port for the fuel-price-signal workbench
   ansible.posix.firewalld:
     port: "{{ fuel_signal_workbench_port }}/tcp"

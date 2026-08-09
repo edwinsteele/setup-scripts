@@ -1,8 +1,23 @@
 #!/bin/sh
 # Managed by ansible - roles/fuel_signal
-# Fetches fresh FuelCheck prices, then prints the buy/wait signal - both
+# Pulls the checkout to latest (today's snapshot CSV, committed by
+# upstream's own daily-snapshot GitHub Action, arrives this way - see
+# README's "Daily signal check" section), syncs dependencies, loads any
+# newly-landed snapshot into the DB, then prints the buy/wait signal - all
 # land in the journal via this unit's stdout/stderr.
+#
+# This is a deliberate exception to "the ansible role never runs git pull"
+# (see fuelsignal-deploy.sh.j2): that invariant is about the *ansible role*
+# not silently redeploying code as a side effect of an unrelated playbook
+# run, not about all automation on the box. This timer intentionally keeps
+# the checkout bleeding-edge daily. It does NOT restart
+# fuelsignal-workbench.service though - the running Flask process doesn't
+# reload code from disk anyway, so only fuelsignal-deploy's explicit
+# restart actually puts new code in front of users.
 set -eu
 cd "{{ fuel_signal_repo_dir }}"
-/usr/local/bin/uv run python -m fuel_signal.live
+git pull --ff-only
+/usr/local/bin/uv sync
+/usr/local/bin/uv run python -m fuel_signal.db
+/usr/local/bin/uv run python -m fuel_signal.fill
 /usr/local/bin/uv run python -m fuel_signal.signal

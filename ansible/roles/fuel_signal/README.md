@@ -4,8 +4,8 @@ Deploys [fuel-price-signal](https://github.com/edwinsteele/fuel-price-signal)
 on `viking` (see [samba_timemachine](../samba_timemachine/README.md) for what
 else lives on that box) as a dedicated `fuelsignal` system account, with:
 
-- an hourly `fuelsignal-signal.timer` that fetches fresh FuelCheck prices
-  and prints the buy/wait signal to the journal, and
+- a daily `fuelsignal-signal.timer` that pulls in today's already-committed
+  snapshot CSV and prints the buy/wait signal to the journal, and
 - an always-on `fuelsignal-workbench.service` running the Flask analysis
   workbench, bound to `viking`'s LAN address (never `0.0.0.0`).
 
@@ -60,71 +60,55 @@ invocation without adding it to `fuel-price-signal`'s own
 `pyproject.toml`/`uv.lock`. `--debug` is never passed, so Flask's debug
 mode stays off regardless.
 
-## Updates are manual and batched, not continuous
+## Checkout updates: the ansible role never pulls, but the signal-check timer does
 
 The `ansible.builtin.git` task uses `update: false` - it only clones on
 first run. Re-running this play (e.g. for an unrelated `home_assistant`
-change) never pulls new commits. Updates go through `fuelsignal-deploy`
-(templated to `/usr/local/bin/fuelsignal-deploy`), run by hand whenever you
-choose:
+change) never pulls new commits - that's the invariant `fuelsignal-deploy`
+documents ("this repo's ansible role never runs `git pull` itself").
+
+That invariant is about the *ansible role*, though, not about all automation
+on the box. `fuelsignal-signal-check.sh` (see below) is a deliberate
+exception: it does its own `git pull --ff-only` on every daily firing, so
+the checkout stays bleeding-edge. What stays manual is putting new code in
+front of users - `fuelsignal-workbench.service` is a long-running Flask
+process that doesn't reload code from disk on its own, so however current
+the checkout gets, the workbench keeps running whatever code was loaded at
+its last start. `fuelsignal-deploy` (templated to
+`/usr/local/bin/fuelsignal-deploy`), run by hand whenever you choose:
 
 ```bash
 ssh viking.home.wordspeak.org sudo fuelsignal-deploy
 ```
 
-which does `git pull --ff-only` + `uv sync` as the `fuelsignal` account,
-then restarts `fuelsignal-workbench.service`. The signal-check timer
-doesn't need restarting - it's a oneshot that picks up the new checkout and
-venv on its next scheduled firing.
+does `git pull --ff-only` + `uv sync` as the `fuelsignal` account (usually a
+no-op by the time you run it, since the timer already pulled), then
+restarts `fuelsignal-workbench.service` - the actual moment new code goes
+live.
 
-## Known follow-up: the daily job may not need direct FuelCheck API access
+## Daily signal check: `git pull`, not a live FuelCheck API call
 
-`fuelsignal-signal-check.sh` currently runs `fuel_signal.live` (hits the
-FuelCheck API directly, hence the credentials below) then `fuel_signal.signal`.
-But `fuel-price-signal` already runs its own `daily-snapshot.yml` GitHub
-Action that fetches the same data and commits it to
-`data/snapshots/**/*.csv` (tracked in git - see the bootstrap section
-below). Calling the live API a second time from viking is likely redundant.
+`fuelsignal-signal-check.sh` used to run `fuel_signal.live` (hitting the
+FuelCheck API directly, which needed OAuth credentials). It doesn't anymore:
+`fuel-price-signal` already runs its own `daily-snapshot.yml` GitHub Action
+that fetches the same data and commits it to `data/snapshots/**/*.csv`
+(tracked in git - see the bootstrap section below), so calling the live API
+a second time from viking was redundant.
 
-The better shape is probably: `git pull`, then whatever loads that day's
-newly-landed tracked snapshot into `fuel_signal.db` (the `db.py`/
-`loaded_files`-table machinery already used for the from-scratch backfill),
-then `fuel_signal.signal` - not `fuel_signal.live` at all. If that pans out,
-this role's entire FuelCheck credential plumbing
-(`fuel_signal_fuelapi_api_key`/`_secret`, `/etc/fuelsignal/fuelsignal.env`,
-`EnvironmentFile=` on both units) goes away with it.
+`fuelsignal-signal-check.sh.j2` now does `git pull --ff-only` + `uv sync` to
+bring in whatever landed upstream (today's snapshot commit, and any code/
+dependency changes riding along with it), then runs `fuel_signal.db` (loads
+the new snapshot file via its `loaded_files`-table tracking), `fuel_signal.fill`
+(rebuilds `daily_prices` so the new day is actually visible to
+`average_price_series`), then `fuel_signal.signal`. If upstream's Action
+hasn't run yet for the day, `git pull` is just a no-op and the DB/signal
+steps run against whatever was already loaded.
 
-**Not implemented** - the exact steps (which git ref/branch to pull, how to
-detect "new since last run" reliably, what to do if a GH Action run gets
-missed) need working out, likely in the `fuel-price-signal` project itself
-first. Revisit `fuelsignal-signal-check.sh.j2` and this section together
-when that's settled.
-
-## Secrets: FUELAPI_API_KEY / FUELAPI_API_SECRET
-
-Both systemd units load `/etc/fuelsignal/fuelsignal.env`
-(`EnvironmentFile=`, mode `0640` root:`fuelsignal`), templated from
-`fuel_signal_fuelapi_api_key`/`fuel_signal_fuelapi_api_secret` - blank by
-default in `defaults/main.yml`. Real values come from the private
-`local_setup-scripts` repo (not this one), same pattern as `roles/firewall`'s
-`pppoe_password`, wired into `site.yml`'s `rocky_9` play via `vars_files:`:
-
-```
-/Users/esteele/Code/local_setup-scripts/ansible/roles/fuel_signal/vars/private_vars.yml
-```
-
-That file itself holds no secret material - it reads from the
-`ansible-playbook` process's own environment via `lookup('ansible.builtin.env', ...)`,
-so nothing leaks even into the private repo. Export both before running the
-play:
-
-```bash
-export FUELAPI_API_KEY=...
-export FUELAPI_API_SECRET=...
-```
-
-(the lookup reads the *control node's* environment, not the remote host's -
-exporting on viking itself would do nothing).
+This also means the role no longer needs any FuelCheck credentials at all -
+no `/etc/fuelsignal/fuelsignal.env`, no `EnvironmentFile=` on either systemd
+unit, no private-vars wiring in `site.yml`. (The private `local_setup-scripts`
+repo's `roles/fuel_signal/vars/private_vars.yml` is now unused too and can be
+removed there whenever convenient - not this repo's concern.)
 
 ## One-time bootstrap: DB
 
