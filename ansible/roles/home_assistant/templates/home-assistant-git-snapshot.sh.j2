@@ -1,10 +1,16 @@
 #!/bin/sh
 # Managed by ansible - roles/home_assistant
 # Captures UI-driven drift (new automations, renamed devices, tweaked
-# scripts/scenes) into git history. .storage/ is excluded (see
-# .gitignore) - that layer's recovery path is Home Assistant's own Backup
-# feature (Settings > System > Backups), not this script.
+# scripts/scenes) into git history, then pushes it off-host so it
+# survives viking's disk dying (see "Off-host backup of the git layer" in
+# the role README). .storage/ is excluded (see .gitignore) - that layer's
+# recovery path is Home Assistant's own Backup feature (Settings > System
+# > Backups), not this script.
 set -eu
 cd "{{ home_assistant_config_path }}"
 git add -A
 git diff --cached --quiet || git commit --quiet -m "autosnapshot $(date -Is)"
+# Fails loudly (visible via `systemctl status`/journalctl) until the
+# one-time deploy-key step in the README is done - that's intentional,
+# not swallowed, so an incomplete setup doesn't go unnoticed.
+git push backup HEAD:master

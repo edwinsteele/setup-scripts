@@ -8,3 +8,12 @@ home_assistant_image: docker.io/homeassistant/home-assistant:stable
 home_assistant_config_path: /srv/homeassistant/config
 # Matches pxe_install_timezone and the OpenBSD common role's Sydney default.
 home_assistant_timezone: Australia/Sydney
+
+# Off-host copy of the git-tracked YAML layer (automations/scripts/scenes/
+# configuration.yaml) - see the "Off-host backup of the git layer" section
+# of the role README. Pushed nightly alongside the autosnapshot commit.
+home_assistant_backup_repo_url: git@github.com:edwinsteele/ha-config-backup.git
+# Dedicated (not shared) deploy key, scoped to this one repo via
+# core.sshCommand below rather than root's general SSH identity - generating
+# and registering it is a manual one-time step, see the README.
+home_assistant_backup_deploy_key_path: /root/.ssh/ha-config-backup_ed25519

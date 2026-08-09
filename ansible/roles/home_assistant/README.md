@@ -37,6 +37,66 @@ commit` in the config directory, so changes made through the UI (a new
 automation, a renamed device) still land in git history even though
 nobody typed `git commit` by hand.
 
+## Off-host backup of the git layer
+
+The nightly `home-assistant-git-snapshot.timer` also pushes to
+[`ha-config-backup`](https://github.com/edwinsteele/ha-config-backup), a
+dedicated private GitHub repo, after each commit - the on-host git history
+alone doesn't protect against viking's own disk dying, since that's the
+only copy. Generating and registering the deploy key is a manual one-time
+step (deliberately not automated - key material shouldn't be generated or
+handled by a script/agent):
+
+```bash
+sudo ssh-keygen -t ed25519 -f /root/.ssh/ha-config-backup_ed25519 -N "" -C "viking ha-config-backup deploy key"
+sudo cat /root/.ssh/ha-config-backup_ed25519.pub
+```
+
+Add the printed public key at
+`https://github.com/edwinsteele/ha-config-backup/settings/keys` with
+**Allow write access** checked. Until this is done, the nightly push step
+fails (visible as a failed `home-assistant-git-snapshot.service` run) -
+that's intentional, not a bug to silence, so an incomplete setup doesn't go
+unnoticed.
+
+A dedicated key (not root's general SSH identity) is scoped to just this
+repo via `core.sshCommand` in the config directory's local git config, so a
+compromised or rotated key here can't reach anything else.
+
+## Editing HA config directly (diffs first, then apply)
+
+Automations/scripts/scenes/`configuration.yaml` are edited live over SSH,
+not templated by ansible - the UI writes to these files too, so a second
+copy managed by this role would just drift. The workflow:
+
+1. **Commit before editing** (`git add -A && git commit`), even if the
+   nightly timer hasn't run yet - pins an exact rollback point immediately
+   before the change rather than relying on up-to-a-day-old history.
+2. **Propose the edit as a diff first** and wait for approval before
+   writing it - never apply directly.
+3. Once approved, write the change and **validate config** (Developer
+   Tools > YAML > Check Configuration, or the equivalent API) before
+   reloading anything.
+4. **Reload, don't restart** where possible - automations/scripts/scenes
+   support a targeted reload; a full restart is only needed for
+   `configuration.yaml` changes that require it, and is riskier (a broken
+   config can prevent the container starting at all).
+5. **If it breaks**, `git checkout <commit> -- <file>` back to the
+   checkpoint from step 1 and reload again - a git revert, not a restore
+   from Backup, since `.storage/` (credentials, entity registry) is never
+   touched by this workflow.
+
+## Manual one-time steps not covered by this role
+
+- **Automatic backup schedule** (Settings > System > Backups) is a
+  UI-managed setting stored in `.storage/`, not something `configuration.yaml`
+  or ansible can set - enable it by hand after onboarding.
+- **Off-site destination for the `.storage` layer** (credentials, entity
+  registry - the actual disaster-recovery unit, separate from the git
+  layer above): plan is to point it at the external disk being added to
+  viking for Time Machine + the movie library (see viking's backlog notes),
+  once that disk physically exists and is mounted. Not yet actionable.
+
 ## Root ownership
 
 The container runs as root (the image's default) via a rootful Quadlet

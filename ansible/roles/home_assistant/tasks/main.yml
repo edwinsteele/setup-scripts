@@ -39,6 +39,25 @@
     #  whatever domain the box's FQDN happens to resolve to today.
     - { name: user.email, value: "homeassistant-autosnapshot@viking.invalid" }
 
+- name: Configure git remote for off-host config backups
+  ansible.builtin.command: git remote add backup {{ home_assistant_backup_repo_url }}
+  args:
+    chdir: "{{ home_assistant_config_path }}"
+  become: true
+  register: home_assistant_backup_remote
+  changed_when: home_assistant_backup_remote.rc == 0
+  failed_when: home_assistant_backup_remote.rc != 0 and 'already exists' not in home_assistant_backup_remote.stderr
+
+# The actual key file is generated and registered as a GitHub deploy key by
+# hand (see the README) - ansible only points git at where it'll be.
+- name: Scope git SSH command to the dedicated backup deploy key
+  community.general.git_config:
+    repo: "{{ home_assistant_config_path }}"
+    scope: local
+    name: core.sshCommand
+    value: "ssh -i {{ home_assistant_backup_deploy_key_path }} -o IdentitiesOnly=yes"
+  become: true
+
 - name: Template .gitignore for the Home Assistant config repo
   ansible.builtin.copy:
     src: gitignore
