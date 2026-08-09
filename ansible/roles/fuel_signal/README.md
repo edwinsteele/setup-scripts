@@ -131,9 +131,10 @@ whenever you're curious: `sudo -u fuelsignal env UV_PYTHON_PREFERENCE=only-syste
 /usr/local/bin/uv run python -m fuel_signal.signal` from
 `{{ fuel_signal_repo_dir }}`.
 
-`tasks/main.yml` stops, disables, and removes the old `fuelsignal-signal.*`
-unit files and script on any host that already had them from before the
-rename.
+(The old `fuelsignal-signal.*` unit files and script were retired on
+viking via a transitional cleanup in `tasks/main.yml`, removed again once
+confirmed applied - see git history if this ever needs redoing for another
+host.)
 
 **Runtime**: `fuel_signal.fill` is not incremental - it fully rebuilds
 `daily_prices` from every station's entire price history on every run

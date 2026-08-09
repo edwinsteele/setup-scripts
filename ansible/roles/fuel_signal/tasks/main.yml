@@ -108,37 +108,6 @@
   become: true
   notify: Restart fuelsignal workbench
 
-- name: Check for pre-rename daily-update unit files (fuelsignal-signal.*)
-  ansible.builtin.stat:
-    path: "/etc/systemd/system/{{ item }}"
-  loop:
-    - fuelsignal-signal.service
-    - fuelsignal-signal.timer
-  register: fuel_signal_old_units
-  become: true
-
-- name: Stop and disable pre-rename units before removing them
-  ansible.builtin.systemd:
-    name: "{{ item.item }}"
-    state: stopped
-    enabled: false
-  loop: "{{ fuel_signal_old_units.results }}"
-  loop_control:
-    label: "{{ item.item }}"
-  when: item.stat.exists
-  become: true
-
-- name: Remove pre-rename unit files and script (renamed to fuelsignal-daily-update)
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: absent
-  loop:
-    - /etc/systemd/system/fuelsignal-signal.service
-    - /etc/systemd/system/fuelsignal-signal.timer
-    - /usr/local/bin/fuelsignal-signal-check.sh
-  become: true
-  notify: Reload systemd for fuelsignal units
-
 - name: Template the daily-update wrapper script
   ansible.builtin.template:
     src: fuelsignal-daily-update.sh.j2
