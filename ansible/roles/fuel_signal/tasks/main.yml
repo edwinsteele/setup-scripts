@@ -22,12 +22,6 @@
     shell: /sbin/nologin
   become: true
 
-- name: Install rsync (needed for the model/DB bootstrap sync from the dev checkout)
-  ansible.builtin.dnf:
-    name: rsync
-    state: present
-  become: true
-
 # AppStream ships versioned interpreter packages (python3.14, alongside the
 # python3.9 base the OS itself depends on) - installing this means `uv sync`
 # resolves the repo's `requires-python = ">=3.14"` against a dnf-managed,

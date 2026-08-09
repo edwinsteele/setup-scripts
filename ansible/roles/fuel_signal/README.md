@@ -96,8 +96,8 @@ check" undersold what it does) used to run `fuel_signal.live` (hitting the
 FuelCheck API directly, which needed OAuth credentials). It doesn't anymore:
 `fuel-price-signal` already runs its own `daily-snapshot.yml` GitHub Action
 that fetches the same data and commits it to `data/snapshots/**/*.csv`
-(tracked in git - see the bootstrap section below), so calling the live API
-a second time from viking was redundant.
+(tracked in git), so calling the live API a second time from viking was
+redundant.
 
 `fuelsignal-daily-update.sh.j2` now does `git pull --ff-only` + `uv sync` to
 bring in whatever landed upstream (today's snapshot commit, and any code/
@@ -146,45 +146,24 @@ once-daily oneshot unit, but worth watching.
 
 This also means the role no longer needs any FuelCheck credentials at all -
 no `/etc/fuelsignal/fuelsignal.env`, no `EnvironmentFile=` on either systemd
-unit, no private-vars wiring in `site.yml`. (The private `local_setup-scripts`
-repo's `roles/fuel_signal/vars/private_vars.yml` is now unused too and can be
-removed there whenever convenient - not this repo's concern.)
-
-## One-time bootstrap: DB
+unit, no private-vars wiring in `site.yml`. The private `local_setup-scripts`
+repo's `roles/fuel_signal/vars/private_vars.yml` (which held those
+credentials) has been removed there too - it was never committed, just an
+untracked file on disk.
 
 `fuel_signal.db` (SQLite, WAL) is gitignored - `git pull` never brings it
-along. Sync it from your Mac dev checkout once, straight into the
-`fuelsignal`-owned checkout, using esteele's existing passwordless sudo
-rather than granting `fuelsignal` its own inbound SSH access. This role
-installs `rsync` on viking for exactly this (Rocky 9 minimal doesn't ship
-it by default).
-
-```bash
-cd ~/Code/fuel-price-signal   # your dev checkout
-rsync -avz --rsync-path="sudo -u fuelsignal rsync" \
-  fuel_signal.db fuel_signal.db-wal fuel_signal.db-shm \
-  viking.home.wordspeak.org:/srv/fuelsignal/fuel-price-signal/ \
-  2>&1  # adjust source paths/flags to taste
-
-# data/tgp/ (AIP TGP downloader cache) if you're relying on it rather than
-# letting it rebuild on first live.py run:
-rsync -avz --rsync-path="sudo -u fuelsignal rsync" \
-  data/tgp/ viking.home.wordspeak.org:/srv/fuelsignal/fuel-price-signal/data/tgp/
-```
-
-Do this after the first `ansible-playbook` run (the checkout and
-`fuelsignal` account need to exist first) and again whenever your dev
-machine's DB gets meaningfully ahead of what's on `viking`. This is a
-manual step by design - not scheduled, not run by `fuelsignal-deploy`.
-
-`data/snapshots/**/*.csv` is tracked in git, so that part arrives free with
-every `git pull`/clone.
+along, but nothing on viking needs a pre-built copy: the checkout builds
+its own from scratch (`history` → `db` → `fill` → `classify` →
+`lga_leadership`, run once by hand as `fuelsignal` after the first
+`ansible-playbook` run). `data/snapshots/**/*.csv` is tracked in git, so
+that part arrives free with every `git pull`/clone.
 
 ## Trained models: pulled from a GitHub Release, not synced from the Mac
 
-`data/models/*.joblib` is gitignored too, but unlike the DB it doesn't come
-from a Mac rsync - `fuel-price-signal`'s `build-model.yml` GitHub Actions
-workflow trains the model and publishes `lgbm.joblib` +
+`data/models/*.joblib` is gitignored too, and like the DB it's built
+elsewhere and pulled in rather than shipped in the checkout -
+`fuel-price-signal`'s `build-model.yml` GitHub Actions workflow trains the
+model and publishes `lgbm.joblib` +
 `lgbm_calibrated.joblib` as assets on a GitHub Release tagged
 `model-latest`, re-uploaded with `--clobber` on every run (so the tag
 always points at the current model - no versioned tags to track). This is
