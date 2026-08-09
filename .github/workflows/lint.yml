@@ -26,7 +26,8 @@ jobs:
       - name: Install collection dependencies
         run: ansible-galaxy collection install -r ansible/requirements.yml
       - name: Run ansible-lint
-        run: ansible-lint ansible/
+        working-directory: ansible
+        run: ansible-lint .
 
   yamllint:
     runs-on: ubuntu-latest
