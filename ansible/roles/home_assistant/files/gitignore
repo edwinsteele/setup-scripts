@@ -7,6 +7,11 @@
 .storage/
 .cloud/
 
+# HA's own Backup archives - these are tarballs of (among other things)
+# .storage/, so they hold the exact same plaintext credentials .storage/
+# is excluded above for. Never let these into git history.
+backups/
+
 # Referenced via !secret in the tracked YAML - kept out of git entirely.
 secrets.yaml
 
@@ -17,3 +22,8 @@ secrets.yaml
 deps/
 tts/
 image/
+
+# HA's own icon cache - regenerates itself, nothing to diff or restore.
+.cache/
+.HA_VERSION
+.ha_run.lock

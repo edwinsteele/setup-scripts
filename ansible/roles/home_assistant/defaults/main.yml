@@ -17,3 +17,9 @@ home_assistant_backup_repo_url: git@github.com:edwinsteele/ha-config-backup.git
 # core.sshCommand below rather than root's general SSH identity - generating
 # and registering it is a manual one-time step, see the README.
 home_assistant_backup_deploy_key_path: /root/.ssh/ha-config-backup_ed25519
+# Dedicated known_hosts, not root's general one - pinned to GitHub's
+# official published host keys (files/ha-config-backup_known_hosts,
+# fetched from https://api.github.com/meta over HTTPS) rather than
+# trust-on-first-connect, same "scoped, minimal blast radius" reasoning
+# as the deploy key itself.
+home_assistant_backup_known_hosts_path: /root/.ssh/ha-config-backup_known_hosts

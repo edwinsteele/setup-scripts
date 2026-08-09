@@ -61,7 +61,11 @@ unnoticed.
 
 A dedicated key (not root's general SSH identity) is scoped to just this
 repo via `core.sshCommand` in the config directory's local git config, so a
-compromised or rotated key here can't reach anything else.
+compromised or rotated key here can't reach anything else. Host key
+verification uses a dedicated `known_hosts` too (not root's general one),
+pre-populated with GitHub's official published host keys rather than
+trust-on-first-connect - root has otherwise never SSH'd to GitHub, so
+without this the first push fails with "Host key verification failed".
 
 ## Editing HA config directly (diffs first, then apply)
 
