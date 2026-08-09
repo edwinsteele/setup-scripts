@@ -5,8 +5,9 @@ on `viking` (see [samba_timemachine](../samba_timemachine/README.md) for what
 else lives on that box) as a dedicated `fuelsignal` system account, with:
 
 - a daily `fuelsignal-daily-update.timer` that pulls, syncs, loads today's
-  already-committed snapshot CSV, and prints the buy/wait signal to the
-  journal, and
+  already-committed snapshot CSV, then refreshes the derived tables the
+  workbench reads (`daily_prices`, `station_class`/`classification_summary`,
+  `lga_leadership`), and
 - an always-on `fuelsignal-workbench.service` running the Flask analysis
   workbench, bound to `viking`'s LAN address (never `0.0.0.0`).
 
@@ -100,14 +101,47 @@ a second time from viking was redundant.
 
 `fuelsignal-daily-update.sh.j2` now does `git pull --ff-only` + `uv sync` to
 bring in whatever landed upstream (today's snapshot commit, and any code/
-dependency changes riding along with it), then runs `fuel_signal.db` (loads
-the new snapshot file via its `loaded_files`-table tracking), `fuel_signal.fill`
-(rebuilds `daily_prices` so the new day is actually visible to
-`average_price_series`), then `fuel_signal.signal`. If upstream's Action
-hasn't run yet for the day, `git pull` is just a no-op and the DB/signal
-steps run against whatever was already loaded. `tasks/main.yml` stops,
-disables, and removes the old `fuelsignal-signal.*` unit files and script
-on any host that already had them from before the rename.
+dependency changes riding along with it), then mirrors upstream's own
+`daily-db-update.yml` GitHub Actions workflow (see that project's README,
+"CI: DB and model pipeline"): `fuel_signal.db` (loads the new snapshot file
+via its `loaded_files`-table tracking), `fuel_signal.fill` (rebuilds
+`daily_prices`), `fuel_signal.classify --snapshot-date <today>`, and
+`fuel_signal.lga_leadership --snapshot-date <today>` - both scoped to a
+single date (their default when `--start-date` isn't given), not the
+`--start-date`-driven backfill mode used for a from-scratch rebuild. If
+upstream's Action hasn't run yet for the day, `git pull` is just a no-op
+and the rest runs against whatever was already loaded.
+
+`fill` alone isn't sufficient for the always-on workbench: `/classification-health`
+reads `station_class`/`classification_summary` and `/lead-lag` reads
+`lga_leadership`, neither of which `fill` touches. `--snapshot-date` is
+computed explicitly as `date -u +%Y-%m-%d` in the script rather than left
+to `classify`/`lga_leadership`'s own `date.today()` default - that default
+reads the *host's local date*, and viking's isn't UTC (confirmed in a real
+run: `fill`/`signal` logged `2026-08-10` from their local-date default
+while the snapshot that had just landed, and `git pull`/`fuel_signal.db`,
+were dated `2026-08-09` UTC) - same reasoning
+`fuel_signal_daily_update_oncalendar` is explicit UTC rather than trusting
+viking's system timezone.
+
+No `fuel_signal.signal` call - the buy/wait CLI verdict isn't consumed by
+anything on viking (nothing forwards it anywhere, the workbench doesn't
+need it), so it's dropped rather than run for no reason. Run it by hand
+whenever you're curious: `sudo -u fuelsignal env UV_PYTHON_PREFERENCE=only-system
+/usr/local/bin/uv run python -m fuel_signal.signal` from
+`{{ fuel_signal_repo_dir }}`.
+
+`tasks/main.yml` stops, disables, and removes the old `fuelsignal-signal.*`
+unit files and script on any host that already had them from before the
+rename.
+
+**Runtime**: `fuel_signal.fill` is not incremental - it fully rebuilds
+`daily_prices` from every station's entire price history on every run
+(confirmed on viking: ~6 minutes of a ~7-minute total run, rebuilding 747
+stations / 2.3M rows from one new snapshot file). `classify`/`lga_leadership`
+are cheap by contrast (single-date, bounded window). This will keep
+growing slowly as history lengthens - not a problem today for a
+once-daily oneshot unit, but worth watching.
 
 This also means the role no longer needs any FuelCheck credentials at all -
 no `/etc/fuelsignal/fuelsignal.env`, no `EnvironmentFile=` on either systemd

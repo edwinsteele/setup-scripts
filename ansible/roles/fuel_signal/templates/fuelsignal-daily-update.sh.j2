@@ -2,9 +2,25 @@
 # Managed by ansible - roles/fuel_signal
 # Pulls the checkout to latest (today's snapshot CSV, committed by
 # upstream's own daily-snapshot GitHub Action, arrives this way - see
-# README's "Daily update" section), syncs dependencies, loads any
-# newly-landed snapshot into the DB, then prints the buy/wait signal - all
-# land in the journal via this unit's stdout/stderr.
+# README's "Daily update" section), syncs dependencies, then mirrors
+# upstream's own "Daily DB update" GitHub Actions workflow: load the new
+# snapshot, forward-fill daily_prices, then re-classify stations and
+# re-score LGA leadership for *today only* (both default to a single-date
+# run - see fuel_signal.classify/lga_leadership --help - not the
+# --start-date backfill mode used for a from-scratch rebuild). All output
+# lands in the journal via this unit's stdout/stderr.
+#
+# fill alone isn't enough for the always-on workbench: /classification-health
+# reads station_class/classification_summary and /lead-lag reads
+# lga_leadership, neither of which fill touches - only classify/
+# lga_leadership populate those. No fuel_signal.signal call - the buy/wait
+# CLI signal isn't needed here.
+#
+# --snapshot-date is passed explicitly (UTC, computed here) rather than
+# left to classify/lga_leadership's own `date.today()` default, which
+# reads the host's local date - same reasoning fuel_signal_daily_update_
+# oncalendar is explicit UTC rather than relying on viking's system
+# timezone.
 #
 # This is a deliberate exception to "the ansible role never runs git pull"
 # (see fuelsignal-deploy.sh.j2): that invariant is about the *ansible role*
@@ -12,12 +28,17 @@
 # run, not about all automation on the box. This timer intentionally keeps
 # the checkout bleeding-edge daily. It does NOT restart
 # fuelsignal-workbench.service though - the running Flask process doesn't
-# reload code from disk anyway, so only fuelsignal-deploy's explicit
-# restart actually puts new code in front of users.
+# reload code from disk anyway, and it queries SQLite fresh per request
+# rather than caching this data at startup, so no restart is needed for
+# new data to show up - only fuelsignal-deploy's explicit restart puts new
+# *code* in front of users.
 set -eu
 cd "{{ fuel_signal_repo_dir }}"
 git pull --ff-only
 /usr/local/bin/uv sync
+
+today="$(date -u +%Y-%m-%d)"
 /usr/local/bin/uv run python -m fuel_signal.db
 /usr/local/bin/uv run python -m fuel_signal.fill
-/usr/local/bin/uv run python -m fuel_signal.signal
+/usr/local/bin/uv run python -m fuel_signal.classify --snapshot-date "$today"
+/usr/local/bin/uv run python -m fuel_signal.lga_leadership --snapshot-date "$today"
