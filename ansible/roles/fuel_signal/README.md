@@ -126,30 +126,21 @@ export FUELAPI_API_SECRET=...
 (the lookup reads the *control node's* environment, not the remote host's -
 exporting on viking itself would do nothing).
 
-## One-time bootstrap: DB and trained models
+## One-time bootstrap: DB
 
-`fuel_signal.db` (SQLite, WAL) and `data/models/*.joblib` are gitignored -
-`git pull` never brings them along. Sync them from your Mac dev checkout
-once, straight into the `fuelsignal`-owned checkout, using esteele's
-existing passwordless sudo rather than granting `fuelsignal` its own
-inbound SSH access. This role installs `rsync` on viking for exactly this
-(Rocky 9 minimal doesn't ship it by default).
-
-Model training happens on the Mac, not on viking, deliberately - a real
-`uv run python -m fuel_signal.features` benchmark on viking's hardware (4
-cores, 3.6GB RAM) against the full price history OOM-killed at ~3GB
-resident plus a fully-drained 4GB swap file. The APU3 board just doesn't
-have the memory for full-history feature engineering, so there's no
-version of "train it on-host instead" that works without either a memory
-optimization in the upstream repo or more RAM than this board has.
+`fuel_signal.db` (SQLite, WAL) is gitignored - `git pull` never brings it
+along. Sync it from your Mac dev checkout once, straight into the
+`fuelsignal`-owned checkout, using esteele's existing passwordless sudo
+rather than granting `fuelsignal` its own inbound SSH access. This role
+installs `rsync` on viking for exactly this (Rocky 9 minimal doesn't ship
+it by default).
 
 ```bash
 cd ~/Code/fuel-price-signal   # your dev checkout
 rsync -avz --rsync-path="sudo -u fuelsignal rsync" \
   fuel_signal.db fuel_signal.db-wal fuel_signal.db-shm \
-  data/models/ \
-  viking.home.wordspeak.org:/srv/fuelsignal/fuel-price-signal/data/models/ \
-  2>&1  # adjust source paths/flags to taste; run db + data/models as separate rsyncs if you prefer
+  viking.home.wordspeak.org:/srv/fuelsignal/fuel-price-signal/ \
+  2>&1  # adjust source paths/flags to taste
 
 # data/tgp/ (AIP TGP downloader cache) if you're relying on it rather than
 # letting it rebuild on first live.py run:
@@ -159,11 +150,42 @@ rsync -avz --rsync-path="sudo -u fuelsignal rsync" \
 
 Do this after the first `ansible-playbook` run (the checkout and
 `fuelsignal` account need to exist first) and again whenever your dev
-machine's DB/models get meaningfully ahead of what's on `viking`. This is a
+machine's DB gets meaningfully ahead of what's on `viking`. This is a
 manual step by design - not scheduled, not run by `fuelsignal-deploy`.
 
 `data/snapshots/**/*.csv` is tracked in git, so that part arrives free with
 every `git pull`/clone.
+
+## Trained models: pulled from a GitHub Release, not synced from the Mac
+
+`data/models/*.joblib` is gitignored too, but unlike the DB it doesn't come
+from a Mac rsync - `fuel-price-signal`'s `build-model.yml` GitHub Actions
+workflow trains the model and publishes `lgbm.joblib` +
+`lgbm_calibrated.joblib` as assets on a GitHub Release tagged
+`model-latest`, re-uploaded with `--clobber` on every run (so the tag
+always points at the current model - no versioned tags to track). This is
+deliberately a public Release rather than an Actions artifact: viking is an
+external, unattended box, not a GitHub Actions runner, so it needs a plain
+HTTPS download with no stored credential - only Releases give you that;
+artifacts and the Actions cache both require an authenticated API call.
+
+Model training happens in CI, not on viking, for the same memory reason it
+never happened on the Mac's behalf locally either - a real
+`uv run python -m fuel_signal.features` benchmark on viking's hardware (4
+cores, 3.6GB RAM) against the full price history OOM-killed at ~3GB
+resident plus a fully-drained 4GB swap file. The APU3 board just doesn't
+have the memory for full-history feature engineering.
+
+Pull the latest model files with (templated to
+`/usr/local/bin/fuelsignal-model-update`):
+
+```bash
+ssh viking.home.wordspeak.org sudo fuelsignal-model-update
+```
+
+which downloads both assets as the `fuelsignal` account into
+`data/models/` and restarts `fuelsignal-workbench.service`. Run by hand
+whenever you choose - not scheduled, not run by `fuelsignal-deploy`.
 
 ## Networking
 

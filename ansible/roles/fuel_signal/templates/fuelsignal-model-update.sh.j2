@@ -1,0 +1,23 @@
+#!/bin/sh
+# Managed by ansible - roles/fuel_signal
+# Downloads the latest trained model files from the fuel-price-signal
+# GitHub Release (tag model-latest, re-uploaded with --clobber on every
+# training run - no versioned tags to track) and restarts the workbench.
+# Run by hand (sudo fuelsignal-model-update) whenever you choose - this
+# repo's ansible role never runs it itself.
+set -eu
+
+if [ "$(id -u)" -ne 0 ]; then
+    echo "Run as root: sudo fuelsignal-model-update" >&2
+    exit 1
+fi
+
+release_base="https://github.com/edwinsteele/fuel-price-signal/releases/download/model-latest"
+model_dir="{{ fuel_signal_repo_dir }}/data/models"
+
+runuser -u {{ fuel_signal_user }} -- mkdir -p "$model_dir"
+runuser -u {{ fuel_signal_user }} -- curl -fsSL -o "$model_dir/lgbm.joblib" "$release_base/lgbm.joblib"
+runuser -u {{ fuel_signal_user }} -- curl -fsSL -o "$model_dir/lgbm_calibrated.joblib" "$release_base/lgbm_calibrated.joblib"
+systemctl restart fuelsignal-workbench.service
+
+echo "Model files updated from $release_base"

@@ -158,6 +158,15 @@
     mode: "0755"
   become: true
 
+- name: Template the model-update script
+  ansible.builtin.template:
+    src: fuelsignal-model-update.sh.j2
+    dest: /usr/local/bin/fuelsignal-model-update
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+
 - name: Flush handlers so units are current before enabling them
   ansible.builtin.meta: flush_handlers
 
