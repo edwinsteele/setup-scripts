@@ -4,8 +4,9 @@ Deploys [fuel-price-signal](https://github.com/edwinsteele/fuel-price-signal)
 on `viking` (see [samba_timemachine](../samba_timemachine/README.md) for what
 else lives on that box) as a dedicated `fuelsignal` system account, with:
 
-- a daily `fuelsignal-signal.timer` that pulls in today's already-committed
-  snapshot CSV and prints the buy/wait signal to the journal, and
+- a daily `fuelsignal-daily-update.timer` that pulls, syncs, loads today's
+  already-committed snapshot CSV, and prints the buy/wait signal to the
+  journal, and
 - an always-on `fuelsignal-workbench.service` running the Flask analysis
   workbench, bound to `viking`'s LAN address (never `0.0.0.0`).
 
@@ -60,7 +61,7 @@ invocation without adding it to `fuel-price-signal`'s own
 `pyproject.toml`/`uv.lock`. `--debug` is never passed, so Flask's debug
 mode stays off regardless.
 
-## Checkout updates: the ansible role never pulls, but the signal-check timer does
+## Checkout updates: the ansible role never pulls, but the daily-update timer does
 
 The `ansible.builtin.git` task uses `update: false` - it only clones on
 first run. Re-running this play (e.g. for an unrelated `home_assistant`
@@ -68,7 +69,7 @@ change) never pulls new commits - that's the invariant `fuelsignal-deploy`
 documents ("this repo's ansible role never runs `git pull` itself").
 
 That invariant is about the *ansible role*, though, not about all automation
-on the box. `fuelsignal-signal-check.sh` (see below) is a deliberate
+on the box. `fuelsignal-daily-update.sh` (see below) is a deliberate
 exception: it does its own `git pull --ff-only` on every daily firing, so
 the checkout stays bleeding-edge. What stays manual is putting new code in
 front of users - `fuelsignal-workbench.service` is a long-running Flask
@@ -86,23 +87,27 @@ no-op by the time you run it, since the timer already pulled), then
 restarts `fuelsignal-workbench.service` - the actual moment new code goes
 live.
 
-## Daily signal check: `git pull`, not a live FuelCheck API call
+## Daily update: `git pull`, not a live FuelCheck API call
 
-`fuelsignal-signal-check.sh` used to run `fuel_signal.live` (hitting the
+`fuelsignal-daily-update.sh` (formerly `fuelsignal-signal-check.sh` - and
+its service/timer were `fuelsignal-signal.*` - renamed because "signal
+check" undersold what it does) used to run `fuel_signal.live` (hitting the
 FuelCheck API directly, which needed OAuth credentials). It doesn't anymore:
 `fuel-price-signal` already runs its own `daily-snapshot.yml` GitHub Action
 that fetches the same data and commits it to `data/snapshots/**/*.csv`
 (tracked in git - see the bootstrap section below), so calling the live API
 a second time from viking was redundant.
 
-`fuelsignal-signal-check.sh.j2` now does `git pull --ff-only` + `uv sync` to
+`fuelsignal-daily-update.sh.j2` now does `git pull --ff-only` + `uv sync` to
 bring in whatever landed upstream (today's snapshot commit, and any code/
 dependency changes riding along with it), then runs `fuel_signal.db` (loads
 the new snapshot file via its `loaded_files`-table tracking), `fuel_signal.fill`
 (rebuilds `daily_prices` so the new day is actually visible to
 `average_price_series`), then `fuel_signal.signal`. If upstream's Action
 hasn't run yet for the day, `git pull` is just a no-op and the DB/signal
-steps run against whatever was already loaded.
+steps run against whatever was already loaded. `tasks/main.yml` stops,
+disables, and removes the old `fuelsignal-signal.*` unit files and script
+on any host that already had them from before the rename.
 
 This also means the role no longer needs any FuelCheck credentials at all -
 no `/etc/fuelsignal/fuelsignal.env`, no `EnvironmentFile=` on either systemd

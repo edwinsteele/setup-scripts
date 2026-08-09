@@ -108,16 +108,47 @@
   become: true
   notify: Restart fuelsignal workbench
 
-- name: Template the signal-check wrapper script
+- name: Check for pre-rename daily-update unit files (fuelsignal-signal.*)
+  ansible.builtin.stat:
+    path: "/etc/systemd/system/{{ item }}"
+  loop:
+    - fuelsignal-signal.service
+    - fuelsignal-signal.timer
+  register: fuel_signal_old_units
+  become: true
+
+- name: Stop and disable pre-rename units before removing them
+  ansible.builtin.systemd:
+    name: "{{ item.item }}"
+    state: stopped
+    enabled: false
+  loop: "{{ fuel_signal_old_units.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+  when: item.stat.exists
+  become: true
+
+- name: Remove pre-rename unit files and script (renamed to fuelsignal-daily-update)
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/systemd/system/fuelsignal-signal.service
+    - /etc/systemd/system/fuelsignal-signal.timer
+    - /usr/local/bin/fuelsignal-signal-check.sh
+  become: true
+  notify: Reload systemd for fuelsignal units
+
+- name: Template the daily-update wrapper script
   ansible.builtin.template:
-    src: fuelsignal-signal-check.sh.j2
-    dest: /usr/local/bin/fuelsignal-signal-check.sh
+    src: fuelsignal-daily-update.sh.j2
+    dest: /usr/local/bin/fuelsignal-daily-update.sh
     owner: root
     group: root
     mode: "0755"
   become: true
 
-- name: Template the signal-check systemd service and timer
+- name: Template the daily-update systemd service and timer
   ansible.builtin.template:
     src: "{{ item }}.j2"
     dest: "/etc/systemd/system/{{ item }}"
@@ -126,8 +157,8 @@
     mode: "0644"
   become: true
   loop:
-    - fuelsignal-signal.service
-    - fuelsignal-signal.timer
+    - fuelsignal-daily-update.service
+    - fuelsignal-daily-update.timer
   notify: Reload systemd for fuelsignal units
 
 - name: Template the deploy script
@@ -159,10 +190,10 @@
     enabled: true
   become: true
 
-- name: Reload systemd, enable and start the signal-check timer
+- name: Reload systemd, enable and start the daily-update timer
   ansible.builtin.systemd:
     daemon_reload: true
-    name: fuelsignal-signal.timer
+    name: fuelsignal-daily-update.timer
     state: started
     enabled: true
   become: true

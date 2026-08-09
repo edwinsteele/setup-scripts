@@ -1,6 +1,6 @@
 # Managed by ansible - roles/fuel_signal
 [Unit]
-Description=fuel-price-signal: pull latest snapshot and print buy/wait signal
+Description=fuel-price-signal: daily git pull, DB update, and buy/wait signal
 Wants=network-online.target
 After=network-online.target
 
@@ -9,4 +9,4 @@ Type=oneshot
 User={{ fuel_signal_user }}
 WorkingDirectory={{ fuel_signal_repo_dir }}
 Environment=UV_PYTHON_PREFERENCE=only-system
-ExecStart=/usr/local/bin/fuelsignal-signal-check.sh
+ExecStart=/usr/local/bin/fuelsignal-daily-update.sh
