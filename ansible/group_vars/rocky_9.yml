@@ -1,0 +1,10 @@
+---
+# Pinned explicitly so a second Python interpreter on a rocky_9 host (e.g.
+# python3.14, installed system-wide by roles/fuel_signal for uv's
+# UV_PYTHON_PREFERENCE=only-system) can't cause ansible's interpreter
+# auto-discovery to silently pick it over the box's real system Python -
+# python3.14 has no libselinux bindings, breaking any task (like
+# community.general.sefcontext in roles/samba_timemachine) that needs them.
+# /usr/bin/python3 still symlinks to python3.9 on viking; naming it
+# explicitly rather than relying on that symlink.
+ansible_python_interpreter: /usr/bin/python3.9
