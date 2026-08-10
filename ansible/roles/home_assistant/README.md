@@ -121,6 +121,16 @@ wouldn't give them. Bluetooth/BLE integrations (Xiaomi BLE, iBeacon
 Tracker) were intentionally left out of scope here - `viking`'s APU3 board
 has no Bluetooth radio, and there's no USB BT passthrough in this role.
 
+`Network=host` and mDNS alone aren't enough for HomeKit Bridge, though:
+firewalld only opens `8123/tcp` (the web UI) by default, not the Bridge's
+actual HAP (HomeKit Accessory Protocol) data port. Without that port also
+open, Apple Home can *discover* the bridge via mDNS/Bonjour but can't
+complete pairing or exchange data with it - it'll just show no entities.
+This role opens `{{ home_assistant_homekit_port }}/tcp` (see
+`home_assistant_homekit_port` in `defaults/main.yml`) for exactly this
+reason; that value must match the `port` HA picked for the `homekit`
+config entry in `.storage/core.config_entries` on first setup.
+
 ## Restoring a backup from a previous install
 
 Home Assistant's onboarding wizard offers an "Upload backup" step, but its

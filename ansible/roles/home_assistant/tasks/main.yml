@@ -94,6 +94,14 @@
     state: enabled
   become: true
 
+- name: Open firewalld port for the HomeKit Bridge (HAP)
+  ansible.posix.firewalld:
+    port: "{{ home_assistant_homekit_port }}/tcp"
+    permanent: true
+    immediate: true
+    state: enabled
+  become: true
+
 - name: Template Home Assistant Quadlet unit
   ansible.builtin.template:
     src: home-assistant.container.j2

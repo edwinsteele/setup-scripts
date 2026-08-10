@@ -9,6 +9,13 @@ home_assistant_config_path: /srv/homeassistant/config
 # Matches pxe_install_timezone and the OpenBSD common role's Sydney default.
 home_assistant_timezone: Australia/Sydney
 
+# HomeKit Bridge's HAP (HomeKit Accessory Protocol) port - must match the
+# "port" value in the "homekit" entry of
+# {{ home_assistant_config_path }}/.storage/core.config_entries. HA picks
+# this port once on first setup and it isn't easily changed afterward
+# without re-pairing every paired device.
+home_assistant_homekit_port: 21064
+
 # Off-host copy of the git-tracked YAML layer (automations/scripts/scenes/
 # configuration.yaml) - see the "Off-host backup of the git layer" section
 # of the role README. Pushed nightly alongside the autosnapshot commit.
