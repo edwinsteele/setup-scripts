@@ -53,6 +53,26 @@ sudo mkfs.xfs -f -L TimeMachine /dev/sdb3
 (run once, after copying any data that needs to survive the reformat off
 to other storage first)
 
+### USB-SATA bridge quirk
+
+This role also disables the Linux `uas` driver for this specific disk's
+USB bridge (`samba_server_seagate_usb_id`, `0bc2:331a`) via a `grubby`
+kernel boot arg. Hit for real on 2026-08-11: sustained write load (the
+initial rsync of the media library) made the bridge drop commands, which
+cascaded into dozens of SCSI resets and eventually an XFS log shutdown on
+`sdb2` - the drive itself briefly disappeared from the USB bus and needed
+a physical power-cycle to come back. Forcing the older `usb-storage` (BOT)
+driver avoids it.
+
+`grubby` only edits the bootloader entry - it doesn't take effect until
+the next reboot, and this role doesn't reboot the host automatically (it's
+in active use for Samba/HA/other services). After a first apply that
+changes this arg, reboot manually when convenient:
+
+```bash
+ssh viking.home.wordspeak.org sudo reboot
+```
+
 ## Networking
 
 Unlike the OpenBSD hosts, `viking` has no ansible-managed network role - it

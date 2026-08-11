@@ -1,4 +1,24 @@
 ---
+- name: Check current kernel boot args for the Seagate USB-SATA bridge quirk
+  ansible.builtin.command: grubby --info=ALL
+  register: samba_server_grubby_info
+  changed_when: false
+  become: true
+
+# The Seagate "Expansion Desk" enclosure holding both shares' partitions
+#  (see Disk layout below) drops commands under sustained write load when
+#  driven by the Linux `uas` (USB Attached SCSI) driver - repeated SCSI
+#  resets, then a hard I/O error, then an XFS log shutdown. Hit for real on
+#  2026-08-11 partway through the initial rsync-in of the media library.
+#  Forcing the older usb-storage (BOT) driver via this kernel quirk avoids
+#  it. grubby only edits the bootloader entry - takes effect on next boot,
+#  not applied live, so this alone doesn't fix an already-booted host.
+- name: Disable UAS for the Seagate USB-SATA bridge (survives reimage/reboot)
+  ansible.builtin.command: >
+    grubby --update-kernel=ALL --args=usb-storage.quirks={{ samba_server_seagate_usb_id }}:u
+  when: "('usb-storage.quirks=' + samba_server_seagate_usb_id + ':u') not in samba_server_grubby_info.stdout"
+  become: true
+
 - name: Install samba and avahi
   ansible.builtin.dnf:
     name:
