@@ -73,6 +73,40 @@ changes this arg, reboot manually when convenient:
 ssh viking.home.wordspeak.org sudo reboot
 ```
 
+### Disk power management
+
+Checked via `smartctl -A /dev/sdb` on 2026-08-11: `Power_Cycle_Count` was
+only 45 over ~35,000 power-on hours (the disk basically never spins fully
+down), but `Load_Cycle_Count` - head park/unload events, a separate SMART
+attribute - was at 351,760 against this drive's ~300,000-cycle rated
+budget, with SMART's own normalized score for that attribute down to 1/100.
+Root cause: this is a desktop-class Seagate BarraCuda (not NAS-rated), and
+it shipped with Advanced Power Management (APM) level 128 - permits
+internal idle-C head unloading on any brief pause, even though it forbids
+full standby. That's a much smaller, much more frequent wear event than a
+spin-down, and it was happening roughly 10 times an hour, continuously,
+for the disk's whole life - not something a backup-only or media-only
+access pattern would naturally cause.
+
+This role sets APM to level 254 (`samba_server_disk_apm_level`, disables
+APM power-saving states entirely - no standby, no idle-C/head-unload) via
+`hdparm -B`, and reapplies it on every disk (re)enumeration via a udev
+rule (`templates/99-seagate-apm.rules.j2`, matched on
+`samba_server_seagate_usb_id`) since the setting itself doesn't survive a
+power cycle or USB replug - relevant here given the disk's USB-SATA bridge
+has already dropped off the bus once under load (see the quirk above).
+Trade-off: the disk now never enters a lower-power idle state, so it draws
+slightly more power/runs slightly warmer than before - acceptable given
+how much of its rated head-parking budget was already spent.
+
+This role also configures `smartd` (package installed by `common`) via
+`templates/smartd.conf.j2` against `samba_server_disk_device`: a short
+self-test daily at 02:00 and a long self-test weekly (Saturday 03:00), so
+attribute trends (this one especially) are visible going forward instead
+of only checked ad hoc. No mail alerting is configured - Rocky has no MTA
+here (`mail_sender` is OpenBSD-only) - so check via `journalctl -u smartd`
+or `smartctl -a /dev/sdb` for now.
+
 ## Networking
 
 Unlike the OpenBSD hosts, `viking` has no ansible-managed network role - it

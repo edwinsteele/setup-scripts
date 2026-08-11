@@ -1,0 +1,7 @@
+# Reapply the Advanced Power Management level whenever the Seagate disk
+# (re)enumerates - hdparm -B is not persistent across power cycles or USB
+# replugs, and this disk's USB-SATA bridge has already dropped off the bus
+# once under load (see the "USB-SATA bridge quirk" README section). Without
+# this, a reboot or bus reset silently reverts the drive to its aggressive
+# firmware default. See the "Disk power management" README section.
+ACTION=="add", SUBSYSTEM=="block", KERNEL=="sd?", ATTRS{idVendor}=="{{ samba_server_seagate_usb_id.split(':')[0] }}", ATTRS{idProduct}=="{{ samba_server_seagate_usb_id.split(':')[1] }}", RUN+="/usr/sbin/hdparm -B {{ samba_server_disk_apm_level }} /dev/%k"

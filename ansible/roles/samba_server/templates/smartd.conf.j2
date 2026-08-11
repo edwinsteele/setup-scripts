@@ -1,0 +1,5 @@
+# -a: enable all standard monitoring. -o on / -S on: persist Automatic
+# Offline Data Collection and Attribute Autosave across power cycles. -s:
+# scheduled self-tests - short daily at 02:00, long weekly on Saturday
+# (day 6) at 03:00. See the "Disk power management" README section.
+{{ samba_server_disk_device }} -a -o on -S on -s (S/../.././02|L/../../6/03)

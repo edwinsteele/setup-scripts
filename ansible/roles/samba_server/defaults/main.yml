@@ -2,3 +2,7 @@
 samba_workgroup: WORKGROUP
 samba_netbios_name: "{{ ansible_facts['hostname'] | upper }}"
 samba_server_seagate_usb_id: "0bc2:331a"
+samba_server_disk_device: /dev/sdb
+# 254 = max performance / APM effectively disabled (no standby, no idle-C
+#  head unloading). See the "Disk power management" README section for why.
+samba_server_disk_apm_level: 254

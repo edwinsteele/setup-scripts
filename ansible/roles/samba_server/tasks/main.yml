@@ -30,6 +30,62 @@
     state: present
   become: true
 
+- name: Install hdparm
+  ansible.builtin.dnf:
+    name: hdparm
+    state: present
+  become: true
+
+- name: Check current Advanced Power Management level on the disk
+  ansible.builtin.command: hdparm -B {{ samba_server_disk_device }}
+  register: samba_server_disk_apm_check
+  changed_when: false
+  become: true
+
+# Seagate desktop drives (this one's a BarraCuda ST4000DM005, see Disk
+#  layout below) default to APM level 128 - the lowest level that still
+#  disallows full standby (motor stop), but still permits internal idle-C
+#  head unloading on any brief pause. Observed via smartctl on 2026-08-11:
+#  Load_Cycle_Count (head park/unload events) was at 351,760 against a
+#  ~300,000-cycle rated budget after ~4 years, while Power_Cycle_Count
+#  (actual spin-downs) was only 45 - the wear is coming from constant head
+#  parking between backups/idle periods, not from the drive spinning down.
+#  Level 254 disables APM's power-saving states entirely (no standby, no
+#  idle-C/head-unload).
+- name: Set Advanced Power Management level to disable aggressive head-parking
+  ansible.builtin.command: hdparm -B {{ samba_server_disk_apm_level }} {{ samba_server_disk_device }}
+  when: "('APM_level\t= ' ~ samba_server_disk_apm_level) not in samba_server_disk_apm_check.stdout"
+  become: true
+
+- name: Template udev rule to reapply APM level whenever the disk (re)appears
+  # hdparm -B doesn't survive a power cycle or USB replug, so the setting
+  #  above needs reapplying every time the disk enumerates, not just once.
+  ansible.builtin.template:
+    src: 99-seagate-apm.rules.j2
+    dest: /etc/udev/rules.d/99-seagate-apm.rules
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+  notify: Reload udev rules
+
+- name: Template smartd configuration for the disk
+  ansible.builtin.template:
+    src: smartd.conf.j2
+    dest: /etc/smartd.conf
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+  notify: Restart smartd
+
+- name: Enable and start smartd
+  ansible.builtin.service:
+    name: smartd
+    state: started
+    enabled: true
+  become: true
+
 - name: Template smb.conf
   ansible.builtin.template:
     src: smb.conf.j2

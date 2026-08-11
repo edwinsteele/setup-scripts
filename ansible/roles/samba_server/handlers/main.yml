@@ -8,3 +8,12 @@
   ansible.builtin.service:
     name: avahi-daemon
     state: restarted
+
+- name: Reload udev rules
+  ansible.builtin.command: udevadm control --reload-rules
+  become: true
+
+- name: Restart smartd
+  ansible.builtin.service:
+    name: smartd
+    state: restarted
