@@ -38,6 +38,10 @@
       - usbutils
       - flashrom
       - dmidecode
+      # SMART diagnostics - added after the 2026-08-11 viking USB/XFS
+      #  incident (see samba_server's README) to check drive health
+      #  directly instead of inferring it from dmesg error signatures.
+      - smartmontools
     state: present
 
 - name: Enable and start chronyd
