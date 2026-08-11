@@ -19,5 +19,12 @@ that's [samba_server](../samba_server/README.md), which reads this role's
 role's README for installation, networking, running the play, and the
 Samba password setup step.
 
-Browsable at `smb://viking.home.wordspeak.org/Media` - add it as an Infuse
-library on the Apple TV using the same `esteele` credentials.
+Browsable at `smb://viking.home.wordspeak.org/Media` - readable by anyone
+on the LAN without a login (`guest ok = yes`, `read only = yes` in the
+`[Media]` stanza, via [samba_server](../samba_server/README.md)'s global
+`map to guest = bad user`), so Infuse or any other client can add it with
+no credentials. `esteele` can still authenticate for write access
+(smb.conf's `write list`, driven by `samba_media_write_users`) to add new
+files. `samba_timemachine` is unaffected - it keeps its own `valid users`
+restriction with no `guest ok`, so `map to guest` being on globally
+doesn't open that share up too.

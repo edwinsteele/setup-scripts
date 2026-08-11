@@ -9,7 +9,7 @@
    netbios name = {{ samba_netbios_name }}
    server string = {{ ansible_facts['hostname'] }} Samba server
    security = user
-   map to guest = never
+   map to guest = bad user
    min protocol = SMB2
    log file = /var/log/samba/log.%m
    max log size = 1000
@@ -35,6 +35,7 @@
 
 [{{ samba_media_share_name }}]
    path = {{ samba_media_share_path }}
-   valid users = {{ samba_media_valid_users }}
-   read only = no
+   guest ok = yes
+   read only = yes
+   write list = {{ samba_media_write_users }}
    browseable = yes

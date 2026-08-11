@@ -2,6 +2,12 @@
 samba_media_share_name: Media
 samba_media_mount_path: /srv/media
 samba_media_subdir: "Media Archive"
+# SELinux fcontext specs are regexes and semanage rejects literal spaces in
+#  them outright ("File specification can not include spaces") - \s is the
+#  documented escape, matching the real space in samba_media_share_path.
+samba_media_subdir_selinux: 'Media\sArchive'
 samba_media_share_path: "{{ samba_media_mount_path }}/{{ samba_media_subdir }}"
 samba_media_device: /dev/disk/by-label/Data
-samba_media_valid_users: esteele
+# The share itself is guest-readable (no login) - this only grants write
+#  access, via smb.conf's `write list`.
+samba_media_write_users: esteele

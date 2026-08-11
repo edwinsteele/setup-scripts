@@ -23,22 +23,50 @@
     state: mounted
   become: true
 
+- name: Allow traversal into the mount point for guest access to the shared subfolder
+  ansible.builtin.file:
+    path: "{{ samba_media_mount_path }}"
+    state: directory
+    # smbd performs the guest chdir as the real "nobody" uid, which needs
+    #  search (x) permission on every directory in the path down to
+    #  samba_media_share_path - not just the shared subfolder itself. This
+    #  mode governs the mount point's own filesystem root once sdb2 is
+    #  mounted here (the earlier "Create Media mount point" task's mode only
+    #  applies to the empty pre-mount directory, invisible once mounted).
+    mode: 0755
+  become: true
+
 - name: Set ownership on the shared subfolder now the partition is mounted
   ansible.builtin.file:
     path: "{{ samba_media_share_path }}"
     state: directory
     owner: esteele
     group: esteele
-    mode: 0770
+    # 0775, not 0770: the share is guest-readable (map to guest/guest ok in
+    #  smb.conf), and the guest account maps to the Unix "nobody" user, so
+    #  "other" needs read+traverse here too - everything below this
+    #  directory is already world-readable (0755), this was the one
+    #  directory still blocking guest access.
+    mode: 0775
   become: true
 
 - name: Set SELinux context for the share directory
   community.general.sefcontext:
-    target: "{{ samba_media_share_path }}(/.*)?"
+    target: "{{ samba_media_mount_path }}/{{ samba_media_subdir_selinux }}(/.*)?"
     setype: samba_share_t
     state: present
   become: true
-  notify: Apply SELinux context on media share
 
-- name: Flush handlers so the SELinux context is correct immediately
-  ansible.builtin.meta: flush_handlers
+- name: Apply SELinux context to the share directory
+  # Unconditional, not notify-triggered: see samba_timemachine's task of the
+  #  same name for why - the fcontext rule and the filesystem's actual
+  #  labels can go out of sync independently of each other (e.g. after a
+  #  reformat that doesn't also change this regex).
+  ansible.builtin.command:
+    argv:
+      - restorecon
+      - -RFv
+      - "{{ samba_media_share_path }}"
+  become: true
+  register: samba_media_restorecon
+  changed_when: samba_media_restorecon.stdout != ""

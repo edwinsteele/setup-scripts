@@ -1,3 +1,1 @@
 ---
-- name: Apply SELinux context on media share
-  ansible.builtin.command: "restorecon -RF {{ samba_media_share_path }}"
