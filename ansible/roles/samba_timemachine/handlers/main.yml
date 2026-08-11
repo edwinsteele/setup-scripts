@@ -1,13 +1,3 @@
 ---
-- name: Restart smb
-  ansible.builtin.service:
-    name: smb
-    state: restarted
-
-- name: Restart avahi-daemon
-  ansible.builtin.service:
-    name: avahi-daemon
-    state: restarted
-
-- name: Apply SELinux context on share
+- name: Apply SELinux context on Time Machine share
   ansible.builtin.command: "restorecon -RF {{ samba_timemachine_share_path }}"

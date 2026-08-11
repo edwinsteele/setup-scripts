@@ -1,0 +1,10 @@
+---
+- name: Restart smb
+  ansible.builtin.service:
+    name: smb
+    state: restarted
+
+- name: Restart avahi-daemon
+  ansible.builtin.service:
+    name: avahi-daemon
+    state: restarted

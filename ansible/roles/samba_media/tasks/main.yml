@@ -5,19 +5,19 @@
     state: present
   become: true
 
-- name: Create Time Machine share directory
+- name: Create Media share directory
   ansible.builtin.file:
-    path: "{{ samba_timemachine_share_path }}"
+    path: "{{ samba_media_share_path }}"
     state: directory
     owner: esteele
     group: esteele
     mode: 0770
   become: true
 
-- name: Mount the Time Machine partition
+- name: Mount the media partition
   ansible.posix.mount:
-    path: "{{ samba_timemachine_share_path }}"
-    src: "{{ samba_timemachine_device }}"
+    path: "{{ samba_media_share_path }}"
+    src: "{{ samba_media_device }}"
     fstype: xfs
     opts: defaults
     state: mounted
@@ -25,7 +25,7 @@
 
 - name: Re-apply ownership now the partition is mounted over the share directory
   ansible.builtin.file:
-    path: "{{ samba_timemachine_share_path }}"
+    path: "{{ samba_media_share_path }}"
     state: directory
     owner: esteele
     group: esteele
@@ -34,21 +34,11 @@
 
 - name: Set SELinux context for the share directory
   community.general.sefcontext:
-    target: "{{ samba_timemachine_share_path }}(/.*)?"
+    target: "{{ samba_media_share_path }}(/.*)?"
     setype: samba_share_t
     state: present
   become: true
-  notify: Apply SELinux context on Time Machine share
-
-- name: Template avahi Time Machine service definition
-  ansible.builtin.template:
-    src: adisk.service.j2
-    dest: /etc/avahi/services/adisk.service
-    owner: root
-    group: root
-    mode: 0644
-  become: true
-  notify: Restart avahi-daemon
+  notify: Apply SELinux context on media share
 
 - name: Flush handlers so the SELinux context is correct immediately
   ansible.builtin.meta: flush_handlers

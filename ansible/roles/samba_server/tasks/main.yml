@@ -1,0 +1,50 @@
+---
+- name: Install samba and avahi
+  ansible.builtin.dnf:
+    name:
+      # vfs_fruit.so ships inside the base samba package on Rocky 9 (samba
+      #  4.23.5-10.el9_8 confirmed via `dnf repoquery -l samba`) - there is
+      #  no separate samba-vfs-modules package.
+      - samba
+      - avahi
+    state: present
+  become: true
+
+- name: Template smb.conf
+  ansible.builtin.template:
+    src: smb.conf.j2
+    dest: /etc/samba/smb.conf
+    owner: root
+    group: root
+    mode: 0644
+    validate: "testparm -s %s"
+  become: true
+  notify: Restart smb
+
+- name: Open firewalld services for Samba and mDNS
+  ansible.posix.firewalld:
+    service: "{{ item }}"
+    permanent: true
+    immediate: true
+    state: enabled
+  become: true
+  loop:
+    - samba
+    - mdns
+
+- name: Enable and start smb
+  ansible.builtin.service:
+    name: smb
+    state: started
+    enabled: true
+  become: true
+
+- name: Enable and start avahi-daemon
+  ansible.builtin.service:
+    name: avahi-daemon
+    state: started
+    enabled: true
+  become: true
+
+- name: Flush handlers so smb picks up config immediately
+  ansible.builtin.meta: flush_handlers

@@ -1,0 +1,3 @@
+---
+samba_workgroup: WORKGROUP
+samba_netbios_name: "{{ ansible_facts['hostname'] | upper }}"

@@ -1,8 +1,13 @@
-# Managed by ansible - roles/samba_timemachine
+# Managed by ansible - roles/samba_server
+# Share stanzas below are owned by roles/samba_timemachine and
+#  roles/samba_media respectively (this role only owns [global] and the
+#  packages/service/firewalld plumbing) - their variables are available
+#  here because role defaults are merged into the play at parse time,
+#  regardless of role execution order.
 [global]
-   workgroup = {{ samba_timemachine_workgroup }}
-   netbios name = {{ samba_timemachine_netbios_name }}
-   server string = {{ ansible_facts['hostname'] }} Time Machine server
+   workgroup = {{ samba_workgroup }}
+   netbios name = {{ samba_netbios_name }}
+   server string = {{ ansible_facts['hostname'] }} Samba server
    security = user
    map to guest = never
    min protocol = SMB2
@@ -27,3 +32,9 @@
    kernel oplocks = no
    kernel share modes = no
    posix locking = no
+
+[{{ samba_media_share_name }}]
+   path = {{ samba_media_share_path }}
+   valid users = {{ samba_media_valid_users }}
+   read only = no
+   browseable = yes

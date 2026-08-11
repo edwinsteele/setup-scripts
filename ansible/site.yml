@@ -44,7 +44,9 @@
   roles:
     - common
     - esteele_acct
+    - samba_server
     - samba_timemachine
+    - samba_media
     - home_assistant
     - fuel_signal
 

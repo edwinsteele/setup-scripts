@@ -1,9 +1,8 @@
 ---
 samba_timemachine_share_name: TimeMachine
 samba_timemachine_share_path: /srv/timemachine
+samba_timemachine_device: /dev/disk/by-label/TimeMachine
 samba_timemachine_valid_users: esteele
 # Empty = no `fruit:time machine max size` line, i.e. no quota. Set to
 #  something like "1500G" to cap it.
 samba_timemachine_max_size: ""
-samba_timemachine_workgroup: WORKGROUP
-samba_timemachine_netbios_name: "{{ ansible_facts['hostname'] | upper }}"
