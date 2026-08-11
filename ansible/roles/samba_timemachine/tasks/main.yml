@@ -5,6 +5,22 @@
     state: present
   become: true
 
+- name: Create Samba-only Unix accounts for additional Time Machine users
+  # Samba's tdbsam backend still needs a real Unix account per user (its
+  #  password is separate, set later via smbpasswd) - no shell/home since
+  #  these accounts only ever authenticate over SMB, never log in. Added to
+  #  the esteele group (not as primary group) so they inherit write access
+  #  to the share directory the same way esteele does.
+  ansible.builtin.user:
+    name: "{{ item }}"
+    shell: /usr/sbin/nologin
+    create_home: false
+    password_lock: true
+    groups: esteele
+    append: true
+  loop: "{{ samba_timemachine_extra_accounts }}"
+  become: true
+
 - name: Create Time Machine share directory
   ansible.builtin.file:
     path: "{{ samba_timemachine_share_path }}"

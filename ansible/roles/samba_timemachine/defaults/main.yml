@@ -2,7 +2,14 @@
 samba_timemachine_share_name: TimeMachine
 samba_timemachine_share_path: /srv/timemachine
 samba_timemachine_device: /dev/disk/by-label/TimeMachine
-samba_timemachine_valid_users: esteele
+# esteele's own Unix account is provisioned elsewhere (esteele_acct, every
+#  host) - samba_timemachine_extra_accounts below is the subset of this
+#  list that doesn't already have one and needs one created here.
+samba_timemachine_valid_users:
+  - esteele
+  - cheriesteele
+samba_timemachine_extra_accounts:
+  - cheriesteele
 # Empty = no `fruit:time machine max size` line, i.e. no quota. Set to
 #  something like "1500G" to cap it.
 samba_timemachine_max_size: ""

@@ -17,7 +17,7 @@
 
 [{{ samba_timemachine_share_name }}]
    path = {{ samba_timemachine_share_path }}
-   valid users = {{ samba_timemachine_valid_users }}
+   valid users = {{ samba_timemachine_valid_users | join(', ') }}
    read only = no
    browseable = yes
    vfs objects = catia fruit streams_xattr
