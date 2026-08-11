@@ -1,5 +1,7 @@
 ---
 samba_media_share_name: Media
-samba_media_share_path: /srv/media
+samba_media_mount_path: /srv/media
+samba_media_subdir: "Media Archive"
+samba_media_share_path: "{{ samba_media_mount_path }}/{{ samba_media_subdir }}"
 samba_media_device: /dev/disk/by-label/Data
 samba_media_valid_users: esteele

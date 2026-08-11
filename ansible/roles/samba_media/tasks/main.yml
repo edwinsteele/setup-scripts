@@ -5,9 +5,9 @@
     state: present
   become: true
 
-- name: Create Media share directory
+- name: Create Media mount point
   ansible.builtin.file:
-    path: "{{ samba_media_share_path }}"
+    path: "{{ samba_media_mount_path }}"
     state: directory
     owner: esteele
     group: esteele
@@ -16,14 +16,14 @@
 
 - name: Mount the media partition
   ansible.posix.mount:
-    path: "{{ samba_media_share_path }}"
+    path: "{{ samba_media_mount_path }}"
     src: "{{ samba_media_device }}"
     fstype: xfs
     opts: defaults
     state: mounted
   become: true
 
-- name: Re-apply ownership now the partition is mounted over the share directory
+- name: Set ownership on the shared subfolder now the partition is mounted
   ansible.builtin.file:
     path: "{{ samba_media_share_path }}"
     state: directory
