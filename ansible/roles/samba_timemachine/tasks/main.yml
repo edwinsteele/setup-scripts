@@ -38,7 +38,22 @@
     setype: samba_share_t
     state: present
   become: true
-  notify: Apply SELinux context on Time Machine share
+
+- name: Apply SELinux context to the share directory
+  # Unconditional, not notify-triggered: the fcontext rule above only
+  #  changes when its target pattern changes, but the backing filesystem
+  #  (sdb3) can be reformatted independently (e.g. after a repartition),
+  #  which resets every file back to unlabeled_t regardless of whether the
+  #  rule itself is new. restorecon is cheap and idempotent, so just always
+  #  run it.
+  ansible.builtin.command:
+    argv:
+      - restorecon
+      - -RFv
+      - "{{ samba_timemachine_share_path }}"
+  become: true
+  register: samba_timemachine_restorecon
+  changed_when: samba_timemachine_restorecon.stdout != ""
 
 - name: Template avahi Time Machine service definition
   ansible.builtin.template:
@@ -49,6 +64,3 @@
     mode: 0644
   become: true
   notify: Restart avahi-daemon
-
-- name: Flush handlers so the SELinux context is correct immediately
-  ansible.builtin.meta: flush_handlers
