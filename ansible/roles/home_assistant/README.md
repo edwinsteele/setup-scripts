@@ -94,12 +94,37 @@ copy managed by this role would just drift. The workflow:
 
 - **Automatic backup schedule** (Settings > System > Backups) is a
   UI-managed setting stored in `.storage/`, not something `configuration.yaml`
-  or ansible can set - enable it by hand after onboarding.
-- **Off-site destination for the `.storage` layer** (credentials, entity
-  registry - the actual disaster-recovery unit, separate from the git
-  layer above): plan is to point it at the external disk being added to
-  viking for Time Machine + the movie library (see viking's backlog notes),
-  once that disk physically exists and is mounted. Not yet actionable.
+  or ansible can set - enable it by hand after onboarding. Until this is
+  turned on, `{{ home_assistant_config_path }}/backups/` stays empty and the
+  nightly copy described below has nothing to do.
+
+## Off-host-equivalent backup of the `.storage` layer
+
+Home Assistant's own Backup feature (Settings > System > Backups) writes
+archives into `{{ home_assistant_config_path }}/backups/` - this is the real
+recovery path for `.storage/` (credentials, entity registry, everything the
+git-tracked YAML layer above excludes). A nightly
+`home-assistant-storage-backup.timer` (03:45, 15 minutes after the
+git-snapshot timer) copies that directory to
+`{{ home_assistant_storage_backup_dest }}` - by default
+`samba_media`'s `Data` partition, a second physical disk from viking's OS
+drive where this config directory lives. Not truly off-host (still the same
+box - fire, theft, or full board failure still takes both out), but it does
+survive the OS disk dying on its own, which was the original single point of
+failure.
+
+The copy uses `rsync -a` without `--delete`, deliberately: an accidental or
+corrupted deletion of the on-host `backups/` directory should never silently
+propagate to the DR copy, so archives accumulate at the destination rather
+than exactly mirroring on-host retention. Worth revisiting if disk usage
+becomes a concern.
+
+The destination directory (`home-assistant-backups/` at the root of the
+`Data` partition) is `0700 root:root` and is a sibling of, not nested under,
+`samba_media_share_path` (`Media Archive`) - `smb.conf` only shares that one
+subdirectory, not the whole mount, so these archives are never exposed over
+Samba even though the mount point itself is world-traversable for guest
+access to the Media share.
 
 ## Root ownership
 

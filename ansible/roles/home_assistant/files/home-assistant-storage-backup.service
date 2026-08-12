@@ -1,0 +1,7 @@
+# Managed by ansible - roles/home_assistant
+[Unit]
+Description=Copy Home Assistant Backup archives onto the second disk
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/home-assistant-storage-backup.sh

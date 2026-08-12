@@ -1,0 +1,12 @@
+# Managed by ansible - roles/home_assistant
+[Unit]
+Description=Nightly copy of Home Assistant Backup archives onto the second disk
+
+[Timer]
+# 15 minutes after home-assistant-git-snapshot.timer (03:30), staggered so
+# the two nightly jobs don't overlap.
+OnCalendar=*-*-* 03:45:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

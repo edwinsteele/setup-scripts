@@ -1,0 +1,12 @@
+#!/bin/sh
+# Managed by ansible - roles/home_assistant
+# Copies Home Assistant's own Backup archives (Settings > System > Backups)
+# onto the second disk - the .storage layer's actual disaster-recovery unit
+# (credentials, entity registry, everything the git-tracked YAML layer in
+# home-assistant-git-snapshot.sh excludes). Deliberately not an rsync
+# --delete mirror: an accidental or corrupted deletion of {{ home_assistant_config_path }}/backups
+# on the OS disk should never silently propagate to this DR copy. Backups
+# accumulate here rather than matching on-host retention exactly - revisit
+# if disk usage ever becomes a concern.
+set -eu
+rsync -a "{{ home_assistant_config_path }}/backups/" "{{ home_assistant_storage_backup_dest }}/"

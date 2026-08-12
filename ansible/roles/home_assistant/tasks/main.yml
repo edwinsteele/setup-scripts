@@ -148,3 +148,55 @@
     state: started
     enabled: true
   become: true
+
+- name: Create local backups directory for Home Assistant's own Backup feature
+  ansible.builtin.file:
+    path: "{{ home_assistant_config_path }}/backups"
+    state: directory
+    owner: root
+    group: root
+    mode: 0700
+  become: true
+
+- name: Create destination directory for .storage-layer backup copies on the second disk
+  ansible.builtin.file:
+    path: "{{ home_assistant_storage_backup_dest }}"
+    state: directory
+    owner: root
+    group: root
+    # 0700, not the traversable 0755/0775 samba_media uses for its own mount
+    #  point and share subfolder - these archives bundle .storage's
+    #  credentials, and nothing shares this path over Samba (only
+    #  samba_media_share_path, a sibling directory, has a [Media] stanza in
+    #  smb.conf), but it should still be unreadable to any other local user.
+    mode: 0700
+  become: true
+
+- name: Template the storage-backup script
+  ansible.builtin.template:
+    src: home-assistant-storage-backup.sh.j2
+    dest: /usr/local/bin/home-assistant-storage-backup.sh
+    owner: root
+    group: root
+    mode: 0755
+  become: true
+
+- name: Install the storage-backup systemd service and timer
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/etc/systemd/system/{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+  loop:
+    - home-assistant-storage-backup.service
+    - home-assistant-storage-backup.timer
+
+- name: Reload systemd, enable and start the storage-backup timer
+  ansible.builtin.systemd:
+    daemon_reload: true
+    name: home-assistant-storage-backup.timer
+    state: started
+    enabled: true
+  become: true

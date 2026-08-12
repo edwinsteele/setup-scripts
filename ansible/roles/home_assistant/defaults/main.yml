@@ -30,3 +30,15 @@ home_assistant_backup_deploy_key_path: /root/.ssh/ha-config-backup_ed25519
 # trust-on-first-connect, same "scoped, minimal blast radius" reasoning
 # as the deploy key itself.
 home_assistant_backup_known_hosts_path: /root/.ssh/ha-config-backup_known_hosts
+
+# Destination for nightly copies of Home Assistant's own Backup archives
+# (the .storage layer's disaster-recovery unit - credentials, entity
+# registry - see the "Off-site destination for the .storage layer" section
+# of the role README). Not truly off-host, but a separate physical disk from
+# viking's OS drive (where home_assistant_config_path lives), so it survives
+# that disk dying. Cross-role reference to samba_media's mount path - role
+# defaults are merged into the play at parse time regardless of role
+# execution order (same pattern smb.conf.j2 relies on), and site.yml runs
+# samba_media before this role so the mount already exists when this path
+# is used.
+home_assistant_storage_backup_dest: "{{ samba_media_mount_path }}/home-assistant-backups"
