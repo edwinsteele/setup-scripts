@@ -11,7 +11,12 @@
     state: directory
     owner: esteele
     group: esteele
-    mode: 0770
+    # 0755, not 0770: matches the mode the "Allow traversal" task below sets
+    #  on the same path post-mount, so a fresh run doesn't show a spurious
+    #  changed->changed-back oscillation between the pre- and post-mount
+    #  tasks (the pre-mount mode only applies to the empty placeholder dir,
+    #  invisible once sdb2 is mounted here, but should still match).
+    mode: 0755
   become: true
 
 - name: Mount the media partition
