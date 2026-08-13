@@ -5,17 +5,46 @@
     state: present
   become: true
 
-- name: Create Tvheadend config and recordings directories
+- name: Create Tvheadend config directory
   ansible.builtin.file:
-    path: "{{ item }}"
+    path: "{{ tvheadend_config_path }}"
     state: directory
     owner: "{{ tvheadend_uid }}"
     group: "{{ tvheadend_gid }}"
     mode: 0755
   become: true
-  loop:
-    - "{{ tvheadend_config_path }}"
-    - "{{ tvheadend_recordings_path }}"
+
+# Group is the same account Samba's guest connections map to
+# (tvheadend_recordings_guest_group, "nobody" by default on Rocky - not
+# esteele's group), and 0775 (not 0755 like the config dir above) adds the
+# group write bit deliberately - Unix delete permission is governed by the
+# *directory's* write+execute bits for the acting identity, not the file's
+# own permissions, so guest deletes need this even though the
+# [Recordings] smb.conf stanza is guest-writable. See this role's README.
+- name: Create Tvheadend recordings directory, guest-writable for no-login deletes from Infuse
+  ansible.builtin.file:
+    path: "{{ tvheadend_recordings_path }}"
+    state: directory
+    owner: "{{ tvheadend_uid }}"
+    group: "{{ tvheadend_recordings_guest_group }}"
+    mode: 0775
+  become: true
+
+# tvheadend_recordings_path is bind-mounted into the container with the
+# ":Z" flag (see the Quadlet template below), so Podman relabels it
+# container_file_t on every container start - a one-off `semanage
+# fcontext`/`restorecon` (the samba_media/samba_timemachine roles'
+# approach for their own shares) would just get overwritten on the next
+# restart. samba_export_all_rw instead lets smbd read/write any file
+# regardless of its SELinux type. This is a host-wide toggle, but it's
+# inert for the other shares - their content already carries the correct
+# samba_share_t label.
+- name: Allow Samba to export the recordings directory despite its container SELinux label
+  ansible.posix.seboolean:
+    name: samba_export_all_rw
+    state: true
+    persistent: true
+  become: true
 
 - name: Open firewalld ports for the Tvheadend web UI and HTSP
   ansible.posix.firewalld:

@@ -16,6 +16,23 @@ tvheadend_image: ghcr.io/tvheadend/tvheadend:latest
 tvheadend_config_path: "{{ samba_media_mount_path }}/tvheadend/config"
 tvheadend_recordings_path: "{{ samba_media_mount_path }}/tvheadend/recordings"
 
+# Own Samba share stanza (samba_server's smb.conf.j2), separate from
+# samba_media's [Media] share - see this role's README for why sharing a
+# container-bind-mounted path needed samba_export_all_rw instead of the
+# usual sefcontext/samba_share_t approach.
+tvheadend_recordings_share_name: Recordings
+
+# Deliberately guest-writable (delete without login, from Infuse) - unlike
+# [Media], which stays guest-read-only. The recordings directory's group
+# is set to this account (not esteele's) so Samba's guest mapping actually
+# has the Unix write bit it needs; see the "recordings directory" task's
+# comment in tasks/main.yml for why this is a directory-permission
+# concern, not just an smb.conf one. "nobody" is Samba's compiled-in
+# default guest account on Rocky - confirmed via `id nobody` (uid/gid
+# 65534) - re-check if a `guest account` override is ever added to
+# samba_server's smb.conf.j2.
+tvheadend_recordings_guest_group: nobody
+
 # Matches home_assistant_timezone and pxe_install_timezone.
 tvheadend_timezone: Australia/Sydney
 

@@ -39,6 +39,30 @@ here so they don't need rediscovering)
    (including blank-credential attempts) 401s - there's no way in at all.
    `--firstrun` seeds an initial unauthenticated-access rule. See the
    Quadlet template's comment for the security note on this long-term.
+5. **The `[Recordings]` Samba share needs an SELinux boolean, not the
+   usual `sefcontext`/`restorecon` fix.** `tvheadend_recordings_path` is
+   bind-mounted into the container with the `:Z` flag (see the Quadlet
+   template), so Podman relabels it `container_file_t` on every container
+   start - a one-off `semanage fcontext` + `restorecon` (the
+   `samba_media`/`samba_timemachine` roles' approach for their own shares)
+   would just get overwritten on the next restart. This role instead
+   enables the `samba_export_all_rw` SELinux boolean, which lets `smbd`
+   read/write any file regardless of its type. That's a host-wide toggle,
+   but it's inert for the other shares - their content already carries the
+   correct `samba_share_t` label.
+6. **Guest deletes need the recordings *directory's* Unix permissions
+   fixed too, not just `smb.conf`.** `[Recordings]` is deliberately
+   `guest ok = yes` + `read only = no` (unlike `[Media]`, which stays
+   read-only) so Infuse can delete watched recordings with no login
+   prompt. But Unix delete permission is governed by the *parent
+   directory's* write+execute bits for the acting identity, not the
+   file's own permissions - and Samba's guest connections map to the
+   `nobody` account (uid 65534 on Rocky, confirmed via `id nobody`, no
+   `guest account` override set), which isn't in `esteele`'s group. So the
+   recordings directory's group is set to `tvheadend_recordings_guest_group`
+   (`nobody`) with mode `0775`, giving that group the write bit it
+   actually needs - an `smb.conf` permission change alone wouldn't have
+   been enough.
 
 ## Still open / not automated by this role
 
@@ -48,20 +72,59 @@ here so they don't need rediscovering)
   `Australia: au-Sydney`, enable it on the tuner adapters). Tvheadend ships
   1171+ predefined DVB-T mux lists across 46 regions built in, so this
   doesn't need external scan files for normal use.
-- **Service-to-channel mapping** (Services tab, select all, "Map selected
-  services") also hasn't been scripted - found while building this role
-  that the underlying `/api/service/mapper/save` endpoint needs a payload
-  shape that wasn't determined from the API alone; doing it via the web UI
-  is a two-click action and more reliable than guessing further.
-- **No Samba share for `tvheadend_recordings_path` yet.** The directory is
-  a sibling of `samba_media`'s "Media Archive" (see the default's comment
-  for why that's safe/inert until a share is actually configured), but
-  nothing exposes it over SMB yet - Infuse can't browse recordings until
-  either a new `[Recordings]` stanza is added to `samba_server`'s
-  `smb.conf.j2`, or the directory is moved under the existing `[Media]`
-  share's path. Not decided yet which.
-- **First real recording, played back via Infuse over Samba** - the actual
-  "does it work end to end" proof - hasn't been done. Tuning and service
-  discovery are confirmed working (a manual DVB-T scan found real,
-  correctly-named Sydney services), but nothing has been recorded to disk
-  and played back yet.
+- **Live TV in a browser doesn't work, and can't without a rebuild.**
+  Confirmed directly against the running container (`ldd`/`find` show no
+  `libavcodec`/`libx264`/`libfdk-aac` anywhere, and `tvheadend --version`
+  matches the Dockerfile's `--disable-libav` build flag): this image ships
+  with zero transcoding support compiled in, at all - not a setting. The
+  `matroska` playback profile is a pure remux, so AC-3 audio (what AU DVB-T
+  actually broadcasts) passes through unchanged, and no mainstream browser
+  can decode AC-3 natively - hence "An unknown error occurred" in the web
+  player regardless of which profile is picked. VLC (or any real media
+  player, not a browser) pointed at `/stream/channel/<uuid>?profile=pass`
+  works fine, since it has its own AC-3 decoder. Fixing the in-browser
+  player for real would mean compiling Tvheadend from source with
+  `--enable-libav`, or switching to a different community image that
+  bundles it - not attempted, since live TV is a rare use case here
+  (recording/playback is the actual goal) and Infuse decodes AC-3 natively
+  for recorded files regardless.
+- ~~First real recording, played back via Infuse over Samba~~ **Done** -
+  confirmed working end to end: a real recording landed on disk and played
+  back correctly through Infuse over the `[Recordings]` share, including
+  no-login deletion once the recordings directory's group/mode were fixed
+  (gotcha 6 above) - and confirmed `[Media]` correctly stayed undeletable
+  throughout, since the two shares' permissions are independent.
+
+The core PoC is complete: tuner driver, Tvheadend, channel mapping, both
+Samba shares, and a real recording all confirmed working end to end. What
+remains above (DVB scan being a one-time manual step, no browser Live TV)
+are known, accepted limitations, not open work.
+
+## Service-to-channel mapping via the API
+
+The web UI's "Services tab, select all, Map selected services" button is a
+thin wrapper over `/api/service/mapper/save` - scriptable once you know the
+payload shape (not discoverable from the API alone; found by reading
+Tvheadend's own source, `src/service_mapper.c` + `src/api/api_idnode.c`):
+
+- The endpoint takes a form-encoded `node` field whose *value* is itself a
+  JSON object - `htsmsg_field_get_msg()` in Tvheadend's `htsmsg.c`
+  transparently deserializes any string-typed field that looks like JSON,
+  which is what makes this work.
+- That object's `services` key is a list of service UUIDs (from
+  `/api/service/list`); the rest are the same boolean options the UI
+  exposes (`check_availability`, `encrypted`, `merge_same_name`, etc).
+- The endpoint is `ACCESS_ADMIN`-gated in Tvheadend's source, but worked
+  unauthenticated here - the `--firstrun` unauthenticated-access rule (see
+  gotcha 4 above) grants it.
+
+```bash
+curl -s 'http://viking.home.wordspeak.org:9981/api/service/list' | \
+  python3 -c "import json,sys; print(json.dumps([e['uuid'] for e in json.load(sys.stdin)['entries']]))"
+# then POST {"services": [...], "check_availability": false, "encrypted": true,
+#   "merge_same_name": false, "merge_same_name_fuzzy": false,
+#   "tidy_channel_name": false, "type_tags": true, "provider_tags": false,
+#   "network_tags": false} as the urlencoded "node" field to
+#   /api/service/mapper/save, then poll /api/service/mapper/status for
+#   {"total","ok","fail"} counts.
+```

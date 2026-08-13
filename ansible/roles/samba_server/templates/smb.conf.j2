@@ -1,6 +1,6 @@
 # Managed by ansible - roles/samba_server
-# Share stanzas below are owned by roles/samba_timemachine and
-#  roles/samba_media respectively (this role only owns [global] and the
+# Share stanzas below are owned by roles/samba_timemachine, roles/samba_media
+#  and roles/tvheadend respectively (this role only owns [global] and the
 #  packages/service/firewalld plumbing) - their variables are available
 #  here because role defaults are merged into the play at parse time,
 #  regardless of role execution order.
@@ -38,4 +38,14 @@
    guest ok = yes
    read only = yes
    write list = {{ samba_media_write_users }}
+   browseable = yes
+
+[{{ tvheadend_recordings_share_name }}]
+   path = {{ tvheadend_recordings_path }}
+   guest ok = yes
+   # Deliberately not read-only, unlike [Media] above - recordings should
+   # be deletable straight from Infuse with no login prompt. The
+   # recordings directory's own Unix permissions (tasks/main.yml) are
+   # what actually make guest deletes work; this alone wouldn't be enough.
+   read only = no
    browseable = yes
