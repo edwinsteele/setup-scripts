@@ -1,0 +1,38 @@
+# Managed by ansible - roles/reverse_proxy
+
+# Lets WebSocket upgrades (Home Assistant's event stream, Tvheadend's comet
+# live-update polling) pass through - $http_upgrade is empty on a plain
+# HTTP request, so this only sets "Connection: upgrade" when the client
+# actually asked for one.
+map $http_upgrade $reverse_proxy_connection_upgrade {
+    default upgrade;
+    ''      close;
+}
+
+server {
+    listen 80;
+    server_name {{ reverse_proxy_landing_hostname }};
+
+    location / {
+        root /usr/share/nginx/html;
+        index reverse-proxy-landing.html;
+    }
+}
+
+{% for service in reverse_proxy_services %}
+server {
+    listen 80;
+    server_name {{ service.hostname }};
+
+    location / {
+        proxy_pass http://{{ service.upstream }};
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $reverse_proxy_connection_upgrade;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+
+{% endfor %}

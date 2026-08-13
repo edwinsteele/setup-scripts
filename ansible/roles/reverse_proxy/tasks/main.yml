@@ -1,0 +1,51 @@
+---
+- name: Install nginx
+  ansible.builtin.dnf:
+    name: nginx
+    state: present
+  become: true
+
+# Needed for proxy_pass to reach anything beyond nginx's own SELinux
+# domain (httpd_t) - without it, every proxied request 502s regardless of
+# firewalld/upstream state, since SELinux denies the outbound connection
+# before it ever reaches the network.
+- name: Allow nginx to make outbound network connections (SELinux)
+  ansible.posix.seboolean:
+    name: httpd_can_network_connect
+    state: true
+    persistent: true
+  become: true
+
+- name: Template reverse proxy landing page
+  ansible.builtin.template:
+    src: landing.html.j2
+    dest: /usr/share/nginx/html/reverse-proxy-landing.html
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+
+- name: Template reverse proxy nginx config
+  ansible.builtin.template:
+    src: reverse_proxy.conf.j2
+    dest: /etc/nginx/conf.d/reverse_proxy.conf
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+  notify: Reload nginx
+
+- name: Open firewalld port for the reverse proxy
+  ansible.posix.firewalld:
+    port: 80/tcp
+    permanent: true
+    immediate: true
+    state: enabled
+  become: true
+
+- name: Enable and start nginx
+  ansible.builtin.systemd:
+    name: nginx
+    state: started
+    enabled: true
+  become: true

@@ -1,0 +1,22 @@
+<!-- Managed by ansible - roles/reverse_proxy -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{ reverse_proxy_landing_hostname }}</title>
+<style>
+  body { font-family: sans-serif; max-width: 32em; margin: 4em auto; }
+  h1 { font-size: 1.2em; }
+  ul { padding-left: 1.2em; }
+  a { font-size: 1.1em; }
+</style>
+</head>
+<body>
+<h1>{{ reverse_proxy_landing_hostname }}</h1>
+<ul>
+{% for service in reverse_proxy_services %}
+  <li><a href="http://{{ service.hostname }}/">{{ service.name }}</a></li>
+{% endfor %}
+</ul>
+</body>
+</html>

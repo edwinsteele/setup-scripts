@@ -51,6 +51,7 @@
     - fuel_signal
     - dvb_tuner
     - tvheadend
+    - reverse_proxy
 
 - hosts: rocky_9
   remote_user: esteele

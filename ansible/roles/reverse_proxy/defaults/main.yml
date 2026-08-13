@@ -1,0 +1,21 @@
+---
+# Bare hostname (no service prefix) - serves the landing page, since
+# viking.home.wordspeak.org is already how the box itself is addressed
+# (see inventory.yml/site.yml).
+reverse_proxy_landing_hostname: "{{ common_hostname }}.home.wordspeak.org"
+
+# Each entry becomes an nginx server block that proxies straight through to
+# a service already running on this host - no change to those services'
+# own ports/firewalld rules, this just fronts them with a friendlier name.
+# home_assistant's port isn't in a variable (hardcoded 8123 in that role's
+# tasks/main.yml), so it's repeated here as a literal rather than invented.
+reverse_proxy_services:
+  - name: Home Assistant
+    hostname: homeassistant.home.wordspeak.org
+    upstream: "127.0.0.1:8123"
+  - name: Fuel Price Signal
+    hostname: fuel.home.wordspeak.org
+    upstream: "{{ fuel_signal_workbench_host }}:{{ fuel_signal_workbench_port }}"
+  - name: Tvheadend
+    hostname: tv.home.wordspeak.org
+    upstream: "127.0.0.1:{{ tvheadend_http_port }}"
