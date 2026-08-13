@@ -49,6 +49,8 @@
     - samba_media
     - home_assistant
     - fuel_signal
+    - dvb_tuner
+    - tvheadend
 
 - hosts: rocky_9
   remote_user: esteele

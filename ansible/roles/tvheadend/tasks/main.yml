@@ -1,0 +1,47 @@
+---
+- name: Install podman
+  ansible.builtin.dnf:
+    name: podman
+    state: present
+  become: true
+
+- name: Create Tvheadend config and recordings directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ tvheadend_uid }}"
+    group: "{{ tvheadend_gid }}"
+    mode: 0755
+  become: true
+  loop:
+    - "{{ tvheadend_config_path }}"
+    - "{{ tvheadend_recordings_path }}"
+
+- name: Open firewalld ports for the Tvheadend web UI and HTSP
+  ansible.posix.firewalld:
+    port: "{{ item }}/tcp"
+    permanent: true
+    immediate: true
+    state: enabled
+  become: true
+  loop:
+    - "{{ tvheadend_http_port }}"
+    - "{{ tvheadend_htsp_port }}"
+
+- name: Template Tvheadend Quadlet unit
+  ansible.builtin.template:
+    src: tvheadend.container.j2
+    dest: /etc/containers/systemd/tvheadend.container
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+  notify: Restart Tvheadend
+
+- name: Reload systemd, enable and start Tvheadend
+  ansible.builtin.systemd:
+    daemon_reload: true
+    name: tvheadend.service
+    state: started
+    enabled: true
+  become: true

@@ -1,0 +1,39 @@
+---
+# Tvheadend's official container image - see README.Docker.md in
+# https://github.com/tvheadend/tvheadend. No RHEL9/Rocky9 RPM exists in any
+# repo (checked BaseOS/AppStream/EPEL/CRB and Tvheadend's own site) - same
+# gap as the kernel drivers in roles/dvb_tuner, so this uses their container
+# image instead of a from-source build, matching how roles/home_assistant
+# already runs on this box.
+tvheadend_image: ghcr.io/tvheadend/tvheadend:latest
+
+# Siblings of samba_media's "Media Archive" subfolder, not inside it -
+# Samba only exposes what smb.conf's [Media] stanza explicitly points at,
+# so sibling directories aren't reachable over SMB regardless of Unix
+# permissions, same reasoning home_assistant's storage-backup destination
+# already relies on. Cross-role reference, resolved via Ansible's parse-time
+# default-merging (site.yml runs samba_media before this role).
+tvheadend_config_path: "{{ samba_media_mount_path }}/tvheadend/config"
+tvheadend_recordings_path: "{{ samba_media_mount_path }}/tvheadend/recordings"
+
+# Matches home_assistant_timezone and pxe_install_timezone.
+tvheadend_timezone: Australia/Sydney
+
+tvheadend_http_port: 9981
+tvheadend_htsp_port: 9982
+
+# GID of /dev/dvb's device nodes *as seen inside the container* (its own
+# /etc/group, not the host's) - the container runs as an unprivileged user
+# by default and needs supplementary membership in this group to actually
+# open the tuner devices that --device passthrough alone doesn't grant.
+# Confirmed via `podman exec tvheadend id` / `ls -la /dev/dvb/adapter0`
+# against the current image - re-check if a future image update changes
+# this (see README).
+tvheadend_device_gid: 39
+
+# esteele's host UID/GID - the container runs as this user so files it
+# writes into the bind-mounted config/recordings directories are owned by
+# a real, already-existing account rather than the container image's own
+# baked-in "tvheadend" user (whose UID may not exist on the host at all).
+tvheadend_uid: 1000
+tvheadend_gid: 1000

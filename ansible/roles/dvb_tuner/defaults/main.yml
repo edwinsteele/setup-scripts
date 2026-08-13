@@ -1,0 +1,15 @@
+---
+# Kernel modules the DVB-USB stack needs, in the order they're conceptually
+# dependent (modprobe resolves actual load order itself via depmod, this
+# list is mainly for modules-load.d and the build-check loop).
+# Real on-disk .ko filenames (matching the Makefile's obj-m names exactly,
+# hyphens included) - modprobe/modules-load.d normalize hyphens and
+# underscores transparently, but a plain filesystem stat() doesn't, so
+# these need to be the literal filenames for the build-check below to work.
+dvb_tuner_modules:
+  - dvb-core
+  - dibx000_common
+  - dib7000p
+  - dib0070
+  - dvb-usb
+  - dvb-usb-dib0700

@@ -1,0 +1,42 @@
+# Managed by ansible - roles/tvheadend
+# Quadlet unit - podman-system-generator turns this into
+# tvheadend.service on `systemctl daemon-reload` (podman >=4.4, ships in
+# the base "podman" package on current Rocky 9, no separate package).
+[Unit]
+Description=Tvheadend
+# systemd-modules-load.service is the built-in unit that processes
+# /etc/modules-load.d/*.conf at boot (see roles/dvb_tuner) - the DVB
+# devices need to exist before this container starts, or AddDevice below
+# has nothing to pass through.
+Wants=network-online.target systemd-modules-load.service
+After=network-online.target systemd-modules-load.service
+
+[Container]
+Image={{ tvheadend_image }}
+ContainerName=tvheadend
+AddDevice=/dev/dvb
+User={{ tvheadend_uid }}:{{ tvheadend_gid }}
+# Supplementary group for /dev/dvb access - see the
+# tvheadend_device_gid default's comment for why this is needed on top of
+# AddDevice/User above. No native Quadlet key for --group-add as of
+# podman 5.8, hence the PodmanArgs passthrough.
+PodmanArgs=--group-add {{ tvheadend_device_gid }}
+PublishPort={{ tvheadend_http_port }}:{{ tvheadend_http_port }}/tcp
+PublishPort={{ tvheadend_htsp_port }}:{{ tvheadend_htsp_port }}/tcp
+Volume={{ tvheadend_config_path }}:/var/lib/tvheadend:rw,Z
+Volume={{ tvheadend_recordings_path }}:/var/lib/tvheadend/recordings:rw,Z
+Environment=TZ={{ tvheadend_timezone }}
+# Bootstraps initial (unauthenticated) access on a brand-new config -
+# without it, a fresh install has zero ACL/user entries and everything
+# 401s, with no way to log in even with blank credentials. Safe to leave
+# in place long-term (Tvheadend doesn't re-open access once real users/ACLs
+# exist), but consider removing once a real admin account with a password
+# is configured, per the role README's security note.
+Exec=--firstrun
+
+[Service]
+Restart=always
+TimeoutStartSec=300
+
+[Install]
+WantedBy=multi-user.target

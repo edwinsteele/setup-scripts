@@ -1,0 +1,64 @@
+---
+# Loads the DVB-USB driver stack for the Elgato EyeTV Diversity
+# (dib0700/dib7000p/dib0070). Rocky/RHEL ships zero DVB drivers, so this
+# depends on out-of-tree modules having been built by hand first - see the
+# README for the full story and the exact build recipe. This role
+# deliberately does NOT automate that build: the source needs re-patching
+# against whatever kernel-devel headers are current at the time (RHEL
+# backports enough onto its frozen version number that yesterday's patches
+# aren't guaranteed to still apply), so a committed, unattended "just
+# rebuild it" step would create false confidence more often than it'd save
+# real time. What's actually reproducible - checking versions match,
+# loading already-built modules, persisting that across reboots - is
+# automated below.
+- name: Query installed kernel-devel version
+  ansible.builtin.command: rpm -q --qf '%{version}-%{release}.%{arch}' kernel-devel
+  register: dvb_tuner_kernel_devel_version
+  changed_when: false
+  failed_when: false
+  check_mode: false # read-only; always run for real, including under --check
+
+- name: Fail if kernel-devel is missing or doesn't match the running kernel
+  ansible.builtin.fail:
+    msg: >-
+      kernel-devel ({{ dvb_tuner_kernel_devel_version.stdout | default('not installed', true) }})
+      doesn't match the running kernel ({{ ansible_facts['kernel'] }}). Either
+      `dnf update && reboot` the target and re-apply, or - if the driver was
+      never built for this kernel at all - follow the manual build recipe in
+      this role's README first.
+  when: dvb_tuner_kernel_devel_version.stdout != ansible_facts['kernel']
+
+- name: Check the driver modules were built for the running kernel
+  ansible.builtin.stat:
+    path: "/lib/modules/{{ ansible_facts['kernel'] }}/extra/{{ item }}.ko"
+  register: dvb_tuner_module_files
+  loop: "{{ dvb_tuner_modules }}"
+
+- name: Fail if any driver module hasn't been built for the running kernel
+  ansible.builtin.fail:
+    msg: >-
+      {{ item.item }}.ko doesn't exist for kernel {{ ansible_facts['kernel'] }}.
+      Follow the manual build recipe in this role's README on the target
+      host, then re-apply this role.
+  loop: "{{ dvb_tuner_module_files.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+  when: not item.stat.exists
+
+- name: Persist module load order across reboots
+  ansible.builtin.copy:
+    dest: /etc/modules-load.d/dvb-eyetv-diversity.conf
+    content: |
+      # Managed by ansible - roles/dvb_tuner
+      {{ dvb_tuner_modules | join('\n') }}
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+
+- name: Load the driver modules now
+  community.general.modprobe:
+    name: "{{ item }}"
+    state: present
+  become: true
+  loop: "{{ dvb_tuner_modules }}"

@@ -1,0 +1,7 @@
+---
+- name: Restart Tvheadend
+  ansible.builtin.systemd:
+    daemon_reload: true
+    name: tvheadend.service
+    state: restarted
+  become: true
