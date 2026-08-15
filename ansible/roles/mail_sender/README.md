@@ -15,21 +15,19 @@ Both branches forward root's mail to `mail_sender_root_forward` (default
 
 ## Prerequisites (outside this repo)
 
-Same pattern as [nut_ups](../nut_ups/README.md): real credentials live in
-the private `local_setup-scripts` overlay, not this repo.
-
-- **OpenBSD**: the whole secrets file is pulled in wholesale from
-  `local_setup-scripts/ansible/roles/common/files/etc_mail_secrets`
-  (already existed before this role gained a Rocky branch).
-- **Rocky/RedHat**: `mail_sender_relay_username` and
-  `mail_sender_relay_password` must be set via
-  `local_setup-scripts/ansible/roles/mail_sender/vars/private_vars.yml`
-  (pulled into the `rocky_9` play by `vars_files` in `site.yml`). Same
-  Fastmail account the OpenBSD hosts relay through
-  (`mail_sender_relay_host`, default `mail.messagingengine.com:465`) - use
-  a Fastmail app password, not the account password, and treat it as
-  sensitive (it's templated into `/etc/postfix/sasl_passwd` with
-  `no_log: true` so it never hits the ansible log).
+Same private `local_setup-scripts` overlay file the OpenBSD branch has
+always used: `roles/common/files/etc_mail_secrets`
+(`mail_sender_secrets_file`), an OpenBSD smtpd `secrets` table (one line
+per label, `label user:pass`). The Rocky/RedHat branch doesn't get its own
+copy of the credential - `tasks/RedHat.yml` parses the
+`mail_sender_secrets_label` (default `fastmail`) line out of that same
+file at run time (`no_log: true` on both tasks that touch the plaintext,
+so it never hits the ansible log) and uses it to authenticate postfix's
+relay the same way `opensmtpd`'s `auth <secrets>` does. Nothing to set up
+here beyond what OpenBSD's branch already needed - if that file doesn't
+have a `fastmail` line, this branch fails with an unhelpful Jinja error
+rather than a friendly one, since that state shouldn't be reachable (the
+OpenBSD hosts already depend on it existing).
 
 ## Rocky/RedHat design notes
 

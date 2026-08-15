@@ -1,11 +1,20 @@
 ---
-- name: Fail if the relay password hasn't been set via private vars
-  ansible.builtin.fail:
-    msg: >-
-      mail_sender_relay_password is empty - set it (and
-      mail_sender_relay_username) in the private local_setup-scripts
-      overlay, not in this repo. See the README.
-  when: not mail_sender_relay_password
+# Reuses the same "user:pass" value the OpenBSD branch's secrets table
+# keys under mail_sender_secrets_label, rather than a second copy of the
+# credential in a Rocky-specific private vars file.
+- name: Extract the relay credential's "user:pass" value from the shared secrets file
+  ansible.builtin.set_fact:
+    mail_sender_relay_credential: >-
+      {{ (lookup('file', mail_sender_secrets_file).splitlines()
+          | select('match', '^' ~ mail_sender_secrets_label ~ '\s')
+          | list | first).split(None, 1)[1] }}
+  no_log: true
+
+- name: Split the relay credential into username and password
+  ansible.builtin.set_fact:
+    mail_sender_relay_username: "{{ mail_sender_relay_credential.split(':', 1)[0] }}"
+    mail_sender_relay_password: "{{ mail_sender_relay_credential.split(':', 1)[1] }}"
+  no_log: true
 
 - name: Install postfix and its SASL auth plugin
   ansible.builtin.dnf:
