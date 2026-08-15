@@ -1,9 +1,4 @@
 ---
-# Off by default - see the README for why (an unpowered USB hub currently
-# makes the UPS's USB link flap every ~10s). Flip on once that's fixed:
-#   -e '{"nut_ups_enabled": true}'
-nut_ups_enabled: false
-
 nut_ups_name: cyberpower
 nut_ups_desc: "CyberPower BR700ELCD"
 # From `lsusb`: "Cyber Power System, Inc. CP1500 AVR UPS" - the BR700ELCD

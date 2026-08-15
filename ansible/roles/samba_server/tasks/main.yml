@@ -36,11 +36,18 @@
     state: present
   become: true
 
+- name: Check whether the disk is currently attached
+  ansible.builtin.stat:
+    path: "{{ samba_server_disk_device }}"
+  register: samba_server_disk_stat
+  become: true
+
 - name: Check current Advanced Power Management level on the disk
   ansible.builtin.command: hdparm -B {{ samba_server_disk_device }}
   register: samba_server_disk_apm_check
   changed_when: false
   become: true
+  when: samba_server_disk_stat.stat.exists
 
 # Seagate desktop drives (this one's a BarraCuda ST4000DM005, see Disk
 #  layout below) default to APM level 128 - the lowest level that still
@@ -54,7 +61,9 @@
 #  idle-C/head-unload).
 - name: Set Advanced Power Management level to disable aggressive head-parking
   ansible.builtin.command: hdparm -B {{ samba_server_disk_apm_level }} {{ samba_server_disk_device }}
-  when: "('APM_level\t= ' ~ samba_server_disk_apm_level) not in samba_server_disk_apm_check.stdout"
+  when:
+    - samba_server_disk_stat.stat.exists
+    - "('APM_level\t= ' ~ samba_server_disk_apm_level) not in samba_server_disk_apm_check.stdout"
   become: true
 
 - name: Template udev rule to reapply APM level whenever the disk (re)appears

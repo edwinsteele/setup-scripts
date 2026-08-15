@@ -1,27 +1,22 @@
 ---
-# nut_ups_enabled gates every task below - see the README for why this
-# defaults to off.
-
 - name: Install epel-release (nut ships in EPEL, not base/AppStream)
   ansible.builtin.dnf:
     name: epel-release
     state: present
   become: true
-  when: nut_ups_enabled
 
 - name: Install nut
   ansible.builtin.dnf:
     name: nut
     state: present
   become: true
-  when: nut_ups_enabled
 
 - name: Fail if the upsmon/upsd password hasn't been set via private vars
   ansible.builtin.fail:
     msg: >-
       nut_ups_monuser_password is empty - set it in the private
       local_setup-scripts overlay, not in this repo. See the README.
-  when: nut_ups_enabled and not nut_ups_monuser_password
+  when: not nut_ups_monuser_password
 
 - name: Install udev rule granting the nut group access to the UPS's USB HID device
   ansible.builtin.template:
@@ -31,7 +26,6 @@
     group: root
     mode: "0644"
   become: true
-  when: nut_ups_enabled
   notify: Reload udev rules
 
 - name: Configure NUT mode
@@ -42,7 +36,6 @@
     group: root
     mode: "0644"
   become: true
-  when: nut_ups_enabled
   notify:
     - Restart NUT driver
     - Restart NUT server
@@ -56,7 +49,6 @@
     group: nut
     mode: "0640"
   become: true
-  when: nut_ups_enabled
   notify: Restart NUT driver
 
 - name: Configure upsd
@@ -67,7 +59,6 @@
     group: nut
     mode: "0640"
   become: true
-  when: nut_ups_enabled
   notify: Restart NUT server
 
 - name: Configure upsd users
@@ -78,7 +69,6 @@
     group: nut
     mode: "0640"
   become: true
-  when: nut_ups_enabled
   notify: Restart NUT server
 
 - name: Configure upsmon
@@ -89,7 +79,6 @@
     group: root
     mode: "0640"
   become: true
-  when: nut_ups_enabled
   notify: Restart NUT monitor
 
 - name: Enable and start the NUT driver, server and monitor services
@@ -102,4 +91,3 @@
     - "nut-driver@{{ nut_ups_name }}.service"
     - nut-server.service
     - nut-monitor.service
-  when: nut_ups_enabled

@@ -99,6 +99,17 @@ Trade-off: the disk now never enters a lower-power idle state, so it draws
 slightly more power/runs slightly warmer than before - acceptable given
 how much of its rated head-parking budget was already spent.
 
+The APM check/set tasks first `stat` `samba_server_disk_device` and skip
+both `hdparm` tasks entirely when it's absent, rather than hard-failing
+the whole play - same rationale as the `nofail` mount option in
+`samba_media`/`samba_timemachine` (see their READMEs): a temporarily
+unplugged or power-cycling external disk shouldn't block the rest of the
+role from applying. If a run skips these tasks unexpectedly, check
+`journalctl -k` on the host for a USB disconnect against
+`samba_server_seagate_usb_id` - the disk enclosure dropped off the bus for
+real (not just a `uas` command timeout) on 2026-08-15 14:53 and hadn't
+re-enumerated as of the next morning, which is what surfaced this gap.
+
 This role also configures `smartd` (package installed by `common`) via
 `templates/smartd.conf.j2` against `samba_server_disk_device`: a short
 self-test daily at 02:00 and a long self-test weekly (Saturday 03:00), so
