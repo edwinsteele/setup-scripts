@@ -54,7 +54,7 @@
     - reverse_proxy
     - { role: nut_ups, tags: nut_ups }
   vars_files:
-    - /Users/esteele/Code/local_setup-scripts/ansible/roles/firewall/vars/private_vars.yml
+    - /Users/esteele/Code/local_setup-scripts/ansible/roles/nut_ups/vars/private_vars.yml
 
 - hosts: rocky_9
   remote_user: esteele

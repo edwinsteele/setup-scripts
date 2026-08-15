@@ -14,7 +14,8 @@ nut_ups_product_id: "0501"
 
 # Shared by upsd.users (for both local upsmon and Home Assistant's NUT
 # integration) and upsmon.conf's MONITOR line. Expected to come from the
-# private local_setup-scripts overlay, not be set here - see the README.
+# private local_setup-scripts overlay (roles/nut_ups/vars/private_vars.yml),
+# not be set here - see the README.
 nut_ups_monuser: upsmon
 nut_ups_monuser_password: ""
 

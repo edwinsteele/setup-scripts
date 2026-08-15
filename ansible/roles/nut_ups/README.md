@@ -37,13 +37,11 @@ No more `USB disconnect` lines for the UPS -> safe to enable this role.
 ## Prerequisites (outside this repo)
 
 `nut_ups_monuser_password` must be set via the private `local_setup-scripts`
-overlay (`ansible/roles/firewall/vars/private_vars.yml`, the same file
-`pxe_install_root_password_hash` lives in - see `roles/pxe_install`'s
-README for how that file gets wired into `site.yml`). It's stored and
-transmitted **in cleartext** by NUT's own protocol (`upsd` needs the
-plaintext to authenticate `upsmon` and Home Assistant), not hashed - treat
-it as a LAN-only credential and don't reuse a password from anywhere else
-for it.
+overlay (`ansible/roles/nut_ups/vars/private_vars.yml`, pulled into the
+`rocky_9` play by `vars_files` in `site.yml`). It's stored and transmitted
+**in cleartext** by NUT's own protocol (`upsd` needs the plaintext to
+authenticate `upsmon` and Home Assistant), not hashed - treat it as a
+LAN-only credential and don't reuse a password from anywhere else for it.
 
 ## Enabling
 
