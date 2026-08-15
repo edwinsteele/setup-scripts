@@ -1,0 +1,9 @@
+# Managed by ansible - roles/nut_ups
+# Single shared account: local upsmon uses it for shutdown authority, and
+# it doubles as the login Home Assistant's NUT integration should use to
+# poll status - see the README. "primary" (formerly "master") is upsmon's
+# term for "allowed to issue FSD and shutdown commands", not a claim about
+# HA's read-only use of the same login.
+[{{ nut_ups_monuser }}]
+	password = {{ nut_ups_monuser_password }}
+	upsmon primary

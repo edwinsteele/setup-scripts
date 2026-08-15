@@ -1,0 +1,7 @@
+# Managed by ansible - roles/nut_ups
+[{{ nut_ups_name }}]
+	driver = usbhid-ups
+	port = auto
+	vendorid = {{ nut_ups_vendor_id }}
+	productid = {{ nut_ups_product_id }}
+	desc = "{{ nut_ups_desc }}"

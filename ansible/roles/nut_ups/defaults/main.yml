@@ -1,0 +1,28 @@
+---
+# Off by default - see the README for why (an unpowered USB hub currently
+# makes the UPS's USB link flap every ~10s). Flip on once that's fixed:
+#   -e '{"nut_ups_enabled": true}'
+nut_ups_enabled: false
+
+nut_ups_name: cyberpower
+nut_ups_desc: "CyberPower BR700ELCD"
+# From `lsusb`: "Cyber Power System, Inc. CP1500 AVR UPS" - the BR700ELCD
+# reports itself under CyberPower's shared AVR-series USB ID, not a
+# BR700ELCD-specific one.
+nut_ups_vendor_id: "0764"
+nut_ups_product_id: "0501"
+
+# Shared by upsd.users (for both local upsmon and Home Assistant's NUT
+# integration) and upsmon.conf's MONITOR line. Expected to come from the
+# private local_setup-scripts overlay, not be set here - see the README.
+nut_ups_monuser: upsmon
+nut_ups_monuser_password: ""
+
+# 127.0.0.1 only: Home Assistant runs in the same host's network namespace
+# (Network=host in roles/home_assistant's Quadlet unit), so localhost is
+# all it needs. Widen to the LAN address if some other host ever needs to
+# monitor this UPS directly.
+nut_ups_listen_address: 127.0.0.1
+nut_ups_listen_port: 3493
+
+nut_ups_shutdown_cmd: "/sbin/shutdown -h +0"

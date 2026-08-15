@@ -1,0 +1,105 @@
+---
+# nut_ups_enabled gates every task below - see the README for why this
+# defaults to off.
+
+- name: Install epel-release (nut ships in EPEL, not base/AppStream)
+  ansible.builtin.dnf:
+    name: epel-release
+    state: present
+  become: true
+  when: nut_ups_enabled
+
+- name: Install nut
+  ansible.builtin.dnf:
+    name: nut
+    state: present
+  become: true
+  when: nut_ups_enabled
+
+- name: Fail if the upsmon/upsd password hasn't been set via private vars
+  ansible.builtin.fail:
+    msg: >-
+      nut_ups_monuser_password is empty - set it in the private
+      local_setup-scripts overlay, not in this repo. See the README.
+  when: nut_ups_enabled and not nut_ups_monuser_password
+
+- name: Install udev rule granting the nut group access to the UPS's USB HID device
+  ansible.builtin.template:
+    src: 70-nut-cyberpower.rules.j2
+    dest: /etc/udev/rules.d/70-nut-cyberpower.rules
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  when: nut_ups_enabled
+  notify: Reload udev rules
+
+- name: Configure NUT mode
+  ansible.builtin.template:
+    src: nut.conf.j2
+    dest: /etc/ups/nut.conf
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  when: nut_ups_enabled
+  notify:
+    - Restart NUT driver
+    - Restart NUT server
+    - Restart NUT monitor
+
+- name: Configure the UPS driver
+  ansible.builtin.template:
+    src: ups.conf.j2
+    dest: /etc/ups/ups.conf
+    owner: root
+    group: nut
+    mode: "0640"
+  become: true
+  when: nut_ups_enabled
+  notify: Restart NUT driver
+
+- name: Configure upsd
+  ansible.builtin.template:
+    src: upsd.conf.j2
+    dest: /etc/ups/upsd.conf
+    owner: root
+    group: nut
+    mode: "0640"
+  become: true
+  when: nut_ups_enabled
+  notify: Restart NUT server
+
+- name: Configure upsd users
+  ansible.builtin.template:
+    src: upsd.users.j2
+    dest: /etc/ups/upsd.users
+    owner: root
+    group: nut
+    mode: "0640"
+  become: true
+  when: nut_ups_enabled
+  notify: Restart NUT server
+
+- name: Configure upsmon
+  ansible.builtin.template:
+    src: upsmon.conf.j2
+    dest: /etc/ups/upsmon.conf
+    owner: root
+    group: root
+    mode: "0640"
+  become: true
+  when: nut_ups_enabled
+  notify: Restart NUT monitor
+
+- name: Enable and start the NUT driver, server and monitor services
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    state: started
+    enabled: true
+  become: true
+  loop:
+    - "nut-driver@{{ nut_ups_name }}.service"
+    - nut-server.service
+    - nut-monitor.service
+  when: nut_ups_enabled

@@ -1,0 +1,5 @@
+# Managed by ansible - roles/nut_ups
+# Belt-and-braces alongside whatever the nut package's own shipped udev
+# rules already grant - pins access explicitly to this UPS's USB ID rather
+# than relying on it being covered by the package's bundled device list.
+SUBSYSTEM=="usb", ATTR{idVendor}=="{{ nut_ups_vendor_id }}", ATTR{idProduct}=="{{ nut_ups_product_id }}", MODE="0660", GROUP="nut"
