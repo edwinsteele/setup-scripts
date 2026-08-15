@@ -3,3 +3,17 @@
   ansible.builtin.service:
     name: smtpd
     state: restarted
+
+- name: Postmap sasl_passwd
+  ansible.builtin.command: postmap /etc/postfix/sasl_passwd
+  become: true
+
+- name: Update aliases database
+  ansible.builtin.command: newaliases
+  become: true
+
+- name: Restart postfix
+  ansible.builtin.service:
+    name: postfix
+    state: restarted
+  become: true

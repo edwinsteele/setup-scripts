@@ -1,0 +1,12 @@
+---
+mail_sender_root_forward: "edwin@wordspeak.org"
+
+# Rocky/RedHat branch only: postfix relays outbound through Fastmail rather
+# than delivering directly (same provider the OpenBSD hosts relay through,
+# see files/smtpd_conf_7.8). Real credentials come from the private
+# local_setup-scripts overlay (roles/mail_sender/vars/private_vars.yml),
+# not this repo - see the README.
+mail_sender_relay_host: "mail.messagingengine.com"
+mail_sender_relay_port: 465
+mail_sender_relay_username: ""
+mail_sender_relay_password: ""

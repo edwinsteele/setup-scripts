@@ -1,8 +1,14 @@
 ---
 samba_workgroup: WORKGROUP
 samba_netbios_name: "{{ ansible_facts['hostname'] | upper }}"
+# /dev/sdX is assigned by USB enumeration order, not physical identity - it
+#  isn't stable across a reconnect/reboot (confirmed 2026-08-16: a reseat
+#  after the enclosure dropped off the bus came back as /dev/sdc, not
+#  /dev/sdb, because the old sdb hadn't been released while its filesystem
+#  was still stuck in a shut-down-but-mounted state). by-id is keyed off
+#  the enclosure's own USB serial, so it survives that.
 samba_server_seagate_usb_id: "0bc2:331a"
-samba_server_disk_device: /dev/sdb
+samba_server_disk_device: /dev/disk/by-id/usb-Seagate_Expansion_Desk_NAABNKPD-0:0
 # 254 = max performance / APM effectively disabled (no standby, no idle-C
 #  head unloading). See the "Disk power management" README section for why.
 samba_server_disk_apm_level: 254

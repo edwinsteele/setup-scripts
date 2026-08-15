@@ -28,7 +28,8 @@ unrelated media share.
 ## Disk layout
 
 Both shares live on a single 4T Seagate disk attached to `viking`
-(`/dev/sdb`), GPT-partitioned, no LVM:
+(`/dev/sdb` at the time of writing - see the naming caveat below), GPT-
+partitioned, no LVM:
 
 - `sdb1` - 200M EFI leftover from the disk's previous life as an
   APFS-formatted Mac drive (macOS creates this alongside every APFS
@@ -52,6 +53,19 @@ sudo mkfs.xfs -f -L TimeMachine /dev/sdb3
 
 (run once, after copying any data that needs to survive the reformat off
 to other storage first)
+
+`/dev/sdX` is assigned by USB enumeration order, not physical identity -
+it isn't guaranteed stable across a reconnect or reboot. Confirmed
+2026-08-16: after the enclosure dropped off the bus (see the power
+management section below) a physical reseat brought it back as `/dev/sdc`
+instead of `/dev/sdb`, because the old `sdb` hadn't been released while
+its filesystem was stuck in a shut-down-but-still-mounted state. `hdparm`/
+`smartd` (`samba_server_disk_device`) use the by-id path
+(`/dev/disk/by-id/usb-Seagate_Expansion_Desk_NAABNKPD-0:0`) for this
+reason; the mount tasks were already immune to it via by-label. The
+commands above use `/dev/sdb2`/`sdb3` only because that's a one-time
+manual step done with the disk freshly identified via `lsblk` - check the
+current name first if reformatting again.
 
 ### USB-SATA bridge quirk
 
@@ -114,9 +128,12 @@ This role also configures `smartd` (package installed by `common`) via
 `templates/smartd.conf.j2` against `samba_server_disk_device`: a short
 self-test daily at 02:00 and a long self-test weekly (Saturday 03:00), so
 attribute trends (this one especially) are visible going forward instead
-of only checked ad hoc. No mail alerting is configured - Rocky has no MTA
-here (`mail_sender` is OpenBSD-only) - so check via `journalctl -u smartd`
-or `smartctl -a /dev/sdb` for now.
+of only checked ad hoc. `smartd.conf` also sets `-m root`, so a failed
+self-test or a threshold trip gets mailed to root and relayed out via
+[mail_sender](../mail_sender/README.md) (added 2026-08-16, after Rocky
+got its own postfix satellite relay) - previously this had to be checked
+manually via `journalctl -u smartd` or `smartctl -a` against
+`samba_server_disk_device`.
 
 ## Networking
 

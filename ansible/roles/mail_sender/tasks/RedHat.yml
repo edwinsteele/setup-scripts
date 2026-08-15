@@ -1,0 +1,56 @@
+---
+- name: Fail if the relay password hasn't been set via private vars
+  ansible.builtin.fail:
+    msg: >-
+      mail_sender_relay_password is empty - set it (and
+      mail_sender_relay_username) in the private local_setup-scripts
+      overlay, not in this repo. See the README.
+  when: not mail_sender_relay_password
+
+- name: Install postfix and its SASL auth plugin
+  ansible.builtin.dnf:
+    name:
+      - postfix
+      - cyrus-sasl-plain
+    state: present
+  become: true
+
+- name: Template postfix main.cf as a relay-only satellite
+  ansible.builtin.template:
+    src: main.cf.j2
+    dest: /etc/postfix/main.cf
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  notify: Restart postfix
+
+- name: Template the relay's SASL credentials
+  ansible.builtin.template:
+    src: sasl_passwd.j2
+    dest: /etc/postfix/sasl_passwd
+    owner: root
+    group: root
+    mode: "0600"
+  become: true
+  no_log: true
+  notify:
+    - Postmap sasl_passwd
+    - Restart postfix
+
+- name: Forward root's mail
+  ansible.builtin.lineinfile:
+    path: /etc/aliases
+    regexp: "^root:"
+    line: "root:\t\t{{ mail_sender_root_forward }}"
+  become: true
+  notify:
+    - Update aliases database
+    - Restart postfix
+
+- name: Enable and start postfix
+  ansible.builtin.service:
+    name: postfix
+    state: started
+    enabled: true
+  become: true

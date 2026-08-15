@@ -3,9 +3,11 @@
 #  gathered until the bootstrap role installs one - hence gather_facts:
 #  false and a plain linear strategy for this first play.
 # rocky_9 is excluded throughout this file's "all" plays: it ships its own
-#  Python interpreter (no bootstrap needed) and roles like network/pf/
-#  mail_sender are OpenBSD-only (pfctl, doas, openbsd_pkg) - it gets its
-#  own plays further down instead.
+#  Python interpreter (no bootstrap needed) and roles like network/pf are
+#  OpenBSD-only (pfctl, doas, openbsd_pkg) - it gets its own plays further
+#  down instead. mail_sender is the exception - it dispatches by
+#  ansible_facts['os_family'] (like common/esteele_acct) and gets applied
+#  in both places.
 - hosts: 'all:!rocky_9'
   gather_facts: false
   strategy: linear
@@ -43,6 +45,7 @@
 - hosts: rocky_9
   roles:
     - common
+    - mail_sender
     - esteele_acct
     - samba_server
     - samba_timemachine
@@ -55,6 +58,7 @@
     - { role: nut_ups, tags: nut_ups }
   vars_files:
     - /Users/esteele/Code/local_setup-scripts/ansible/roles/nut_ups/vars/private_vars.yml
+    - /Users/esteele/Code/local_setup-scripts/ansible/roles/mail_sender/vars/private_vars.yml
 
 - hosts: rocky_9
   remote_user: esteele

@@ -1,0 +1,21 @@
+# Relay-only satellite: local processes (smartd, cron, etc.) can hand mail
+# to the local `sendmail`, but this host never accepts mail from the
+# network and never delivers anything itself - everything relays out
+# through Fastmail. Mirrors the OpenBSD hosts' smtpd relay setup
+# (roles/mail_sender/files/smtpd_conf_7.8), just via postfix instead of
+# opensmtpd since that's what Rocky ships.
+myhostname = {{ ansible_facts['fqdn'] }}
+mydestination = $myhostname, localhost.$mydomain, localhost
+
+inet_interfaces = loopback-only
+inet_protocols = ipv4
+
+alias_maps = hash:/etc/aliases
+alias_database = hash:/etc/aliases
+
+relayhost = [{{ mail_sender_relay_host }}]:{{ mail_sender_relay_port }}
+smtp_tls_wrappermode = yes
+smtp_tls_security_level = encrypt
+smtp_sasl_auth_enable = yes
+smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
+smtp_sasl_security_options = noanonymous

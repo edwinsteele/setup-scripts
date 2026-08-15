@@ -1,0 +1,23 @@
+---
+- name: Copy mail secrets
+  ansible.builtin.copy:
+    src: /Users/esteele/Code/local_setup-scripts/ansible/roles/common/files/etc_mail_secrets
+    dest: /etc/mail/secrets
+    owner: root
+    group: _smtpd
+    mode: 0640
+
+- name: Forward root's mail
+  ansible.builtin.copy:
+    content: "{{ mail_sender_root_forward }}"
+    dest: /root/.forward
+    mode: 0644
+    owner: root
+    group: wheel
+
+- name: Copy smtpd.conf
+  ansible.builtin.copy:
+    src: "smtpd_conf_{{ ansible_facts['distribution_version'] }}"
+    dest: /etc/mail/smtpd.conf
+  notify:
+  - Reload smtpd
