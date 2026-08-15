@@ -35,7 +35,10 @@
     path: "{{ samba_timemachine_share_path }}"
     src: "{{ samba_timemachine_device }}"
     fstype: xfs
-    opts: defaults
+    # nofail: an external disk that's unplugged or lost power at boot must
+    #  not strand the host in emergency mode - boot should continue and just
+    #  leave the share unavailable until the disk is reseated.
+    opts: defaults,nofail
     state: mounted
   become: true
 
