@@ -91,3 +91,10 @@
     - "nut-driver@{{ nut_ups_name }}.service"
     - nut-server.service
     - nut-monitor.service
+
+- name: Enable and start nut.target so the stack above actually comes up on boot
+  ansible.builtin.systemd:
+    name: nut.target
+    state: started
+    enabled: true
+  become: true
