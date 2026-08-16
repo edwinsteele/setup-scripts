@@ -4,7 +4,11 @@
 # through Fastmail. Mirrors the OpenBSD hosts' smtpd relay setup
 # (roles/mail_sender/files/smtpd_conf_7.8), just via postfix instead of
 # opensmtpd since that's what Rocky ships.
-myhostname = {{ ansible_facts['fqdn'] }}
+# Built from common_hostname/common_domain rather than ansible_facts['fqdn']
+# - that fact is derived from /etc/hosts itself, so once it goes stale
+# (e.g. a leftover grus.space entry) nothing corrects it and every mail's
+# From ends up wrong (see roles/common's defaults for the full story).
+myhostname = {{ (common_hostname ~ '.' ~ common_domain) if common_hostname | length > 0 else ansible_facts['fqdn'] }}
 mydestination = $myhostname, localhost.$mydomain, localhost
 
 inet_interfaces = loopback-only

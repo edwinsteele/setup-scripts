@@ -1,7 +1,14 @@
 ---
-# Only the RedHat branch acts on this - OpenBSD hosts get their hostname
-#  from the autoinstall conf and nothing here manages it for them. Empty
-#  string means "leave whatever the OS already has" (e.g. kickstart's
-#  `network --hostname=`, which may drift from the name we actually want
-#  - see roles/samba_timemachine's viking case).
+# Both branches act on these when set (empty string means "leave whatever
+#  the OS already has"). Needed because the OS's own idea of its hostname
+#  can drift from what we want and nothing else corrects it: kickstart's
+#  `network --hostname=` only applies at install time (see
+#  roles/samba_timemachine's viking case), and OpenBSD's autoinstall
+#  hostname can likewise go stale (e.g. gateway was still "firewall2" from
+#  before a rename). common_domain is the suffix used to build the FQDN
+#  from common_hostname wherever a host needs one - see
+#  ansible/host_vars/gateway.wordspeak.org.yml and
+#  ansible/host_vars/viking.home.wordspeak.org.yml for the "home.wordspeak.org"
+#  LAN-naming convention this feeds.
 common_hostname: ""
+common_domain: ""

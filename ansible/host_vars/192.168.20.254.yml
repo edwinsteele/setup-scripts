@@ -1,4 +1,9 @@
 ---
+# Live hostname had drifted to "firewall2.grus.space" (grus.space no longer
+#  owned - see roles/mail_sender's README); these correct it to match how
+#  this repo and inventory.yml already refer to the box.
+common_hostname: gateway
+common_domain: home.wordspeak.org
 interface_definitions:
   - "hostname.igc0"
   - "hostname.igc1"

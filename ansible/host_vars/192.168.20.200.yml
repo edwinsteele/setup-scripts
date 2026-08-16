@@ -1,3 +1,6 @@
 ---
 common_hostname: viking
+# /etc/hosts's loopback line had drifted to "viking.grus.space" (grus.space
+#  no longer owned - see roles/mail_sender's README); this corrects it.
+common_domain: home.wordspeak.org
 fuel_signal_workbench_host: 192.168.20.200
