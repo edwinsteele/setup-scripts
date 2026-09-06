@@ -1,12 +1,12 @@
 # Managed by ansible - roles/fuel_signal
 [Unit]
-Description=fuel-price-signal: daily git pull, DB update, classify, LGA leadership
+Description=fuel-price-signal: daily git pull, DB update, classify, LGA leadership, workbench restart
 Wants=network-online.target
 After=network-online.target
 
 [Service]
+# Runs as root, not {{ fuel_signal_user }} - the script needs root to
+# restart fuelsignal-workbench.service, and drops to {{ fuel_signal_user }}
+# itself (via runuser) for the repo/dependency/DB steps.
 Type=oneshot
-User={{ fuel_signal_user }}
-WorkingDirectory={{ fuel_signal_repo_dir }}
-Environment=UV_PYTHON_PREFERENCE=only-system
 ExecStart=/usr/local/bin/fuelsignal-daily-update.sh

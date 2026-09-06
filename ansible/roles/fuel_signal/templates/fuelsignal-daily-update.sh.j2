@@ -7,8 +7,13 @@
 # snapshot, forward-fill daily_prices, then re-classify stations and
 # re-score LGA leadership for *today only* (both default to a single-date
 # run - see fuel_signal.classify/lga_leadership --help - not the
-# --start-date backfill mode used for a from-scratch rebuild). All output
-# lands in the journal via this unit's stdout/stderr.
+# --start-date backfill mode used for a from-scratch rebuild). Then
+# restarts fuelsignal-workbench.service - this IS the restart that puts
+# newly-pulled *code* live (see fuelsignal-deploy.sh.j2's own comment: that
+# script exists for an on-demand restart, this one now means the workbench
+# never runs code more than a day stale) - and warms its key pages so the
+# first real visitor isn't the one paying for cold-start latency. All
+# output lands in the journal via this unit's stdout/stderr.
 #
 # fill alone isn't enough for the always-on workbench: /classification-health
 # reads station_class/classification_summary and /lead-lag reads
@@ -22,23 +27,37 @@
 # oncalendar is explicit UTC rather than relying on viking's system
 # timezone.
 #
-# This is a deliberate exception to "the ansible role never runs git pull"
-# (see fuelsignal-deploy.sh.j2): that invariant is about the *ansible role*
-# not silently redeploying code as a side effect of an unrelated playbook
-# run, not about all automation on the box. This timer intentionally keeps
-# the checkout bleeding-edge daily. It does NOT restart
-# fuelsignal-workbench.service though - the running Flask process doesn't
-# reload code from disk anyway, and it queries SQLite fresh per request
-# rather than caching this data at startup, so no restart is needed for
-# new data to show up - only fuelsignal-deploy's explicit restart puts new
-# *code* in front of users.
+# Runs as root (unlike the rest of this script's work, which belongs to
+# {{ fuel_signal_user }}) because restarting fuelsignal-workbench.service
+# needs it - the repo/dependency/DB steps below still run as
+# {{ fuel_signal_user }} via runuser, same pattern as fuelsignal-deploy.sh.
 set -eu
-cd "{{ fuel_signal_repo_dir }}"
-git pull --ff-only
-/usr/local/bin/uv sync
+
+if [ "$(id -u)" -ne 0 ]; then
+    echo "Must run as root" >&2
+    exit 1
+fi
+
+repo="{{ fuel_signal_repo_dir }}"
+
+runuser -u {{ fuel_signal_user }} -- git -C "$repo" pull --ff-only
+runuser -u {{ fuel_signal_user }} -- env UV_PYTHON_PREFERENCE=only-system /usr/local/bin/uv sync --directory "$repo"
 
 today="$(date -u +%Y-%m-%d)"
-/usr/local/bin/uv run python -m fuel_signal.db
-/usr/local/bin/uv run python -m fuel_signal.fill
-/usr/local/bin/uv run python -m fuel_signal.classify --snapshot-date "$today"
-/usr/local/bin/uv run python -m fuel_signal.lga_leadership --snapshot-date "$today"
+runuser -u {{ fuel_signal_user }} -- env UV_PYTHON_PREFERENCE=only-system /usr/local/bin/uv run --directory "$repo" python -m fuel_signal.db
+runuser -u {{ fuel_signal_user }} -- env UV_PYTHON_PREFERENCE=only-system /usr/local/bin/uv run --directory "$repo" python -m fuel_signal.fill
+runuser -u {{ fuel_signal_user }} -- env UV_PYTHON_PREFERENCE=only-system /usr/local/bin/uv run --directory "$repo" python -m fuel_signal.classify --snapshot-date "$today"
+runuser -u {{ fuel_signal_user }} -- env UV_PYTHON_PREFERENCE=only-system /usr/local/bin/uv run --directory "$repo" python -m fuel_signal.lga_leadership --snapshot-date "$today"
+
+systemctl restart fuelsignal-workbench.service
+
+echo "Restarted fuelsignal-workbench.service, waiting {{ fuel_signal_workbench_warmup_grace_seconds }}s before warming endpoints"
+sleep {{ fuel_signal_workbench_warmup_grace_seconds }}
+
+base="http://{{ fuel_signal_workbench_host }}:{{ fuel_signal_workbench_port }}"
+{% for path in fuel_signal_workbench_warmup_paths %}
+echo "Warming {{ path }}"
+curl -fsS --max-time 60 --retry 3 --retry-delay 5 --retry-connrefused \
+    -o /dev/null -w 'warmed %{url_effective} in %{time_total}s (HTTP %{http_code})\n' \
+    "$base{{ path }}" || echo "Warm-up request to {{ path }} failed" >&2
+{% endfor %}

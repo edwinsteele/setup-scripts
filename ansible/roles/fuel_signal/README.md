@@ -72,21 +72,34 @@ documents ("this repo's ansible role never runs `git pull` itself").
 That invariant is about the *ansible role*, though, not about all automation
 on the box. `fuelsignal-daily-update.sh` (see below) is a deliberate
 exception: it does its own `git pull --ff-only` on every daily firing, so
-the checkout stays bleeding-edge. What stays manual is putting new code in
-front of users - `fuelsignal-workbench.service` is a long-running Flask
-process that doesn't reload code from disk on its own, so however current
-the checkout gets, the workbench keeps running whatever code was loaded at
-its last start. `fuelsignal-deploy` (templated to
-`/usr/local/bin/fuelsignal-deploy`), run by hand whenever you choose:
+the checkout stays bleeding-edge - and, since `fuelsignal-workbench.service`
+is a long-running Flask process that doesn't reload code from disk on its
+own, the script also restarts it every run so newly-pulled *code* actually
+goes live daily rather than sitting unused until someone runs
+`fuelsignal-deploy` by hand. After restarting, it waits
+`fuel_signal_workbench_warmup_grace_seconds` (default 60s) for the process
+to come up, then curls each of `fuel_signal_workbench_warmup_paths`
+(`/`, `/lead-lag`, `/classification-health`, `/features` by default) with a
+generous timeout and a few retries, so the first real visitor of the day
+isn't the one paying for cold-start latency.
+
+`fuelsignal-daily-update.service` therefore runs as root, not
+`{{ fuel_signal_user }}` - restarting a systemd unit needs that - and drops
+to `{{ fuel_signal_user }}` itself (via `runuser`, same pattern as
+`fuelsignal-deploy.sh`) for the actual `git pull`/`uv sync`/DB steps.
+
+For an on-demand restart in between daily runs (e.g. right after pushing a
+fix upstream, without waiting for the timer), `fuelsignal-deploy` (templated
+to `/usr/local/bin/fuelsignal-deploy`) is still there to run by hand:
 
 ```bash
 ssh viking.home.wordspeak.org sudo fuelsignal-deploy
 ```
 
-does `git pull --ff-only` + `uv sync` as the `fuelsignal` account (usually a
-no-op by the time you run it, since the timer already pulled), then
-restarts `fuelsignal-workbench.service` - the actual moment new code goes
-live.
+It does `git pull --ff-only` + `uv sync` as the `fuelsignal` account
+(usually a no-op by the time you run it, since the timer already pulled),
+then restarts `fuelsignal-workbench.service` - but unlike the daily timer,
+it doesn't warm the workbench back up afterward.
 
 ## Daily update: `git pull`, not a live FuelCheck API call
 

@@ -19,3 +19,19 @@ fuel_signal_workbench_port: 5000
 # Action (.github/workflows/daily-snapshot.yml, cron "0 10 * * *" = 10:00
 # UTC) - explicit UTC so this doesn't depend on viking's system timezone.
 fuel_signal_daily_update_oncalendar: "*-*-* 12:00:00 UTC"
+
+# How long to wait after the daily update restarts fuelsignal-workbench.service
+# before curling its key pages to warm them up - long enough for uv run to
+# spin up the process and waitress to start accepting connections.
+fuel_signal_workbench_warmup_grace_seconds: 60
+
+# Pages curled after that restart so the first real visitor isn't the one
+# paying for cold-start latency. Limited to routes that work with no query
+# string (see fuel_signal.inspect's @app.route list) - /api/stations/search
+# and /features/plot/<feature_name> both require arguments, so aren't
+# included.
+fuel_signal_workbench_warmup_paths:
+  - /
+  - /lead-lag
+  - /classification-health
+  - /features
