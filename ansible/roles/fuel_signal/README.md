@@ -76,12 +76,23 @@ the checkout stays bleeding-edge - and, since `fuelsignal-workbench.service`
 is a long-running Flask process that doesn't reload code from disk on its
 own, the script also restarts it every run so newly-pulled *code* actually
 goes live daily rather than sitting unused until someone runs
-`fuelsignal-deploy` by hand. After restarting, it waits
-`fuel_signal_workbench_warmup_grace_seconds` (default 60s) for the process
-to come up, then curls each of `fuel_signal_workbench_warmup_paths`
-(`/`, `/lead-lag`, `/classification-health`, `/features` by default) with a
-generous timeout and a few retries, so the first real visitor of the day
-isn't the one paying for cold-start latency.
+`fuelsignal-deploy` by hand. After restarting, it polls `/healthz` (cheap,
+no DB work) every 5s for up to `fuel_signal_workbench_warmup_ready_timeout_seconds`
+(default 120s) until the process is accepting connections at all, then
+curls each of `fuel_signal_workbench_warmup_paths` (`/`, `/lead-lag`,
+`/classification-health`, `/features` by default) once each, so the first
+real visitor of the day isn't the one paying for cold-start latency.
+
+Each warm-up GET gets a generous, single-shot timeout
+(`fuel_signal_workbench_warmup_timeout_seconds`, default 240s) and no
+`curl --retry` - confirmed on viking that the first hit to a data-heavy
+page right after a full `daily_prices` rebuild can legitimately take
+minutes (cold disk cache on this box's constrained hardware), and Flask
+keeps running the view function to completion server-side even after a
+client gives up. Retrying on top of that just launches another concurrent
+copy of the same expensive query rather than helping - which is exactly
+what made warming `/` fail outright the first time this was wired up with
+`--retry`.
 
 `fuelsignal-daily-update.service` therefore runs as root, not
 `{{ fuel_signal_user }}` - restarting a systemd unit needs that - and drops

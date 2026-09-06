@@ -20,10 +20,23 @@ fuel_signal_workbench_port: 5000
 # UTC) - explicit UTC so this doesn't depend on viking's system timezone.
 fuel_signal_daily_update_oncalendar: "*-*-* 12:00:00 UTC"
 
-# How long to wait after the daily update restarts fuelsignal-workbench.service
-# before curling its key pages to warm them up - long enough for uv run to
-# spin up the process and waitress to start accepting connections.
-fuel_signal_workbench_warmup_grace_seconds: 60
+# How long (total, polling /healthz every 5s) to wait after restarting
+# fuelsignal-workbench.service for it to start accepting connections at
+# all, before giving up on warming it. uv run needs to spin the process up
+# and waitress needs to bind its socket - confirmed on viking this can take
+# well over 60s right after a big fill run, so this is a ceiling on polling
+# rather than a single blind sleep.
+fuel_signal_workbench_warmup_ready_timeout_seconds: 120
+
+# Per-path timeout for the actual warm-up GETs below, once /healthz answers.
+# Deliberately generous and single-shot (no curl --retry): the first hit to
+# a data-heavy page right after a full daily_prices rebuild can legitimately
+# take minutes on viking's constrained hardware (cold disk cache) - and
+# Flask keeps running the view function to completion server-side even
+# after a client gives up, so retrying just piles up duplicate concurrent
+# copies of the same expensive query rather than helping (confirmed: this
+# is what made warming `/` fail outright the first time this was wired up).
+fuel_signal_workbench_warmup_timeout_seconds: 240
 
 # Pages curled after that restart so the first real visitor isn't the one
 # paying for cold-start latency. Limited to routes that work with no query

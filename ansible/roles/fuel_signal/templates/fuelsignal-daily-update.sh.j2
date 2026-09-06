@@ -51,13 +51,31 @@ runuser -u {{ fuel_signal_user }} -- env UV_PYTHON_PREFERENCE=only-system /usr/l
 
 systemctl restart fuelsignal-workbench.service
 
-echo "Restarted fuelsignal-workbench.service, waiting {{ fuel_signal_workbench_warmup_grace_seconds }}s before warming endpoints"
-sleep {{ fuel_signal_workbench_warmup_grace_seconds }}
-
 base="http://{{ fuel_signal_workbench_host }}:{{ fuel_signal_workbench_port }}"
+
+echo "Waiting up to {{ fuel_signal_workbench_warmup_ready_timeout_seconds }}s for fuelsignal-workbench.service to accept connections"
+ready=0
+waited=0
+while [ "$waited" -lt {{ fuel_signal_workbench_warmup_ready_timeout_seconds }} ]; do
+    if curl -fsS --max-time 5 -o /dev/null "$base/healthz" 2>/dev/null; then
+        ready=1
+        break
+    fi
+    sleep 5
+    waited=$((waited + 5))
+done
+
+if [ "$ready" -ne 1 ]; then
+    echo "fuelsignal-workbench.service never answered /healthz within {{ fuel_signal_workbench_warmup_ready_timeout_seconds }}s - skipping warm-up" >&2
+else
+    # Single-shot, generous timeout, no --retry: the view function keeps
+    # running server-side to completion even if curl gives up, so retrying
+    # here would just stack duplicate concurrent copies of the same
+    # expensive query on top of the one already in flight.
 {% for path in fuel_signal_workbench_warmup_paths %}
-echo "Warming {{ path }}"
-curl -fsS --max-time 60 --retry 3 --retry-delay 5 --retry-connrefused \
-    -o /dev/null -w 'warmed %{url_effective} in %{time_total}s (HTTP %{http_code})\n' \
-    "$base{{ path }}" || echo "Warm-up request to {{ path }} failed" >&2
+    echo "Warming {{ path }}"
+    curl -fsS --max-time {{ fuel_signal_workbench_warmup_timeout_seconds }} \
+        -o /dev/null -w 'warmed %{url_effective} in %{time_total}s (HTTP %{http_code})\n' \
+        "$base{{ path }}" || echo "Warm-up request to {{ path }} did not complete within {{ fuel_signal_workbench_warmup_timeout_seconds }}s" >&2
 {% endfor %}
+fi
