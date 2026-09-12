@@ -7,19 +7,27 @@
 # snapshot, forward-fill daily_prices, then re-classify stations and
 # re-score LGA leadership for *today only* (both default to a single-date
 # run - see fuel_signal.classify/lga_leadership --help - not the
-# --start-date backfill mode used for a from-scratch rebuild). Then
-# restarts fuelsignal-workbench.service - this IS the restart that puts
-# newly-pulled *code* live (see fuelsignal-deploy.sh.j2's own comment: that
-# script exists for an on-demand restart, this one now means the workbench
-# never runs code more than a day stale) - and warms its key pages so the
-# first real visitor isn't the one paying for cold-start latency. All
-# output lands in the journal via this unit's stdout/stderr.
+# --start-date backfill mode used for a from-scratch rebuild), then
+# precompute the /api/v1 signal cache. Then restarts
+# fuelsignal-workbench.service - this IS the restart that puts newly-pulled
+# *code* live (see fuelsignal-deploy.sh.j2's own comment: that script
+# exists for an on-demand restart, this one now means the workbench never
+# runs code more than a day stale) - and warms its key pages so the first
+# real visitor isn't the one paying for cold-start latency. All output
+# lands in the journal via this unit's stdout/stderr.
 #
 # fill alone isn't enough for the always-on workbench: /classification-health
 # reads station_class/classification_summary and /lead-lag reads
 # lga_leadership, neither of which fill touches - only classify/
-# lga_leadership populate those. No fuel_signal.signal call - the buy/wait
-# CLI signal isn't needed here.
+# lga_leadership populate those. /api/v1/stations and /api/v1/recommendation
+# likewise need fuel_signal.generate_signal_cache's table - without it they
+# return HTTP 503 rather than a stale or empty payload. No fuel_signal.signal
+# call - the buy/wait CLI signal isn't needed here.
+#
+# set -e means a failure in any step below (including generate_signal_cache)
+# aborts the script before the restart, same as classify/lga_leadership -
+# the workbench keeps serving whatever cache/code it already has rather than
+# restarting into a stale or missing one.
 #
 # --snapshot-date is passed explicitly (UTC, computed here) rather than
 # left to classify/lga_leadership's own `date.today()` default, which
@@ -48,6 +56,7 @@ runuser -u {{ fuel_signal_user }} -- env UV_PYTHON_PREFERENCE=only-system /usr/l
 runuser -u {{ fuel_signal_user }} -- env UV_PYTHON_PREFERENCE=only-system /usr/local/bin/uv run --directory "$repo" python -m fuel_signal.fill
 runuser -u {{ fuel_signal_user }} -- env UV_PYTHON_PREFERENCE=only-system /usr/local/bin/uv run --directory "$repo" python -m fuel_signal.classify --snapshot-date "$today"
 runuser -u {{ fuel_signal_user }} -- env UV_PYTHON_PREFERENCE=only-system /usr/local/bin/uv run --directory "$repo" python -m fuel_signal.lga_leadership --snapshot-date "$today"
+runuser -u {{ fuel_signal_user }} -- env UV_PYTHON_PREFERENCE=only-system /usr/local/bin/uv run --directory "$repo" python -m fuel_signal.generate_signal_cache
 
 systemctl restart fuelsignal-workbench.service
 

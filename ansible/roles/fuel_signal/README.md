@@ -148,6 +148,18 @@ were dated `2026-08-09` UTC) - same reasoning
 `fuel_signal_daily_update_oncalendar` is explicit UTC rather than trusting
 viking's system timezone.
 
+After `classify`/`lga_leadership`, the script also runs
+`fuel_signal.generate_signal_cache` (no-arg - it defaults to the latest
+date in `daily_prices`, which the steps above just brought current), which
+precomputes and stores the payload behind the workbench's `/api/v1/stations`
+and `/api/v1/recommendation` endpoints. Without this step those endpoints
+return `HTTP 503` (missing cache) indefinitely, no matter how current the
+rest of the DB is - `fill`/`classify`/`lga_leadership` don't touch the
+table it writes. Like `classify`/`lga_leadership`, a failure here aborts
+the script (`set -e`) before the `fuelsignal-workbench.service` restart
+below, so the workbench never restarts into a stale or missing signal
+cache.
+
 No `fuel_signal.signal` call - the buy/wait CLI verdict isn't consumed by
 anything on viking (nothing forwards it anywhere, the workbench doesn't
 need it), so it's dropped rather than run for no reason. Run it by hand
