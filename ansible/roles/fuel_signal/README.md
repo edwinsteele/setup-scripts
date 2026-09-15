@@ -144,9 +144,10 @@ to `classify`/`lga_leadership`'s own `date.today()` default - that default
 reads the *host's local date*, and viking's isn't UTC (confirmed in a real
 run: `fill`/`signal` logged `2026-08-10` from their local-date default
 while the snapshot that had just landed, and `git pull`/`fuel_signal.db`,
-were dated `2026-08-09` UTC) - same reasoning
-`fuel_signal_daily_update_oncalendar` is explicit UTC rather than trusting
-viking's system timezone.
+were dated `2026-08-09` UTC) - same "don't trust viking's configured system
+timezone" reasoning behind `fuel_signal_daily_update_oncalendar` naming an
+explicit zone (`Australia/Sydney`, resolved from systemd's own tzdata)
+rather than reading `/etc/localtime`.
 
 After `classify`/`lga_leadership`, the script also runs
 `fuel_signal.generate_signal_cache` (no-arg - it defaults to the latest

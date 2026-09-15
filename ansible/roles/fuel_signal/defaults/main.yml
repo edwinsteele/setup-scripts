@@ -15,10 +15,23 @@ fuel_signal_workbench_port: 5000
 
 # How often to pull, sync, load today's snapshot CSV, and print the
 # buy/wait signal. Any systemd OnCalendar expression - see systemd.time(7).
-# Daily, ~2h after upstream fuel-price-signal's own daily-snapshot GitHub
-# Action (.github/workflows/daily-snapshot.yml, cron "0 10 * * *" = 10:00
-# UTC) - explicit UTC so this doesn't depend on viking's system timezone.
-fuel_signal_daily_update_oncalendar: "*-*-* 12:00:00 UTC"
+#
+# 2am Sydney time - was 12:00 UTC (~2h after upstream fuel-price-signal's
+# own daily-snapshot GitHub Action, .github/workflows/daily-snapshot.yml,
+# cron "0 10 * * *" = 10:00 UTC), pushed back to 16:00 UTC-equivalent (~6h
+# after the Action's nominal start) after that Action was observed running
+# several hours late - a 2h buffer wasn't enough and viking would silently
+# run against yesterday's snapshot for the whole day.
+#
+# Named zone, not a raw UTC offset: systemd resolves "Australia/Sydney"
+# from its own tzdata regardless of viking's configured local time (same
+# non-host-dependent spirit as the old explicit "UTC" suffix), so this
+# stays 2am Sydney wall-clock time across the AEST/AEDT transition rather
+# than drifting to 3am once daylight saving starts. The 16:00 UTC this
+# resolves to under AEST is still comfortably same-UTC-day as the Action's
+# 10:00 UTC run, so `today="$(date -u +%Y-%m-%d)"` in
+# fuelsignal-daily-update.sh.j2 needs no change.
+fuel_signal_daily_update_oncalendar: "*-*-* 02:00:00 Australia/Sydney"
 
 # How long (total, polling /healthz every 5s) to wait after restarting
 # fuelsignal-workbench.service for it to start accepting connections at
