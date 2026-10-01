@@ -157,7 +157,16 @@ the signal cache still happen, and `/api/v1/recommendation`'s `freshness`
 block reports the staleness to clients. `fuel_signal_daily_update_oncalendar`
 (02:00 Australia/Sydney) is therefore a start time, not a safety margin.
 The service sets no `TimeoutStartSec=`, since `Type=oneshot` has no start
-timeout by default (systemd.service(5)). To see how a night went:
+timeout by default (systemd.service(5)).
+
+A missed snapshot leaves viking one day behind, and it doesn't add up over
+consecutive misses. `fuel_signal.db` loads every snapshot file it hasn't
+loaded yet, so a late file gets picked up the next night. In
+`/api/v1/recommendation`'s `freshness` block, `days_stale: 2` with
+`expected_lag_days: 1` means exactly one snapshot was missed. An Action run
+that starts after UTC midnight names its file for the next UTC day, so that
+night's wait always times out and the data catches up a night later. To see
+how a night went:
 
 ```bash
 ssh viking.home.wordspeak.org journalctl -u fuelsignal-daily-update.service --since today
