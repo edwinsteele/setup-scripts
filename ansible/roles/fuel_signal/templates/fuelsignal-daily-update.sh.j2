@@ -2,7 +2,8 @@
 # Managed by ansible - roles/fuel_signal
 # Pulls the checkout to latest (today's snapshot CSV, committed by
 # upstream's own daily-snapshot GitHub Action, arrives this way - see
-# README's "Daily update" section), syncs dependencies, then mirrors
+# README's "Daily update" section), re-pulling until that snapshot shows
+# up or a deadline passes, syncs dependencies, then mirrors
 # upstream's own "Daily DB update" GitHub Actions workflow: load the new
 # snapshot, forward-fill daily_prices, then re-classify stations and
 # re-score LGA leadership for *today only* (both default to a single-date
@@ -49,9 +50,47 @@ fi
 repo="{{ fuel_signal_repo_dir }}"
 
 runuser -u {{ fuel_signal_user }} -- git -C "$repo" pull --ff-only
+
+# Upstream's daily-snapshot Action names its file from the runner's UTC
+# date (`date.today()` in fuel_signal/live.py, commit message
+# "snapshot: $(date -u +%Y-%m-%d)"), and this script starts the same UTC
+# day as that Action's run - so today's UTC date names the file to wait
+# for. YYYY/MM come from $today itself rather than another `date` call so
+# the path can't straddle midnight.
+today="$(date -u +%Y-%m-%d)"
+today_year="${today%%-*}"
+today_month="${today#*-}"
+today_month="${today_month%-*}"
+snapshot="$repo/data/snapshots/$today_year/$today_month/$today.csv"
+
+# GitHub starts that Action anywhere from minutes to many hours after its
+# scheduled time (and occasionally not at all), so rather than guess a
+# safe start time, keep pulling until today's snapshot appears or the
+# deadline passes. A failed pull inside the loop (network blip, GitHub
+# hiccup) is just "not yet" - it's in an `if`, so `set -e` doesn't fire.
+# On timeout, carry on with whatever's loaded: the rest of the pipeline
+# still picks up any code changes and regenerates the cache, and the API's
+# `freshness` block reports the staleness to clients. The "<4>" prefix
+# logs that line at warning priority (systemd.exec(5) SyslogLevelPrefix=).
+started="$(date -u +%s)"
+deadline=$((started + {{ fuel_signal_daily_update_snapshot_wait_timeout_seconds }}))
+while [ ! -f "$snapshot" ]; do
+    if [ "$(date -u +%s)" -ge "$deadline" ]; then
+        echo "<4>Snapshot for $today never arrived after {{ fuel_signal_daily_update_snapshot_wait_timeout_seconds }}s, continuing with existing data" >&2
+        break
+    fi
+    echo "Snapshot for $today not there yet ($snapshot) - pulling again in {{ fuel_signal_daily_update_snapshot_poll_interval_seconds }}s"
+    sleep {{ fuel_signal_daily_update_snapshot_poll_interval_seconds }}
+    if ! runuser -u {{ fuel_signal_user }} -- git -C "$repo" pull --ff-only; then
+        echo "git pull failed - treating as not yet, will retry" >&2
+    fi
+done
+if [ -f "$snapshot" ]; then
+    echo "Snapshot for $today present after $(( $(date -u +%s) - started ))s of waiting"
+fi
+
 runuser -u {{ fuel_signal_user }} -- env UV_PYTHON_PREFERENCE=only-system /usr/local/bin/uv sync --directory "$repo"
 
-today="$(date -u +%Y-%m-%d)"
 runuser -u {{ fuel_signal_user }} -- env UV_PYTHON_PREFERENCE=only-system /usr/local/bin/uv run --directory "$repo" python -m fuel_signal.db
 runuser -u {{ fuel_signal_user }} -- env UV_PYTHON_PREFERENCE=only-system /usr/local/bin/uv run --directory "$repo" python -m fuel_signal.fill
 runuser -u {{ fuel_signal_user }} -- env UV_PYTHON_PREFERENCE=only-system /usr/local/bin/uv run --directory "$repo" python -m fuel_signal.classify --snapshot-date "$today"

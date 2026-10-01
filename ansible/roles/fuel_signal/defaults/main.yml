@@ -16,12 +16,17 @@ fuel_signal_workbench_port: 5000
 # How often to pull, sync, load today's snapshot CSV, and print the
 # buy/wait signal. Any systemd OnCalendar expression - see systemd.time(7).
 #
-# 2am Sydney time - was 12:00 UTC (~2h after upstream fuel-price-signal's
-# own daily-snapshot GitHub Action, .github/workflows/daily-snapshot.yml,
-# cron "0 10 * * *" = 10:00 UTC), pushed back to 16:00 UTC-equivalent (~6h
-# after the Action's nominal start) after that Action was observed running
-# several hours late - a 2h buffer wasn't enough and viking would silently
-# run against yesterday's snapshot for the whole day.
+# 2am Sydney time is a *start* time, not a guessed safe margin: the script
+# now waits (fuel_signal_daily_update_snapshot_wait_* below) for today's
+# snapshot from upstream fuel-price-signal's daily-snapshot GitHub Action
+# (.github/workflows/daily-snapshot.yml, cron "0 10 * * *" = 10:00 UTC).
+# History: this was 12:00 UTC, then pushed back to 2am Sydney after the
+# Action was seen starting hours late - but GitHub's scheduled-run delay
+# has no upper bound (observed 3h11m-7h50m, committing as late as 17:50
+# UTC), so any fixed time still lost the race some nights and viking ran
+# the whole day on yesterday's snapshot. Earlier than 2am would just wait
+# longer; later would delay the cache for nothing on nights the Action is
+# on time.
 #
 # Named zone, not a raw UTC offset: systemd resolves "Australia/Sydney"
 # from its own tzdata regardless of viking's configured local time (same
@@ -32,6 +37,21 @@ fuel_signal_workbench_port: 5000
 # 10:00 UTC run, so `today="$(date -u +%Y-%m-%d)"` in
 # fuelsignal-daily-update.sh.j2 needs no change.
 fuel_signal_daily_update_oncalendar: "*-*-* 02:00:00 Australia/Sydney"
+
+# How often to re-run `git pull` while today's snapshot CSV
+# (data/snapshots/YYYY/MM/YYYY-MM-DD.csv, UTC date) hasn't landed yet.
+# Each round is one cheap fetch against GitHub; 10 minutes keeps the
+# cache at most ~10 minutes behind the snapshot commit.
+fuel_signal_daily_update_snapshot_poll_interval_seconds: 600
+
+# How long (total) to keep polling before giving up and running the rest of
+# the pipeline against existing data, logging a warning-priority journal
+# line. 6h takes a 2am Sydney start to ~8am - before anyone checks the app
+# in the morning - and keeps the whole wait inside the same UTC day as the
+# snapshot it's waiting for (start is 15:00/16:00 UTC). Giving up rather
+# than failing still lets code changes, the workbench restart and the cache
+# regeneration happen; the API's `freshness` block reports the staleness.
+fuel_signal_daily_update_snapshot_wait_timeout_seconds: 21600
 
 # How long (total, polling /healthz every 5s) to wait after restarting
 # fuelsignal-workbench.service for it to start accepting connections at

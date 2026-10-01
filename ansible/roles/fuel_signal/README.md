@@ -132,9 +132,36 @@ via its `loaded_files`-table tracking), `fuel_signal.fill` (rebuilds
 `daily_prices`), `fuel_signal.classify --snapshot-date <today>`, and
 `fuel_signal.lga_leadership --snapshot-date <today>` - both scoped to a
 single date (their default when `--start-date` isn't given), not the
-`--start-date`-driven backfill mode used for a from-scratch rebuild. If
-upstream's Action hasn't run yet for the day, `git pull` is just a no-op
-and the rest runs against whatever was already loaded.
+`--start-date`-driven backfill mode used for a from-scratch rebuild.
+
+### Waiting for the snapshot
+
+GitHub starts upstream's scheduled `daily-snapshot.yml` (cron
+`0 10 * * *`) anywhere from minutes to many hours late. Commits have landed
+as late as 17:50 UTC, and GitHub sometimes skips a scheduled run entirely,
+so no fixed timer time is reliably "after the snapshot". Instead, after the
+first `git pull` the script checks for today's file,
+`data/snapshots/YYYY/MM/YYYY-MM-DD.csv`. The date is UTC, because the
+Action names the file from its runner's UTC date. If the file isn't there,
+the script re-runs `git pull --ff-only` every
+`fuel_signal_daily_update_snapshot_poll_interval_seconds` (default 600s)
+until it appears or `fuel_signal_daily_update_snapshot_wait_timeout_seconds`
+(default 21600s, so 2am to about 8am Sydney) runs out. A failed pull inside
+the loop is treated as "not yet" and retried. The first pull, before the
+loop, still aborts the run if it fails.
+
+On timeout the script logs a warning-priority journal line ("Snapshot for
+<date> never arrived after <N>s, continuing with existing data") and runs
+the rest of the pipeline anyway. Code changes, the workbench restart and
+the signal cache still happen, and `/api/v1/recommendation`'s `freshness`
+block reports the staleness to clients. `fuel_signal_daily_update_oncalendar`
+(02:00 Australia/Sydney) is therefore a start time, not a safety margin.
+The service sets no `TimeoutStartSec=`, since `Type=oneshot` has no start
+timeout by default (systemd.service(5)). To see how a night went:
+
+```bash
+ssh viking.home.wordspeak.org journalctl -u fuelsignal-daily-update.service --since today
+```
 
 `fill` alone isn't sufficient for the always-on workbench: `/classification-health`
 reads `station_class`/`classification_summary` and `/lead-lag` reads

@@ -8,5 +8,10 @@ After=network-online.target
 # Runs as root, not {{ fuel_signal_user }} - the script needs root to
 # restart fuelsignal-workbench.service, and drops to {{ fuel_signal_user }}
 # itself (via runuser) for the repo/dependency/DB steps.
+#
+# No TimeoutStartSec=/RuntimeMaxSec= on purpose: the script can spend hours
+# waiting for upstream's snapshot (fuel_signal_daily_update_snapshot_wait_
+# timeout_seconds), and per systemd.service(5) Type=oneshot has its start
+# timeout disabled by default and RuntimeMaxSec= doesn't apply to it.
 Type=oneshot
 ExecStart=/usr/local/bin/fuelsignal-daily-update.sh
