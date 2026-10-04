@@ -1,0 +1,12 @@
+# Managed by ansible - roles/ups_shutdown
+# sensorsd(8) runs the command whenever a sensor crosses its limit in
+# either direction - including once at startup - so the script re-reads
+# live values and only powers off when both conditions hold, never on the
+# trigger alone.
+# Battery charge crossing the threshold catches an outage that runs long;
+# AC presence crossing catches power failing while charge is already low
+# (e.g. a second outage before the battery has recharged). ACPresent needs
+# the explicit low=1 (On): upd(4) always reports indicator status as OK, so
+# without a limit sensorsd never sees it change.
+hw.sensors.{{ ups_shutdown_sensor_dev }}.{{ ups_shutdown_charge_sensor }}:low={{ ups_shutdown_min_charge }}%:command=/etc/sensorsd/ups_low_battery %x.%t%n %l %2
+hw.sensors.{{ ups_shutdown_sensor_dev }}.{{ ups_shutdown_ac_sensor }}:low=1:command=/etc/sensorsd/ups_low_battery %x.%t%n %l %2

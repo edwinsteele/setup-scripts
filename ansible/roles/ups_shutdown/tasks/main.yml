@@ -1,0 +1,57 @@
+---
+- name: Read the UPS's upd sensors
+  ansible.builtin.command: "sysctl hw.sensors.{{ ups_shutdown_sensor_dev }}"
+  register: ups_shutdown_sensors
+  changed_when: false
+
+# sensorsd.conf addresses sensors by index; make sure those indices still
+# mean what the config assumes before relying on them for a shutdown.
+- name: Check upd sensor layout matches the configured indices
+  ansible.builtin.assert:
+    that:
+      - >-
+        ups_shutdown_sensors.stdout_lines
+        | select('match', 'hw\.sensors\.' ~ ups_shutdown_sensor_dev ~ '\.'
+                 ~ ups_shutdown_ac_sensor ~ '=.*\(ACPresent\)')
+        | list | length == 1
+      - >-
+        ups_shutdown_sensors.stdout_lines
+        | select('match', 'hw\.sensors\.' ~ ups_shutdown_sensor_dev ~ '\.'
+                 ~ ups_shutdown_charge_sensor ~ '=.*\(RemainingCapacity\)')
+        | list | length == 1
+    fail_msg: >-
+      hw.sensors.{{ ups_shutdown_sensor_dev }} doesn't have ACPresent at
+      {{ ups_shutdown_ac_sensor }} and RemainingCapacity at
+      {{ ups_shutdown_charge_sensor }} (is the UPS plugged in?). Got:
+      {{ ups_shutdown_sensors.stdout }}
+
+- name: Create /etc/sensorsd
+  ansible.builtin.file:
+    path: /etc/sensorsd
+    state: directory
+    owner: root
+    group: wheel
+    mode: "0755"
+
+- name: Install the low-battery shutdown script
+  ansible.builtin.template:
+    src: ups_low_battery.j2
+    dest: /etc/sensorsd/ups_low_battery
+    owner: root
+    group: wheel
+    mode: "0755"
+
+- name: Configure sensorsd
+  ansible.builtin.template:
+    src: sensorsd.conf.j2
+    dest: /etc/sensorsd.conf
+    owner: root
+    group: wheel
+    mode: "0644"
+  notify: Restart sensorsd
+
+- name: Enable and start sensorsd
+  ansible.builtin.service:
+    name: sensorsd
+    state: started
+    enabled: true

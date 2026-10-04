@@ -1,0 +1,5 @@
+---
+- name: Restart sensorsd
+  ansible.builtin.service:
+    name: sensorsd
+    state: restarted

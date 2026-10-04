@@ -1,0 +1,37 @@
+#!/bin/sh
+# Managed by ansible - roles/ups_shutdown
+# Run by sensorsd(8) on any state change of the UPS's AC-presence or
+# battery-charge sensor (see /etc/sensorsd.conf). Arguments are only used
+# for logging - the decision is made from live readings, since sensorsd
+# also fires on startup and on recovery.
+
+dev={{ ups_shutdown_sensor_dev }}
+min_charge={{ ups_shutdown_min_charge }}
+
+# sysctl exits 0 even when the device is missing, so test for output.
+sensors=$(sysctl hw.sensors.$dev 2>/dev/null)
+if [ -z "$sensors" ]; then
+	logger -p daemon.warning -t ups_shutdown \
+	    "triggered ($*) but hw.sensors.$dev is gone; no action"
+	exit 0
+fi
+
+# Match by upd(4)'s description rather than sensor index.
+ac=$(echo "$sensors" | sed -nE 's/^[^=]*=(On|Off) \(ACPresent\).*/\1/p')
+charge=$(echo "$sensors" | \
+    sed -nE 's/^[^=]*=([0-9]+)(\.[0-9]+)?% \(RemainingCapacity\).*/\1/p')
+
+if [ -z "$ac" ] || [ -z "$charge" ]; then
+	logger -p daemon.warning -t ups_shutdown \
+	    "triggered ($*) but couldn't read ACPresent/RemainingCapacity; no action"
+	exit 0
+fi
+
+if [ "$ac" = Off ] && [ "$charge" -lt "$min_charge" ]; then
+	logger -p daemon.crit -t ups_shutdown \
+	    "on battery at ${charge}% (< ${min_charge}%); powering off"
+	exec /sbin/shutdown -p now "UPS on battery at ${charge}%"
+fi
+
+logger -p daemon.notice -t ups_shutdown \
+    "state change ($*): AC $ac, charge ${charge}%; no action"

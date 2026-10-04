@@ -38,6 +38,7 @@
     - { role: firewall, tags: firewall }
     - { role: vpn_client, tags: vpn_client }
     - { role: pxe_install, tags: pxe_install }
+    - { role: ups_shutdown, tags: ups_shutdown }
   vars_files:
     - /Users/esteele/Code/local_setup-scripts/ansible/roles/firewall/vars/private_vars.yml
     - /Users/esteele/Code/local_setup-scripts/ansible/roles/firewall/vars/local_address_vars.yml
