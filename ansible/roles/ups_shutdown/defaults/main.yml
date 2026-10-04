@@ -10,10 +10,11 @@ ups_shutdown_sensor_dev: upd0
 ups_shutdown_ac_sensor: indicator2
 ups_shutdown_charge_sensor: percent0
 
-# Power off once the UPS is on battery and charge falls below this. The
-# UPS's own RunTimeToEmpty read ~45-50 minutes on full charge (2026-10-05)
-# whether load showed 1% or 10%, so it doesn't track this load and is
-# probably pessimistic. Even taken at face value, 30% leaves well over the
-# minute or so a clean halt needs, with margin for an ageing battery's
-# non-linear fall-off.
-ups_shutdown_min_charge: 30
+# Power off once the UPS is on battery and charge falls below this - not
+# when mains first fails; the firewall should ride out as much of an
+# outage as the battery allows. The UPS's own RunTimeToEmpty read ~45-50
+# minutes on full charge (2026-10-05) whether load showed 1% or 10%, so it
+# doesn't track this load and is probably pessimistic. Even taken at face
+# value, 10% is ~4-5 minutes, against the ~1 minute sensorsd takes to
+# confirm the reading plus a few seconds for the halt itself.
+ups_shutdown_min_charge: 10

@@ -2,7 +2,9 @@
 
 Powers the firewall off cleanly when its UPS (a CyberPower BR700ELCD, same
 model as viking's - see `roles/nut_ups`) is on battery and charge drops
-below `ups_shutdown_min_charge` (default 30%). Uses only OpenBSD base:
+below `ups_shutdown_min_charge` (default 10%). Losing mains on its own does
+nothing beyond a log line - the firewall keeps running on battery until
+the charge gets that low. Uses only OpenBSD base:
 the kernel's `upd(4)` driver exposes the UPS as `hw.sensors.upd0.*`, and
 `sensorsd(8)` runs `/etc/sensorsd/ups_low_battery` when those sensors
 change.
