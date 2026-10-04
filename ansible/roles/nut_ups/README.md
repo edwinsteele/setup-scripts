@@ -6,6 +6,10 @@ BR700ELCD over USB. Gives Home Assistant battery charge/load/runtime and
 line-status data, and triggers a clean shutdown of viking itself if the
 UPS reports low battery during an outage.
 
+The firewall has the same UPS model but doesn't use this role - see
+`roles/ups_shutdown` for why it uses OpenBSD's `upd(4)` + `sensorsd(8)`
+instead.
+
 ## USB hub power history
 
 The UPS is plugged into a VIA VL812 USB hub, shared with the EyeTV
