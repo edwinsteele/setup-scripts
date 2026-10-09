@@ -156,9 +156,6 @@ cd ansible
 ansible-playbook -u root -i inventory.yml site.yml --limit viking.home.wordspeak.org
 ```
 
-(or `--limit 192.168.20.200` until the DHCP/unbound change above has been
-applied to the gateway and `viking.home.wordspeak.org` resolves).
-
 This also applies `samba_timemachine` and `samba_media`, since `site.yml`
 lists all three roles together for `rocky_9`.
 

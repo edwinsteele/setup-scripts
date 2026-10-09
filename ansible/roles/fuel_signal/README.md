@@ -268,7 +268,8 @@ whenever you choose - not scheduled, not run by `fuelsignal-deploy`.
 `fuel_signal_workbench_host` defaults to `127.0.0.1` (fail-safe: a host
 that forgets to override this just isn't reachable over LAN, rather than
 accidentally exposed) and is overridden for `viking` in
-`host_vars/192.168.20.200.yml`. A hard `assert` in `tasks/main.yml` refuses
+`host_vars/192.168.20.200.yml` (which `host_vars/viking.home.wordspeak.org.yml`
+symlinks to, matching the inventory name). A hard `assert` in `tasks/main.yml` refuses
 to template a `0.0.0.0` bind. Firewalld is opened for
 `fuel_signal_workbench_port` (default `5000/tcp`) on this box only -
 there's no reverse proxy or auth in front of the workbench, so keep it
@@ -278,8 +279,5 @@ LAN-only.
 
 ```bash
 cd ansible
-ansible-playbook -u root -i inventory.yml site.yml --limit 192.168.20.200
+ansible-playbook -u root -i inventory.yml site.yml --limit viking.home.wordspeak.org
 ```
-
-(by IP rather than `viking.home.wordspeak.org`, same caveat as
-`samba_timemachine`'s README, until the static-IP/DNS change lands).
