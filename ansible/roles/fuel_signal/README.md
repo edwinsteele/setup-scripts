@@ -7,7 +7,8 @@ else lives on that box) as a dedicated `fuelsignal` system account, with:
 - a daily `fuelsignal-daily-update.timer` that pulls, syncs, loads today's
   already-committed snapshot CSV, then refreshes the derived tables the
   workbench reads (`daily_prices`, `station_class`/`classification_summary`,
-  `lga_leadership`), and
+  `lga_leadership`), then sends the app its nightly APNs push (see
+  [Nightly push](#nightly-push)), and
 - an always-on `fuelsignal-workbench.service` running the Flask analysis
   workbench, bound to `viking`'s LAN address (never `0.0.0.0`).
 
@@ -218,8 +219,9 @@ growing slowly as history lengthens - not a problem today for a
 once-daily oneshot unit, but worth watching.
 
 This also means the role no longer needs any FuelCheck credentials at all -
-no `/etc/fuelsignal/fuelsignal.env`, no `EnvironmentFile=` on either systemd
-unit, no private-vars wiring in `site.yml`. The private `local_setup-scripts`
+no `/etc/fuelsignal/fuelsignal.env`, no private-vars wiring in `site.yml`.
+(The daily-update unit's only `EnvironmentFile=` is the APNs one, see
+[Nightly push](#nightly-push).) The private `local_setup-scripts`
 repo's `roles/fuel_signal/vars/private_vars.yml` (which held those
 credentials) has been removed there too - it was never committed, just an
 untracked file on disk.
@@ -230,6 +232,56 @@ its own from scratch (`history` → `db` → `fill` → `classify` →
 `lga_leadership`, run once by hand as `fuelsignal` after the first
 `ansible-playbook` run). `data/snapshots/**/*.csv` is tracked in git, so
 that part arrives free with every `git pull`/clone.
+
+## Nightly push
+
+The last step of `fuelsignal-daily-update.sh` sends one APNs background
+push to every registered device, via upstream's
+`python -m fuel_signal.send_push`. The push carries no data; it wakes the
+app to make its usual `/api/v1` reads over the LAN. What is sent and how
+APNs responses are handled is upstream's contract (fuel-price-signal's
+`docs/api-contract.md` § Nightly push). This role decides when it runs and
+supplies the credentials.
+
+**When:** after the warm-up loop, and only once
+`GET /api/v1/recommendation` answers 200 (`curl -f`, 30s). The warm-up
+pages and `/api/v1` share the workbench's single SQLite connection, so a
+push sent before warm-up would leave the phone's ~10s background fetch
+queued behind a cold query that can take minutes.
+
+| End of the night | Result |
+|---|---|
+| `fuel_signal_apns_key_id` empty (the default) | No push; logs `APNs push not configured (fuel_signal_apns_key_id unset) - skipping`; exit status unaffected |
+| Configured, `/api/v1/recommendation` returns 200 | Runs `send_push`; its exit status is the unit's |
+| Configured, `/healthz` never answered or the 200 check fails | No push; warning-priority journal line; exit status unaffected |
+| An earlier step failed | Never reached (`set -e`): no push after a failed run |
+| Snapshot wait timed out | Pushes as normal; `freshness` shows the staleness |
+
+**Credentials:** with `fuel_signal_apns_key_id` set in host_vars, the role
+copies `fuel_signal_apns_key_src` (the `.p8` from the private
+`local_setup-scripts` overlay, same pattern as `mail_sender_secrets_file`)
+to `{{ fuel_signal_base_dir }}/apns/AuthKey_<Key ID>.p8` (directory 0700,
+file 0600, owned by `{{ fuel_signal_user }}`), and templates
+`/etc/sysconfig/fuelsignal-daily-update` (0600, root), which the unit loads
+with `EnvironmentFile=-` and which holds `APNS_KEY_PATH`, `APNS_KEY_ID`,
+`APNS_TEAM_ID`, `APNS_TOPIC` and `APNS_ENV`, never the key itself. With the
+Key ID empty the role installs neither, and removes both if a previous run
+had. `fuel_signal_apns_env` defaults to `sandbox`, because the app is
+installed by development-signed builds; set it to `production` per host
+only on moving to TestFlight or the App Store. APNs rejects a token from the
+other environment, which `send_push` logs as an error.
+
+**Network:** outbound HTTPS to `api.sandbox.push.apple.com:443` (or
+`api.push.apple.com` for production), nothing inbound. This repo gives
+viking no outbound firewalld rules (its zones filter incoming traffic), and
+the script's GitHub pulls already go out the same way, so firewalld needs
+no change.
+
+To see whether last night's push went out:
+
+```bash
+ssh viking.home.wordspeak.org journalctl -u fuelsignal-daily-update.service --since yesterday --grep APNs
+```
 
 ## Trained models: pulled from a GitHub Release, not synced from the Mac
 

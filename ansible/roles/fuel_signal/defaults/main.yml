@@ -81,3 +81,44 @@ fuel_signal_workbench_warmup_paths:
   - /lead-lag
   - /classification-health
   - /features
+
+# Nightly APNs background push (fuel_signal.send_push), sent at the end of
+# fuelsignal-daily-update.sh - see README's "Nightly push" section and
+# fuel-price-signal's docs/api-contract.md § Nightly push.
+#
+# The APNs auth key's Key ID (10 characters, shown in the Apple Developer
+# console next to the key). Empty means push isn't configured: the role
+# installs no key and no EnvironmentFile (removing any left from before),
+# and the script logs "APNs push not configured" and skips the push. Set it
+# per host in host_vars once the key exists.
+fuel_signal_apns_key_id: ""
+
+# Controller-side path to the .p8 auth key, in the private
+# local_setup-scripts overlay - same pattern as mail_sender_secrets_file.
+# Only read when fuel_signal_apns_key_id is set. Never commit a key to this
+# public repo.
+fuel_signal_apns_key_src: /Users/esteele/Code/local_setup-scripts/ansible/roles/fuel_signal/files/AuthKey.p8
+
+# Where the key lands on the host: a 0700 directory and a 0600 file, both
+# owned by fuel_signal_user, which runs send_push. Named after the Key ID,
+# as Apple names the download.
+fuel_signal_apns_dir: "{{ fuel_signal_base_dir }}/apns"
+fuel_signal_apns_key_path: "{{ fuel_signal_apns_dir }}/AuthKey_{{ fuel_signal_apns_key_id }}.p8"
+
+# Apple Developer Team ID that owns the key (Edwin Steele Developer Team).
+fuel_signal_apns_team_id: R5RY6N3363
+
+# The app's bundle ID - APNs routes the push to this app.
+fuel_signal_apns_topic: com.edwinsteele.FuelPriceSignal
+
+# "sandbox" or "production". Sandbox because the app is installed by
+# development-signed builds (`make deploy` in fuel-price-signal-app, Release
+# configuration included), whose tokens APNs only accepts on its sandbox
+# host. Switch to "production" per host only on moving to TestFlight or the
+# App Store.
+fuel_signal_apns_env: sandbox
+
+# systemd EnvironmentFile= for fuelsignal-daily-update.service, carrying the
+# APNS_* settings send_push reads. Holds the key's path and ID, never the key
+# itself.
+fuel_signal_daily_update_env_file: /etc/sysconfig/fuelsignal-daily-update
