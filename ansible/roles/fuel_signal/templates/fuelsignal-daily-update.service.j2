@@ -1,6 +1,6 @@
 # Managed by ansible - roles/fuel_signal
 [Unit]
-Description=fuel-price-signal: daily git pull, DB update, classify, LGA leadership, workbench restart
+Description=fuel-price-signal: daily git pull, DB update, classify, LGA leadership, workbench restart, APNs push
 Wants=network-online.target
 After=network-online.target
 
@@ -14,4 +14,8 @@ After=network-online.target
 # timeout_seconds), and per systemd.service(5) Type=oneshot has its start
 # timeout disabled by default and RuntimeMaxSec= doesn't apply to it.
 Type=oneshot
+# APNS_* settings for the nightly push, installed only when
+# fuel_signal_apns_key_id is set. The leading "-" makes a missing file not
+# an error (systemd.exec(5)), so an unconfigured host just skips the push.
+EnvironmentFile=-{{ fuel_signal_daily_update_env_file }}
 ExecStart=/usr/local/bin/fuelsignal-daily-update.sh

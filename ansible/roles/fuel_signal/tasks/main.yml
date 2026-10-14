@@ -111,6 +111,53 @@
     mode: "0755"
   become: true
 
+# Nightly APNs push credentials (README's "Nightly push"). Only with a Key ID
+# set: before that, fuel_signal_apns_key_src may not exist on the
+# controller, and the script skips the push when the EnvironmentFile is
+# absent. diff: false keeps the key out of --diff output.
+- name: Create the APNs key directory
+  ansible.builtin.file:
+    path: "{{ fuel_signal_apns_dir }}"
+    state: directory
+    owner: "{{ fuel_signal_user }}"
+    group: "{{ fuel_signal_group }}"
+    mode: "0700"
+  become: true
+  when: fuel_signal_apns_key_id | length > 0
+
+- name: Install the APNs auth key
+  ansible.builtin.copy:
+    src: "{{ fuel_signal_apns_key_src }}"
+    dest: "{{ fuel_signal_apns_key_path }}"
+    owner: "{{ fuel_signal_user }}"
+    group: "{{ fuel_signal_group }}"
+    mode: "0600"
+  become: true
+  diff: false
+  when: fuel_signal_apns_key_id | length > 0
+
+- name: Template the daily-update EnvironmentFile (APNs settings)
+  ansible.builtin.template:
+    src: fuelsignal-daily-update.env.j2
+    dest: "{{ fuel_signal_daily_update_env_file }}"
+    owner: root
+    group: root
+    mode: "0600"
+  become: true
+  when: fuel_signal_apns_key_id | length > 0
+
+# Unsetting the Key ID turns the push back off: remove what the tasks above
+# installed, so the script's "not configured" skip matches host_vars.
+- name: Remove the APNs EnvironmentFile and key when push isn't configured
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  become: true
+  loop:
+    - "{{ fuel_signal_daily_update_env_file }}"
+    - "{{ fuel_signal_apns_dir }}"
+  when: fuel_signal_apns_key_id | length == 0
+
 - name: Template the daily-update systemd service and timer
   ansible.builtin.template:
     src: "{{ item }}.j2"

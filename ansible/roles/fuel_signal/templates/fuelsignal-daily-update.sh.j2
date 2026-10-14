@@ -14,8 +14,19 @@
 # *code* live (see fuelsignal-deploy.sh.j2's own comment: that script
 # exists for an on-demand restart, this one now means the workbench never
 # runs code more than a day stale) - and warms its key pages so the first
-# real visitor isn't the one paying for cold-start latency. All output
-# lands in the journal via this unit's stdout/stderr.
+# real visitor isn't the one paying for cold-start latency. Last, once
+# /api/v1/recommendation answers 200, it sends the nightly APNs background
+# push (fuel_signal.send_push) that wakes the app to fetch the new cache -
+# skipped, with a log line, until fuel_signal_apns_key_id is set. All
+# output lands in the journal via this unit's stdout/stderr.
+#
+# The push comes after warm-up, not before it: the warm-up pages and
+# /api/v1 share the workbench's single SQLite connection, which runs one
+# query at a time, and a cold warm-up query can take minutes. Pushing first
+# would leave the phone's background fetch (about 10s) queued behind it
+# and timing out. set -e also means a failed step never reaches the push,
+# while a night whose snapshot never arrived still pushes (the app sees
+# the staleness in `freshness`).
 #
 # fill alone isn't enough for the always-on workbench: /classification-health
 # reads station_class/classification_summary and /lead-lag reads
@@ -126,4 +137,33 @@ else
         -o /dev/null -w 'warmed %{url_effective} in %{time_total}s (HTTP %{http_code})\n' \
         "$base{{ path }}" || echo "Warm-up request to {{ path }} did not complete within {{ fuel_signal_workbench_warmup_timeout_seconds }}s" >&2
 {% endfor %}
+fi
+
+# Nightly APNs background push: wakes the app to fetch the cache just
+# regenerated above (fuel-price-signal docs/api-contract.md § Nightly push).
+# Deliberately last, after warm-up rather than before it - see the header
+# comment. The APNS_* variables come from this unit's EnvironmentFile=,
+# which the role only installs once fuel_signal_apns_key_id is set.
+#
+# The 200 gate runs even when /healthz never answered (ready=0): then it
+# fails and the push is skipped, rather than waking the phone to a server
+# that isn't there. It's in an `elif`, so its failure doesn't trip set -e;
+# send_push itself isn't, so its exit status becomes the unit's. Each
+# APNS_* variable is passed to env explicitly rather than depending on which
+# of this script's variables runuser keeps; "${…:-}" so an EnvironmentFile
+# missing one reaches send_push's own "Missing APNs configuration" error
+# rather than aborting on set -u.
+if [ -z "${APNS_KEY_ID:-}" ]; then
+    echo "APNs push not configured (fuel_signal_apns_key_id unset) - skipping"
+elif curl -fsS --max-time 30 -o /dev/null "$base/api/v1/recommendation"; then
+    echo "Sending nightly APNs push (APNS_ENV=${APNS_ENV:-})"
+    runuser -u {{ fuel_signal_user }} -- env UV_PYTHON_PREFERENCE=only-system \
+        APNS_KEY_PATH="${APNS_KEY_PATH:-}" \
+        APNS_KEY_ID="${APNS_KEY_ID:-}" \
+        APNS_TEAM_ID="${APNS_TEAM_ID:-}" \
+        APNS_TOPIC="${APNS_TOPIC:-}" \
+        APNS_ENV="${APNS_ENV:-}" \
+        /usr/local/bin/uv run --directory "$repo" python -m fuel_signal.send_push
+else
+    echo "<4>/api/v1/recommendation did not answer 200 - skipping APNs push" >&2
 fi
