@@ -1,0 +1,22 @@
+---
+# Upstream's own image, built by their GitHub Actions on every release tag.
+# Pinned deliberately: ":latest" (and ":main") are rebuilt on every push to
+# their main branch, not just on releases, so tracking either would deploy
+# unreleased code. Upgrading is a git commit here - see the role README.
+gitdeck_image: ghcr.io/debba/gitdeck:v1.0.9
+
+# Upstream's default port. Published on all interfaces (LAN and tailnet)
+# and also fronted by roles/reverse_proxy.
+gitdeck_port: 8765
+
+# Holds the GitHub token from the in-app sign-in, plus gitdeck's on-disk
+# API cache and snapshots. Mounted at the image's ~/.gitdeck.
+gitdeck_data_path: /srv/gitdeck
+
+# Client ID of a GitHub OAuth App with Device Flow enabled (see the role
+# README). Not a secret - Device Flow uses no client secret. While it's
+# empty the dashboard runs but can't sign in to GitHub.
+gitdeck_github_client_id: ""
+
+# Matches home_assistant_timezone and tvheadend_timezone.
+gitdeck_timezone: Australia/Sydney

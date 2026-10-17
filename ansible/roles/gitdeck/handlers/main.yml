@@ -1,0 +1,7 @@
+---
+- name: Restart Gitdeck
+  ansible.builtin.systemd:
+    daemon_reload: true
+    name: gitdeck.service
+    state: restarted
+  become: true

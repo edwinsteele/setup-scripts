@@ -1,0 +1,28 @@
+# Managed by ansible - roles/gitdeck
+# Quadlet unit - podman-system-generator turns this into gitdeck.service on
+# `systemctl daemon-reload`, same as roles/tvheadend.
+[Unit]
+Description=Gitdeck
+Wants=network-online.target
+After=network-online.target
+
+[Container]
+Image={{ gitdeck_image }}
+ContainerName=gitdeck
+# The image already sets HOST=0.0.0.0 and PORT=8765 inside the container.
+PublishPort={{ gitdeck_port }}:8765/tcp
+# The image's entrypoint starts as root, chowns this to its "node" user
+# (UID 1000 - esteele's UID on the host, since this is rootful Podman) and
+# then drops to that user to run the server.
+Volume={{ gitdeck_data_path }}:/home/node/.gitdeck:rw,Z
+Environment=TZ={{ gitdeck_timezone }}
+{% if gitdeck_github_client_id %}
+Environment=GITHUB_CLIENT_ID={{ gitdeck_github_client_id }}
+{% endif %}
+
+[Service]
+Restart=always
+TimeoutStartSec=300
+
+[Install]
+WantedBy=multi-user.target

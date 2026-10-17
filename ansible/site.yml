@@ -55,6 +55,7 @@
     - fuel_signal
     - dvb_tuner
     - tvheadend
+    - { role: gitdeck, tags: gitdeck }
     - reverse_proxy
     - { role: nut_ups, tags: nut_ups }
     - { role: tailscale, tags: tailscale }

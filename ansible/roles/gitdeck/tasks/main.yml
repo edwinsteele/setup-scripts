@@ -1,0 +1,39 @@
+---
+- name: Install podman
+  ansible.builtin.dnf:
+    name: podman
+    state: present
+  become: true
+
+- name: Create Gitdeck data directory
+  ansible.builtin.file:
+    path: "{{ gitdeck_data_path }}"
+    state: directory
+    mode: 0755
+  become: true
+
+- name: Open firewalld port for the Gitdeck web UI
+  ansible.posix.firewalld:
+    port: "{{ gitdeck_port }}/tcp"
+    permanent: true
+    immediate: true
+    state: enabled
+  become: true
+
+- name: Template Gitdeck Quadlet unit
+  ansible.builtin.template:
+    src: gitdeck.container.j2
+    dest: /etc/containers/systemd/gitdeck.container
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+  notify: Restart Gitdeck
+
+- name: Reload systemd, enable and start Gitdeck
+  ansible.builtin.systemd:
+    daemon_reload: true
+    name: gitdeck.service
+    state: started
+    enabled: true
+  become: true

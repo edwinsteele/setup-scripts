@@ -19,3 +19,6 @@ reverse_proxy_services:
   - name: Tvheadend
     hostname: tv.home.wordspeak.org
     upstream: "127.0.0.1:{{ tvheadend_http_port }}"
+  - name: Gitdeck
+    hostname: gitdeck.home.wordspeak.org
+    upstream: "127.0.0.1:{{ gitdeck_port }}"

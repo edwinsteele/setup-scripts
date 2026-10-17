@@ -9,6 +9,7 @@ friendlier hostname instead of `viking.home.wordspeak.org:<port>`:
 - `fuel.home.wordspeak.org` -> fuel-price-signal workbench
   (`fuel_signal_workbench_host:fuel_signal_workbench_port`)
 - `tv.home.wordspeak.org` -> Tvheadend (`127.0.0.1:{{ tvheadend_http_port }}`)
+- `gitdeck.home.wordspeak.org` -> Gitdeck (`127.0.0.1:{{ gitdeck_port }}`)
 
 Each of those services keeps its own directly-reachable port and firewalld
 rule (untouched by this role) - this just adds nginx in front on port 80.
