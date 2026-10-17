@@ -1,0 +1,4 @@
+---
+# Tailscale's own repo for RHEL 9 (Rocky 9 uses it as-is). Mirrors
+# https://pkgs.tailscale.com/stable/rhel/9/tailscale.repo.
+tailscale_repo_base: https://pkgs.tailscale.com/stable/rhel/9
