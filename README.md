@@ -38,6 +38,11 @@ ansible-playbook -u root -i inventory.yml site.yml --limit <limit-criteria>
 `<limit-criteria>` can be an IP (`192.168.56.101`), a group (`webservers`),
 or a combination (`webservers:&192.168.56.101`).
 
+To apply a single role to a host that's already provisioned, add
+`--tags <role>` (e.g. `--tags fuel_signal --limit viking.home.wordspeak.org`).
+Every role in the `rocky_9` plays has a tag matching its name; on the
+OpenBSD plays only some roles do (see `ansible/site.yml`).
+
 > OpenBSD hosts don't have a python interpreter until the `common` play
 > installs one, so ansible connectivity can't be tested before that runs.
 

@@ -334,3 +334,14 @@ LAN-only.
 cd ansible
 ansible-playbook -u root -i inventory.yml site.yml --limit viking.home.wordspeak.org
 ```
+
+That applies every role on viking. To apply only this role:
+
+```bash
+ansible-playbook -u root -i inventory.yml site.yml --tags fuel_signal \
+  --limit viking.home.wordspeak.org
+```
+
+Add `reverse_proxy` to `--tags` if `fuel_signal_workbench_host` or
+`fuel_signal_workbench_port` changed, since the proxy's upstream is built
+from them.
