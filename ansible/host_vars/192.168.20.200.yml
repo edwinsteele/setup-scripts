@@ -8,3 +8,6 @@ fuel_signal_workbench_host: 192.168.20.200
 #  README. Not a secret: Device Flow has no client secret.
 gitdeck_github_client_id: Ov23lihdiyTmoOa9ttvk
 fuel_signal_apns_key_id: JRGY3Q6GB4
+# The iPhone runs the TestFlight build, whose push tokens APNs only accepts on
+#  its production host; the key above is also Production-only.
+fuel_signal_apns_env: production
