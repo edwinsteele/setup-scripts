@@ -7,3 +7,4 @@ fuel_signal_workbench_host: 192.168.20.200
 # Client ID of the GitHub OAuth App for gitdeck (Device Flow) - see roles/gitdeck's
 #  README. Not a secret: Device Flow has no client secret.
 gitdeck_github_client_id: Ov23lihdiyTmoOa9ttvk
+fuel_signal_apns_key_id: JRGY3Q6GB4
