@@ -95,9 +95,10 @@ fuel_signal_apns_key_id: ""
 
 # Controller-side path to the .p8 auth key, in the private
 # local_setup-scripts overlay - same pattern as mail_sender_secrets_file.
-# Only read when fuel_signal_apns_key_id is set. Never commit a key to this
-# public repo.
-fuel_signal_apns_key_src: /Users/esteele/Code/local_setup-scripts/ansible/roles/fuel_signal/files/AuthKey.p8
+# Kept under the name Apple gives the download (AuthKey_<Key ID>.p8), so a
+# rotated key can sit beside the old one. Only read when
+# fuel_signal_apns_key_id is set. Never commit a key to this public repo.
+fuel_signal_apns_key_src: "/Users/esteele/Code/local_setup-scripts/ansible/roles/fuel_signal/files/AuthKey_{{ fuel_signal_apns_key_id }}.p8"
 
 # Where the key lands on the host: a 0700 directory and a 0600 file, both
 # owned by fuel_signal_user, which runs send_push. Named after the Key ID,

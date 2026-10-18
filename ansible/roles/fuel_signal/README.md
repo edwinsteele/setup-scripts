@@ -259,8 +259,9 @@ queued behind a cold query that can take minutes.
 
 **Credentials:** with `fuel_signal_apns_key_id` set in host_vars, the role
 copies `fuel_signal_apns_key_src` (the `.p8` from the private
-`local_setup-scripts` overlay, same pattern as `mail_sender_secrets_file`)
-to `{{ fuel_signal_base_dir }}/apns/AuthKey_<Key ID>.p8` (directory 0700,
+`local_setup-scripts` overlay, same pattern as `mail_sender_secrets_file`,
+kept under Apple's download name `AuthKey_<Key ID>.p8` in that overlay's
+`ansible/roles/fuel_signal/files/`) to `{{ fuel_signal_base_dir }}/apns/AuthKey_<Key ID>.p8` (directory 0700,
 file 0600, owned by `{{ fuel_signal_user }}`), and templates
 `/etc/sysconfig/fuelsignal-daily-update` (0600, root), which the unit loads
 with `EnvironmentFile=-` and which holds `APNS_KEY_PATH`, `APNS_KEY_ID`,
