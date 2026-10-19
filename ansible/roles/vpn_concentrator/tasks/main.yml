@@ -1,30 +1,53 @@
 ---
-- name: Enable ipv4 ip forwarding
-  ansible.builtin.lineinfile:
-    dest: /etc/sysctl.conf
-    state: present
-    create: true
-    line: "net.inet.ip.forwarding=1"
-  notify: Enable ipv4 forwarding now via sysctl
-
-- name: Copy iked.conf
-  ansible.builtin.copy:
-    src: iked.conf
-    dest: /etc/iked.conf
-    mode: 0600
-
-# For reference:
-#  ikectl ca vpn create
-#    (creates files under /etc/ssl/vpn)
-#  ikeca vpn install
-#    certificate for CA 'vpn' installed into /etc/iked/ca/ca.crt
-#    CRL for CA 'vpn' installed to /etc/iked/crls/ca.crl
-#  ikectl ca vpn certificate vpn.wordspeak.org create
-#  ikectl ca vpn certificate vpn.wordspeak.org install
-
-- name: Enable and start iked
+# Tailscale replaced the IPsec VPN, so this role now only removes it.
+#  Delete the role (and its site.yml entry) once it has run on www.
+# /etc/iked itself, its subdirectories, private/local.key and pubkeys/ are
+#  base-system (rc regenerates local.key at boot), so they stay.
+- name: Stop and disable iked
   ansible.builtin.service:
     name: iked
-    state: started
-    enabled: true
+    state: stopped
+    enabled: false
 
+- name: Remove iked.conf
+  ansible.builtin.file:
+    path: /etc/iked.conf
+    state: absent
+
+- name: Stop enabling ipv4 ip forwarding at boot
+  ansible.builtin.lineinfile:
+    dest: /etc/sysctl.conf
+    state: absent
+    line: "net.inet.ip.forwarding=1"
+  notify: Disable ipv4 forwarding now via sysctl
+
+- name: Remove the ikectl 'vpn' CA directory
+  ansible.builtin.file:
+    path: /etc/ssl/vpn
+    state: absent
+
+- name: Find iked CA, certificate and CRL files
+  ansible.builtin.find:
+    paths:
+      - /etc/iked/ca
+      - /etc/iked/certs
+      - /etc/iked/crls
+    file_type: any
+    hidden: true
+  register: vpn_concentrator_iked_pki_files
+
+- name: Find iked private keys other than local.key
+  ansible.builtin.find:
+    paths: /etc/iked/private
+    excludes: local.key
+    file_type: any
+    hidden: true
+  register: vpn_concentrator_iked_private_files
+
+- name: Remove iked CA, certificate, CRL and private key files
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+  loop: "{{ vpn_concentrator_iked_pki_files.files + vpn_concentrator_iked_private_files.files }}"
+  loop_control:
+    label: "{{ item.path }}"
