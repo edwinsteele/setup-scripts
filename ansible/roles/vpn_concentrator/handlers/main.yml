@@ -1,4 +1,0 @@
----
-- name: Disable ipv4 forwarding now via sysctl
-  ansible.builtin.command: sysctl net.inet.ip.forwarding=0
-  changed_when: true

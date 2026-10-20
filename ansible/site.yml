@@ -26,17 +26,12 @@
   roles:
     - wordspeak_site
 
-- hosts: wordspeak
-  roles:
-    - vpn_concentrator
-
 - hosts: firewalls
   become: true
   become_method: community.general.doas
   become_user: root
   roles:
     - { role: firewall, tags: firewall }
-    - { role: vpn_client, tags: vpn_client }
     - { role: pxe_install, tags: pxe_install }
     - { role: ups_shutdown, tags: ups_shutdown }
   vars_files:
